@@ -5,6 +5,22 @@ const mEnUS = {
   loading: 'Loading...',
   VerifyingUserInfo: 'Verifying...',
   Logout: 'Logout',
+  Upload: 'Upload',
+  Title: 'Title',
+  TitleRequired: 'Title Required',
+  ContentRequired: 'Content Required',
+  Next: 'Next',
+  SaveDoc: 'Save Document',
+  HeaderImg: 'Header Image',
+  HeaderImgRequired: 'Header Image Required',
+  Tags: 'Tags',
+  IsPublic: 'Public Visit',
+  InputAndPressEnter: 'Input and press enter to save tag',
+  Save: 'Save',
+  Cancel: 'Cancel',
+  NewDoc: 'New',
+  AllDoc: 'All',
+  iWiki: 'iWiki',
 };
 
 export default mEnUS;

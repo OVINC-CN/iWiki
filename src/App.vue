@@ -18,7 +18,7 @@
                 id="app-menu-logo"
               >
                 <div>
-                  OVINC
+                  iWiki
                 </div>
               </a-menu-item>
               <a-menu-item
@@ -63,9 +63,7 @@
         </a-layout-header>
         <a-layout-content>
           <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
+            <component :is="Component" />
           </router-view>
         </a-layout-content>
         <a-layout-footer id="app-footer">
@@ -90,15 +88,20 @@ import { getRUMConfigAPI } from './api/trace';
 const i18n = useI18n();
 
 // title
-const title = ref(i18n.t('OVINCCN'));
+const title = ref(i18n.t('iWiki'));
 document.title = title.value;
 
 // menu
 const menu = ref([
   {
     key: 'Home',
-    name: i18n.t('Home'),
+    name: i18n.t('AllDoc'),
     path_match: '/',
+  },
+  {
+    key: 'EditDoc',
+    name: i18n.t('NewDoc'),
+    path_match: '/doc/create',
   },
 ]);
 const route = useRoute();

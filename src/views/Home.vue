@@ -1,3 +1,14 @@
+<script setup>
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const i18n = useI18n();
+
+onMounted(() => {
+  document.title = `${i18n.t('AllDoc')} | ${i18n.t('iWiki')}`;
+});
+</script>
+
 <template>
   <a-space
     :fill="true"
@@ -13,9 +24,6 @@
     </a-space>
   </a-space>
 </template>
-
-<script setup>
-</script>
 
 <style scoped>
 #home {
