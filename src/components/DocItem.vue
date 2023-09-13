@@ -111,6 +111,8 @@ const showDoc = () => {
 <style scoped>
 .doc-item {
   border-radius: var(--border-radius-medium);
+  border: none;
+  box-shadow: 0 0 10px var(--color-neutral-2);
   overflow: hidden;
   width: 100%;
   margin: 0;
