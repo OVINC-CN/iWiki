@@ -89,6 +89,7 @@ const handleResize = () => {
     cardSpan.value = 24;
   }
 };
+onMounted(() => handleResize());
 onMounted(() => window.addEventListener('resize', () => handleResize()));
 onUnmounted(() => window.removeEventListener('resize', () => {}));
 
