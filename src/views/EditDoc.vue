@@ -8,6 +8,7 @@ import globalContext from '../context';
 import { createDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
 import { useRoute, useRouter } from 'vue-router';
 import { getUserInfoAPI } from '../api/user';
+import { listTagsAPI } from '../api/tag';
 
 // i18n
 const i18n = useI18n();
@@ -48,6 +49,13 @@ const toolbar = ref({
     },
   },
 });
+
+// tags
+const allTags = ref([]);
+const loadTags = () => {
+  listTagsAPI().then(res => allTags.value = res.data);
+};
+onMounted(() => loadTags());
 
 // doc info
 const docID = ref('');
@@ -224,12 +232,23 @@ onMounted(() => {
             field="tags"
             :label="$t('Tags')"
           >
-            <a-input-tag
+            <a-select
               v-model="formData.tags"
-              allow-clear
-              unique-value
               :placeholder="$t('InputAndPressEnter')"
-            />
+              multiple
+              allow-create
+              scrollbar
+              allow-clear
+              :disabled="loading"
+            >
+              <a-option
+                v-for="tag in allTags"
+                :key="tag"
+                :value="tag.name"
+              >
+                {{ tag.name }}
+              </a-option>
+            </a-select>
           </a-form-item>
           <a-form-item
             field="is_public"
