@@ -12,9 +12,14 @@ const routes = [
     component: () => import('../views/Login.vue'),
   },
   {
-    path: '/doc/create/',
+    path: '/new/',
+    name: 'NewDoc',
+    component: () => import('../views/EditDoc.vue'),
+  },
+  {
+    path: '/edit/:id/',
     name: 'EditDoc',
-    component: () => import('../views/Doc/EditDoc.vue'),
+    component: () => import('../views/EditDoc.vue'),
   },
   {
 

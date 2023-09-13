@@ -21,6 +21,7 @@ const mZhCN = {
   NewDoc: '新篇',
   AllDoc: '旧识',
   iWiki: 'iWiki',
+  SaveDocSuccess: '保存成功',
 };
 
 export default mZhCN;

@@ -61,10 +61,12 @@
             </a-space>
           </div>
         </a-layout-header>
-        <a-layout-content>
-          <router-view v-slot="{ Component }">
-            <component :is="Component" />
-          </router-view>
+        <a-layout-content id="app-content">
+          <div>
+            <router-view v-slot="{ Component }">
+              <component :is="Component" />
+            </router-view>
+          </div>
         </a-layout-content>
         <a-layout-footer id="app-footer">
           Copyright&nbsp;&copy;&nbsp;2022 - {{ currentYear }} OVINC-CN
@@ -99,9 +101,9 @@ const menu = ref([
     path_match: '/',
   },
   {
-    key: 'EditDoc',
+    key: 'NewDoc',
     name: i18n.t('NewDoc'),
-    path_match: '/doc/create',
+    path_match: '/new/',
   },
 ]);
 const route = useRoute();
@@ -160,11 +162,16 @@ onMounted(() => initRUM());
 #app-header {
   margin-bottom: 20px;
   border-bottom: 1px solid var(--color-border-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #app-header > div {
   display: flex;
   justify-content: space-around;
+  width: 100%;
+  max-width: 1600px;
 }
 
 #app-header-right {
@@ -204,5 +211,16 @@ onMounted(() => initRUM());
   border-top: 1px solid var(--color-border-1);
   color: var(--color-text-1);
   margin-top: 20px;
+}
+
+#app-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app-content > div {
+  max-width: 1600px;
+  width: 100%;
 }
 </style>

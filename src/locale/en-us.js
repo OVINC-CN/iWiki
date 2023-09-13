@@ -21,6 +21,7 @@ const mEnUS = {
   NewDoc: 'New',
   AllDoc: 'All',
   iWiki: 'iWiki',
+  SaveDocSuccess: 'Success',
 };
 
 export default mEnUS;

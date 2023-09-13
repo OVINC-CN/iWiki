@@ -1,24 +1,33 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { uploadFileAPI } from '../../api/cos';
+import { uploadFileAPI } from '../api/cos';
 import { Message } from '@arco-design/web-vue';
-import { handleLoading } from '../../utils/loading';
-import globalContext from '../../context';
-import { createDocAPI } from '../../api/doc';
+import { handleLoading } from '../utils/loading';
+import globalContext from '../context';
+import { createDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
+import { useRoute } from 'vue-router';
 
+// i18n
 const i18n = useI18n();
 
+// router
+const route = useRoute();
+
+// loading
 const loading = ref(false);
 
+// screen
+const smallScreenSize = ref(1000);
 const isSmallScreen = ref(false);
 onMounted(() => window.addEventListener('resize', () => {
-  isSmallScreen.value = window.innerWidth < 1200;
+  isSmallScreen.value = window.innerWidth < smallScreenSize.value;
 }));
-onMounted(() => isSmallScreen.value = window.innerWidth < 1200);
+onMounted(() => isSmallScreen.value = window.innerWidth < smallScreenSize.value);
 
+// editor config
 const leftToolBar = ref('undo redo clear | upload');
-const rightToolBar = computed(() => (isSmallScreen.value ? 'preview toc sync-scroll fullscreen' : ''));
+const rightToolBar = computed(() => 'preview toc sync-scroll fullscreen');
 const codemirrorConfig = ref({
   lineNumbers: false,
 });
@@ -37,6 +46,8 @@ const toolbar = ref({
   },
 });
 
+// doc info
+const docID = ref('');
 const formData = ref({
   title: '',
   content: '',
@@ -44,7 +55,26 @@ const formData = ref({
   tags: [],
   is_public: false,
 });
+const loadDocData = () => {
+  loadDocDataAPI(docID.value).then((res) => {
+    formData.value.title = res.data.title;
+    formData.value.content = res.data.content;
+    formData.value.header_img = res.data.header_img;
+    formData.value.title = res.data.title;
+    formData.value.tags = res.data.tags;
+    formData.value.is_public = res.data.is_public;
+    headerImgList.value.push({ url: formData.value.header_img });
+  });
+};
+onMounted(() => {
+  if (!route.params.id) {
+    return;
+  }
+  docID.value = route.params.id;
+  loadDocData();
+});
 
+// submit doc
 const doNext = ({ errors }) => {
   if (errors) {
     return;
@@ -52,7 +82,27 @@ const doNext = ({ errors }) => {
   showNext.value = true;
 };
 const showNext = ref(false);
+const saveDoc = () => {
+  handleLoading(loading, true);
+  let req = null;
+  if (docID.value) {
+    req = updateDocAPI(docID.value, formData.value);
+  } else {
+    req = createDocAPI(formData.value);
+  }
+  req.then(
+    () => {
+      Message.info(i18n.t('SaveDocSuccess'));
+      showNext.value = false;
+    },
+    (err) => {
+      Message.error(i18n.t(err.response.data.message));
+    },
+  )
+    .finally(() => handleLoading(loading, false));
+};
 
+// fileUploadHandler
 const headerImgList = ref([]);
 const uploadUrl = computed(() => `${globalContext.backendUrl}/cos/upload/`);
 const handleFileUpload = (editor, files) => {
@@ -77,20 +127,7 @@ const onUploadHeaderImgSuccess = (fileItem) => {
   formData.value.header_img = fileItem.response.data.url;
 };
 
-const saveDoc = () => {
-  handleLoading(loading, true);
-  createDocAPI(formData.value).then(
-    () => {
-      Message.info(i18n.t('SaveDocSuccess'));
-      showNext.value = false;
-    },
-    (err) => {
-      Message.error(i18n.t(err.response.data.message));
-    },
-  )
-    .finally(() => handleLoading(loading, false));
-};
-
+// title
 onMounted(() => {
   document.title = `${i18n.t('NewDoc')} | ${i18n.t('iWiki')}`;
 });
