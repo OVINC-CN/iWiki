@@ -22,6 +22,8 @@ const mZhCN = {
   AllDoc: '旧识',
   iWiki: 'iWiki',
   SaveDocSuccess: '保存成功',
+  Public: '公开',
+  Private: '私有',
 };
 
 export default mZhCN;

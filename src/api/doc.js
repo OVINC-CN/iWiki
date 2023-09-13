@@ -16,5 +16,5 @@ export const updateDocAPI = (id, data) => new Promise((resolve, reject) => {
 });
 
 export const loadDocDataAPI = id => new Promise((resolve, reject) => {
-  http.get(`${globalContext.backendUrl}/doc/${id}`).then(res => resolve(res), err => reject(err));
+  http.get(`${globalContext.backendUrl}/doc/${id}/`).then(res => resolve(res), err => reject(err));
 });

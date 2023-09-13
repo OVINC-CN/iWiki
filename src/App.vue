@@ -17,7 +17,7 @@
                 disabled
                 id="app-menu-logo"
               >
-                <div>
+                <div @click="goTo('Home')">
                   iWiki
                 </div>
               </a-menu-item>
@@ -61,16 +61,26 @@
             </a-space>
           </div>
         </a-layout-header>
-        <a-layout-content id="app-content">
-          <div>
-            <router-view v-slot="{ Component }">
-              <component :is="Component" />
-            </router-view>
-          </div>
-        </a-layout-content>
-        <a-layout-footer id="app-footer">
-          Copyright&nbsp;&copy;&nbsp;2022 - {{ currentYear }} OVINC-CN
-        </a-layout-footer>
+        <div id="app-content-scroll">
+          <a-layout-content id="app-content">
+            <div>
+              <router-view v-slot="{ Component }">
+                <component :is="Component" />
+              </router-view>
+            </div>
+          </a-layout-content>
+          <a-layout-footer id="app-footer">
+            Copyright&nbsp;&copy;&nbsp;2022 - {{ currentYear }} OVINC-CN
+          </a-layout-footer>
+        </div>
+        <a-back-top
+          target-container="#app-content-scroll"
+          :style="{position:'absolute'}"
+        >
+          <a-button shape="circle">
+            <icon-caret-up />
+          </a-button>
+        </a-back-top>
       </a-layout>
     </a-spin>
   </a-config-provider>
@@ -194,12 +204,12 @@ onMounted(() => initRUM());
   width: 100px;
   height: 30px;
   border-radius: var(--border-radius-medium);
-  background: var(--color-fill-3);
+  background: rgba(var(--primary-4));
   padding: 4px;
-  cursor: text;
-  color: var(--color-text-1);
+  color: white;
   text-align: center;
   font-weight: bold;
+  cursor: pointer;
 }
 
 #app-footer {
@@ -222,5 +232,10 @@ onMounted(() => initRUM());
 #app-content > div {
   max-width: 1600px;
   width: 100%;
+}
+
+#app-content-scroll {
+  height: 100%;
+  overflow-y: scroll;
 }
 </style>

@@ -6,13 +6,14 @@ import { Message } from '@arco-design/web-vue';
 import { handleLoading } from '../utils/loading';
 import globalContext from '../context';
 import { createDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 // i18n
 const i18n = useI18n();
 
 // router
 const route = useRoute();
+const router = useRouter();
 
 // loading
 const loading = ref(false);
@@ -91,9 +92,10 @@ const saveDoc = () => {
     req = createDocAPI(formData.value);
   }
   req.then(
-    () => {
-      Message.info(i18n.t('SaveDocSuccess'));
+    (res) => {
+      Message.success(i18n.t('SaveDocSuccess'));
       showNext.value = false;
+      router.push({ name: 'ShowDoc', params: { id: res.data.id } });
     },
     (err) => {
       Message.error(i18n.t(err.response.data.message));
