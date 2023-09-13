@@ -71,16 +71,10 @@ const goToEdit = () => {
         <a-space style="align-items: center; justify-content: center">
           <h2 class="doc-title">
             <a-tag
-              v-if="docData.is_public"
-              color="green"
-            >
-              {{ $t('Public') }}
-            </a-tag>
-            <a-tag
-              v-else
+              v-if="!docData.is_public"
               color="orangered"
             >
-              {{ $t('Private') }}
+              <icon-lock />
             </a-tag>
             &nbsp;{{ docData.title }}
           </h2>
