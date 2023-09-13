@@ -133,7 +133,7 @@ onUnmounted(() => {
             <a-option
               v-for="tag in tags"
               :key="tag.id"
-              :value="tag.id"
+              :value="tag.name"
             >
               {{ tag.name }}
             </a-option>
