@@ -41,10 +41,13 @@
                   </a-doption>
                 </template>
               </a-dropdown>
-              <a-dropdown @select="handlerUserDropDown">
+              <a-dropdown
+                @select="handlerUserDropDown"
+              >
                 <a-button
                   type="text"
                   style="padding: 0; color: unset"
+                  v-show="user.username"
                 >
                   {{ user.nick_name }}
                 </a-button>
