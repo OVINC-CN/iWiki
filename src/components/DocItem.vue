@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue';
 import globalContext from '../context';
 
 const props = defineProps({
@@ -24,9 +23,6 @@ const props = defineProps({
     default: 0,
   },
 });
-
-// tags
-const minTags = ref(3);
 
 // doc
 const showDoc = () => {
@@ -72,36 +68,14 @@ const showDoc = () => {
               </a-space>
             </a-space>
           </a-space>
-          <a-space
-            wrap
-            style="margin-top: 10px"
-          >
-            <a-overflow-list :min="minTags">
-              <a-tag
-                v-for="item in docData.tags"
-                :key="item"
-              >
-                {{ item }}
-              </a-tag>
-              <template #overflow>
-                <a-popover v-if="docData.tags.length > minTags">
-                  <a-tag>+{{ docData.tags.length - minTags }}</a-tag>
-                  <template #content>
-                    <a-space
-                      wrap
-                    >
-                      <a-tag
-                        v-for="item in docData.tags.slice(minTags)"
-                        :key="item"
-                      >
-                        {{ item }}
-                      </a-tag>
-                    </a-space>
-                  </template>
-                </a-popover>
-              </template>
-            </a-overflow-list>
-          </a-space>
+          <a-overflow-list>
+            <a-tag
+              v-for="item in docData.tags"
+              :key="item"
+            >
+              {{ item }}
+            </a-tag>
+          </a-overflow-list>
         </a-space>
       </template>
     </a-card-meta>
