@@ -7,6 +7,7 @@ import { handleLoading } from '../utils/loading';
 import globalContext from '../context';
 import { createDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
 import { useRoute, useRouter } from 'vue-router';
+import { getUserInfoAPI } from '../api/user';
 
 // i18n
 const i18n = useI18n();
@@ -129,6 +130,9 @@ const onUploadHeaderImgSuccess = (fileItem) => {
   headerImgList.value.push(fileItem.response.data);
   formData.value.header_img = fileItem.response.data.url;
 };
+
+// check login
+onMounted(() => getUserInfoAPI());
 
 // title
 onMounted(() => {
