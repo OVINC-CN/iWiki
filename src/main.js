@@ -22,6 +22,8 @@ import '@kangc/v-md-editor/lib/plugins/highlight-lines/highlight-lines.css';
 import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index';
 import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
 import createAlignPlugin from '@kangc/v-md-editor/lib/plugins/align';
+import createTipPlugin from '@kangc/v-md-editor/lib/plugins/tip/index';
+import '@kangc/v-md-editor/lib/plugins/tip/tip.css';
 import zhCN from '@kangc/v-md-editor/lib/lang/zh-CN';
 import enUS from '@kangc/v-md-editor/lib/lang/en-US';
 
@@ -68,6 +70,7 @@ VMdEditor.use(createLineNumbertPlugin());
 VMdEditor.use(createHighlightLinesPlugin());
 VMdEditor.use(createCopyCodePlugin());
 VMdEditor.use(createAlignPlugin());
+VMdEditor.use(createTipPlugin());
 
 if (localStorage.getItem('user-language') === 'enUS') {
   VMdEditor.lang.use('en-US', enUS);
