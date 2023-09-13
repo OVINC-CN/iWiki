@@ -113,7 +113,7 @@ const goToEdit = () => {
       </a-space>
     </a-layout-header>
     <a-divider v-show="!loading" />
-    <a-layout-content v-show="!loading">
+    <a-layout-content v-if="!loading">
       <v-md-editor
         v-model="docData.content"
         :mode="'preview'"

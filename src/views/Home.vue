@@ -156,7 +156,11 @@ onUnmounted(() => {
           </a-col>
         </a-row>
       </a-spin>
-      <skeleton v-show="docLoading && docs.length" />
+      <skeleton
+        v-show="(docLoading && docs.length) || (!docLoading && !docs.length)"
+        :animation="docLoading || docs.length"
+        :style="{marginTop: docs.length ? '20px': '0' }"
+      />
     </a-layout-content>
   </a-layout>
 </template>

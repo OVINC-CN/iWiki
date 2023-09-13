@@ -1,9 +1,14 @@
 <script setup>
-
+defineProps({
+  animation: {
+    type: Boolean,
+    default: true,
+  },
+});
 </script>
 
 <template>
-  <a-skeleton animation>
+  <a-skeleton :animation="animation">
     <a-space
       direction="vertical"
       :style="{width:'100%'}"
