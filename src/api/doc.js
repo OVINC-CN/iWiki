@@ -24,3 +24,8 @@ export const listDocsAPI = params => new Promise((resolve, reject) => {
   http.get(`${globalContext.backendUrl}/docs/`, { params }).then(res => resolve(res), err => reject(err));
 });
 
+export const deleteDocAPI = id => new Promise((resolve, reject) => {
+  http.delete(`${globalContext.backendUrl}/docs/${id}/`).then(res => resolve(res), err => reject(err));
+});
+
+

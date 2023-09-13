@@ -5,7 +5,7 @@ import { uploadFileAPI } from '../api/cos';
 import { Message } from '@arco-design/web-vue';
 import { handleLoading } from '../utils/loading';
 import globalContext from '../context';
-import { createDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
+import { createDocAPI, deleteDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
 import { useRoute, useRouter } from 'vue-router';
 import { getUserInfoAPI } from '../api/user';
 
@@ -102,6 +102,16 @@ const saveDoc = () => {
     (err) => {
       Message.error(i18n.t(err.response.data.message));
     },
+  )
+    .finally(() => handleLoading(loading, false));
+};
+
+// delete
+const doDelete = () => {
+  handleLoading(loading, true);
+  deleteDocAPI(docID.value).then(
+    () => router.push({ name: 'Home' }),
+    err => Message.error(err.response.data.message),
   )
     .finally(() => handleLoading(loading, false));
 };
@@ -256,6 +266,19 @@ onMounted(() => {
               >
                 {{ $t('Cancel') }}
               </a-button>
+              <a-popconfirm
+                :content="$t('DeleteDocConfirm')"
+                :ok-text="$t('Delete')"
+                :cancel-text="$t('Cancel')"
+                @ok="doDelete"
+              >
+                <a-button
+                  type="primary"
+                  status="danger"
+                >
+                  {{ $t('Delete') }}
+                </a-button>
+              </a-popconfirm>
             </a-space>
           </a-form-item>
         </a-form>
