@@ -25,6 +25,8 @@ const mZhCN = {
   Public: '公开',
   Private: '私有',
   ChooseTags: '标签搜索',
+  DeleteDocConfirm: '确认删除此文章吗？',
+  Delete: '删除',
 };
 
 export default mZhCN;
