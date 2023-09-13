@@ -204,9 +204,9 @@ onMounted(() => initRUM());
   width: 100px;
   height: 30px;
   border-radius: var(--border-radius-medium);
-  background: rgba(var(--primary-4));
+  border: 1px solid rgba(var(--primary-4));
   padding: 4px;
-  color: white;
+  color: var(--color-text-1);
   text-align: center;
   font-weight: bold;
   cursor: pointer;
@@ -237,5 +237,9 @@ onMounted(() => initRUM());
 #app-content-scroll {
   height: 100%;
   overflow-y: scroll;
+}
+
+.show-min-height {
+  min-height: calc(100vh - 160px)
 }
 </style>

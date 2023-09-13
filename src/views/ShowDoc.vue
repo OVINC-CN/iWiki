@@ -57,6 +57,7 @@ const goToEdit = () => {
 <template>
   <a-layout
     id="doc-show"
+    class="show-min-height"
   >
     <skeleton v-show="loading" />
     <a-layout-header v-show="!loading">
@@ -111,7 +112,7 @@ const goToEdit = () => {
         </a-space>
       </a-space>
     </a-layout-header>
-    <a-divider />
+    <a-divider v-show="!loading" />
     <a-layout-content v-show="!loading">
       <v-md-editor
         v-model="docData.content"
@@ -135,7 +136,6 @@ const goToEdit = () => {
 <style scoped>
 #doc-show {
   padding: 0 20px;
-  min-height: calc(100vh - 160px);
 }
 
 #doc-show :deep(.github-markdown-body) {

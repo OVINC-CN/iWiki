@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { getUserInfoAPI } from '../api/user';
+import { homeAPI } from '../api/home';
 
 const store = createStore({
   state() {
@@ -48,8 +48,8 @@ const store = createStore({
       }
     },
     getUserInfo({ commit }) {
-      getUserInfoAPI().then((res) => {
-        commit('setUser', res.data);
+      homeAPI().then((res) => {
+        commit('setUser', res.data.user);
         commit('setIsLogin', true);
       });
     },

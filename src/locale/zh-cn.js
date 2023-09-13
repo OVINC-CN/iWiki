@@ -24,6 +24,7 @@ const mZhCN = {
   SaveDocSuccess: '保存成功',
   Public: '公开',
   Private: '私有',
+  ChooseTags: '标签搜索',
 };
 
 export default mZhCN;
