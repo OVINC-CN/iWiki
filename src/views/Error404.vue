@@ -1,5 +1,8 @@
 <template>
-  <a-empty id="error-404">
+  <a-empty
+    id="error-404"
+    class="show-min-height"
+  >
     <span id="error-404-desc">
       {{ $t('PageNotExist') }}
     </span>

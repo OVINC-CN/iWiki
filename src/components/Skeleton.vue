@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-  <a-skeleton :animation="animation">
+  <a-skeleton :animation="Boolean(animation)">
     <a-space
       direction="vertical"
       :style="{width:'100%'}"
