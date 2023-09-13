@@ -24,6 +24,7 @@ const mEnUS = {
   SaveDocSuccess: 'Success',
   Public: 'Public',
   Private: 'Private',
+  ChooseTags: 'Search Tags',
 };
 
 export default mEnUS;
