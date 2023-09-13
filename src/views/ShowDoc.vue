@@ -175,7 +175,7 @@ const goToEdit = () => {
 
 .edit-button {
   position: fixed;
-  bottom: 60px;
+  bottom: 68px;
   text-align: right;
   right: 24px;
   z-index: 200;

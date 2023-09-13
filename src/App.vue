@@ -75,7 +75,7 @@
         </div>
         <a-back-top
           target-container="#app-content-scroll"
-          :style="{position:'absolute'}"
+          :style="{bottom:'110px'}"
         >
           <a-button shape="circle">
             <icon-caret-up />
