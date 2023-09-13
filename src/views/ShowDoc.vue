@@ -69,7 +69,10 @@ const goToEdit = () => {
           :src="docData.header_img"
           class="header-image"
         />
-        <a-space style="align-items: center; justify-content: center">
+        <a-space
+          style="align-items: center; justify-content: center"
+          v-show="docData.title"
+        >
           <h2 class="doc-title">
             <a-tag
               v-if="!docData.is_public"
@@ -80,7 +83,7 @@ const goToEdit = () => {
             &nbsp;{{ docData.title }}
           </h2>
         </a-space>
-        <a-space>
+        <a-space v-show="docData.title">
           <a-space>
             {{ docData.owner_nick_name }}
           </a-space>
@@ -102,6 +105,7 @@ const goToEdit = () => {
         <a-space
           wrap
           style="margin-top: 10px"
+          v-show="docData.title"
         >
           <a-tag
             v-for="item in docData.tags"
@@ -112,7 +116,7 @@ const goToEdit = () => {
         </a-space>
       </a-space>
     </a-layout-header>
-    <a-divider v-show="!loading" />
+    <a-divider v-show="!loading && docData.title" />
     <a-layout-content v-if="!loading">
       <v-md-editor
         v-model="docData.content"

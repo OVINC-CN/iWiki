@@ -28,6 +28,7 @@ onMounted(() => loadTags());
 
 // search
 const docLoading = ref(true);
+const docAppendLoading = ref(false);
 const docs = ref([]);
 const searchData = ref({
   tags: [],
@@ -36,7 +37,11 @@ const searchData = ref({
   total: 0,
 });
 const loadDocs = (isAppend) => {
-  handleLoading(docLoading, true);
+  if (isAppend) {
+    handleLoading(docAppendLoading, true);
+  } else {
+    handleLoading(docLoading, true);
+  }
   const params = {
     page: searchData.value.current,
     size: searchData.value.size,
@@ -54,9 +59,16 @@ const loadDocs = (isAppend) => {
     }, (err) => {
       Message.error(err.response.data.message);
     })
-    .finally(() => handleLoading(docLoading, false));
+    .finally(() => {
+      if (isAppend) {
+        handleLoading(docAppendLoading, false);
+      } else {
+        handleLoading(docLoading, false);
+      }
+    });
 };
 const doSearch = () => {
+  docs.value = [];
   searchData.value.current = 1;
   searchData.value.total = 0;
   loadDocs(false);
@@ -157,8 +169,8 @@ onUnmounted(() => {
         </a-row>
       </a-spin>
       <skeleton
-        v-show="(docLoading && docs.length) || (!docLoading && !docs.length)"
-        :animation="docLoading || docs.length"
+        v-show="(docAppendLoading && docs.length) || (!docLoading && !docs.length)"
+        :animation="docAppendLoading"
         :style="{marginTop: docs.length ? '20px': '0' }"
       />
     </a-layout-content>
