@@ -11,9 +11,14 @@ const i18n = useI18n();
 
 const loading = ref(false);
 
+const isSmallScreen = ref(false);
+onMounted(() => window.addEventListener('resize', () => {
+  isSmallScreen.value = window.innerWidth < 1200;
+}));
+onMounted(() => isSmallScreen.value = window.innerWidth < 1200);
+
 const leftToolBar = ref('undo redo clear | upload');
-const rightToolBar = computed(() => (window.innerWidth >= 1024 ? 'preview toc sync-scroll fullscreen' : ''));
-const showPreview = computed(() => (window.innerWidth >= 1024));
+const rightToolBar = computed(() => (isSmallScreen.value ? 'preview toc sync-scroll fullscreen' : ''));
 const codemirrorConfig = ref({
   lineNumbers: false,
 });
@@ -135,16 +140,18 @@ onMounted(() => {
           :codemirror-config="codemirrorConfig"
           :toolbar="toolbar"
           v-model="formData.content"
-          :mode="showPreview ? 'editable' : 'edit'"
+          :mode="!isSmallScreen ? 'editable' : 'edit'"
         />
       </a-form-item>
     </a-form>
     <a-drawer
       :width="600"
+      :drawer-style="{maxWidth: '100%'}"
       :visible="showNext"
       @cancel="showNext = false"
       unmount-on-close
       :footer="false"
+      :closable="false"
     >
       <template #title>
         {{ $t('SaveDoc') }}
@@ -227,5 +234,9 @@ onMounted(() => {
 
 .title-editor > :deep(.arco-space-item:nth-of-type(1)) {
   width: 100%;
+}
+
+.doc-submit-drawer :deep(.arco-drawer) {
+  max-width: 100%;
 }
 </style>
