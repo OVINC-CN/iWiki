@@ -17,8 +17,8 @@
                 disabled
                 id="app-menu-logo"
               >
-                <div>
-                  OVINC
+                <div @click="goTo('Home')">
+                  iWiki
                 </div>
               </a-menu-item>
               <a-menu-item
@@ -41,10 +41,13 @@
                   </a-doption>
                 </template>
               </a-dropdown>
-              <a-dropdown @select="handlerUserDropDown">
+              <a-dropdown
+                @select="handlerUserDropDown"
+              >
                 <a-button
                   type="text"
                   style="padding: 0; color: unset"
+                  v-show="user.username"
                 >
                   {{ user.nick_name }}
                 </a-button>
@@ -61,16 +64,26 @@
             </a-space>
           </div>
         </a-layout-header>
-        <a-layout-content>
-          <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
-          </router-view>
-        </a-layout-content>
-        <a-layout-footer id="app-footer">
-          Copyright&nbsp;&copy;&nbsp;2022 - {{ currentYear }} OVINC-CN
-        </a-layout-footer>
+        <div id="app-content-scroll">
+          <a-layout-content id="app-content">
+            <div>
+              <router-view v-slot="{ Component }">
+                <component :is="Component" />
+              </router-view>
+            </div>
+          </a-layout-content>
+          <a-layout-footer id="app-footer">
+            Copyright&nbsp;&copy;&nbsp;2022 - {{ currentYear }} OVINC-CN
+          </a-layout-footer>
+        </div>
+        <a-back-top
+          target-container="#app-content-scroll"
+          :style="{bottom:'110px'}"
+        >
+          <a-button shape="circle">
+            <icon-caret-up />
+          </a-button>
+        </a-back-top>
       </a-layout>
     </a-spin>
   </a-config-provider>
@@ -90,15 +103,20 @@ import { getRUMConfigAPI } from './api/trace';
 const i18n = useI18n();
 
 // title
-const title = ref(i18n.t('OVINCCN'));
+const title = ref(i18n.t('iWiki'));
 document.title = title.value;
 
 // menu
 const menu = ref([
   {
     key: 'Home',
-    name: i18n.t('Home'),
+    name: i18n.t('AllDoc'),
     path_match: '/',
+  },
+  {
+    key: 'NewDoc',
+    name: i18n.t('NewDoc'),
+    path_match: '/new/',
   },
 ]);
 const route = useRoute();
@@ -157,11 +175,16 @@ onMounted(() => initRUM());
 #app-header {
   margin-bottom: 20px;
   border-bottom: 1px solid var(--color-border-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #app-header > div {
   display: flex;
   justify-content: space-around;
+  width: 100%;
+  max-width: 1600px;
 }
 
 #app-header-right {
@@ -184,12 +207,12 @@ onMounted(() => initRUM());
   width: 100px;
   height: 30px;
   border-radius: var(--border-radius-medium);
-  background: var(--color-fill-3);
+  border: 1px solid rgba(var(--primary-4));
   padding: 4px;
-  cursor: text;
   color: var(--color-text-1);
   text-align: center;
   font-weight: bold;
+  cursor: pointer;
 }
 
 #app-footer {
@@ -201,5 +224,25 @@ onMounted(() => initRUM());
   border-top: 1px solid var(--color-border-1);
   color: var(--color-text-1);
   margin-top: 20px;
+}
+
+#app-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app-content > div {
+  max-width: 1600px;
+  width: 100%;
+}
+
+#app-content-scroll {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.show-min-height {
+  min-height: calc(100vh - 160px)
 }
 </style>

@@ -1,29 +1,27 @@
 <script setup>
-import { signInAPI } from '../api/user'
-import { onMounted } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import { signInAPI } from '../api/user';
+import { onMounted } from 'vue';
+import { Message } from '@arco-design/web-vue';
 
 const doLogin = () => {
-  const url = new URL(window.location.href)
-  const next = url.searchParams.get('next')
-  const code = url.searchParams.get('code')
-  console.log(next)
-  signInAPI({code}).then(
-      () => {},
-      err => {
-        Message.error(err.response.data.message)
-      }
+  const url = new URL(window.location.href);
+  const next = url.searchParams.get('next');
+  const code = url.searchParams.get('code');
+  console.log(next);
+  signInAPI({ code }).then(
+    () => {},
+    (err) => {
+      Message.error(err.response.data.message);
+    },
   )
-  .finally(
-    () => {
+    .finally(() => {
       setTimeout(() => {
-        window.location.href = next
-      }, 2000)
-    }
-  )
-}
+        window.location.href = next;
+      }, 2000);
+    });
+};
 
-onMounted(() => doLogin())
+onMounted(() => doLogin());
 </script>
 
 <template>
@@ -32,6 +30,7 @@ onMounted(() => doLogin())
     :tip="$t('VerifyingUserInfo')"
     :size="32"
     style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column"
+    class="show-min-height"
   />
 </template>
 

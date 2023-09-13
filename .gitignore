@@ -2,6 +2,7 @@
 .idea
 .env
 .certs
+.vite
 
 # build
 dist

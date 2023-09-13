@@ -12,6 +12,21 @@ const routes = [
     component: () => import('../views/Login.vue'),
   },
   {
+    path: '/doc/:id/',
+    name: 'ShowDoc',
+    component: () => import('../views/ShowDoc.vue'),
+  },
+  {
+    path: '/new/',
+    name: 'NewDoc',
+    component: () => import('../views/EditDoc.vue'),
+  },
+  {
+    path: '/edit/:id/',
+    name: 'EditDoc',
+    component: () => import('../views/EditDoc.vue'),
+  },
+  {
 
     path: '/:pathMatch(.*)*',
     name: 'Notfound',
