@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { uploadFileAPI } from '../api/cos';
 import { Message } from '@arco-design/web-vue';
@@ -25,6 +25,7 @@ onMounted(() => window.addEventListener('resize', () => {
   isSmallScreen.value = window.innerWidth < smallScreenSize.value;
 }));
 onMounted(() => isSmallScreen.value = window.innerWidth < smallScreenSize.value);
+onUnmounted(() => window.removeEventListener('resize', () => {}));
 
 // editor config
 const leftToolBar = ref('undo redo clear | upload');

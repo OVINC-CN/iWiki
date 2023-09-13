@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { listBoundTagsAPI } from '../api/tag';
 import { handleLoading } from '../utils/loading';
@@ -35,7 +35,7 @@ const searchData = ref({
   size: 20,
   total: 0,
 });
-const loadDocs = () => {
+const loadDocs = (isAppend) => {
   handleLoading(docLoading, true);
   const params = {
     page: searchData.value.current,
@@ -44,7 +44,11 @@ const loadDocs = () => {
   };
   listDocsAPI(params)
     .then((res) => {
-      docs.value = res.data.results;
+      if (isAppend) {
+        docs.value = docs.value.concat(res.data.results);
+      } else {
+        docs.value = res.data.results;
+      }
       searchData.value.current = res.data.current;
       searchData.value.total = res.data.total;
     }, (err) => {
@@ -52,7 +56,12 @@ const loadDocs = () => {
     })
     .finally(() => handleLoading(docLoading, false));
 };
-onMounted(() => loadDocs());
+const doSearch = () => {
+  searchData.value.current = 1;
+  searchData.value.total = 0;
+  loadDocs(false);
+};
+onMounted(() => loadDocs(false));
 
 // card
 const cardSpan = ref(6);
@@ -68,8 +77,25 @@ const handleResize = () => {
     cardSpan.value = 24;
   }
 };
+onMounted(() => window.addEventListener('resize', () => handleResize()));
+onUnmounted(() => window.removeEventListener('resize', () => {}));
+
+// load more
+const container = document.getElementById('app-content-scroll');
+const loadMore = () => {
+  if (
+    (container.scrollTop + container.clientHeight === container.scrollHeight)
+      && (searchData.value.total > searchData.value.current * searchData.value.size)
+  ) {
+    searchData.value.current += 1;
+    loadDocs(true);
+  }
+};
 onMounted(() => {
-  window.addEventListener('resize', () => handleResize());
+  container.addEventListener('scroll', () => loadMore());
+});
+onUnmounted(() => {
+  container.removeEventListener('scroll', () => {});
 });
 </script>
 
@@ -89,6 +115,7 @@ onMounted(() => {
             scrollbar
             allow-clear
             style="width: 100%"
+            :disabled="docLoading"
           >
             <a-option
               v-for="tag in tags"
@@ -98,7 +125,10 @@ onMounted(() => {
               {{ tag.name }}
             </a-option>
           </a-select>
-          <a-button @click="loadDocs">
+          <a-button
+            @click="doSearch"
+            :loading="docLoading"
+          >
             <icon-search />
           </a-button>
         </a-space>
@@ -108,7 +138,6 @@ onMounted(() => {
       <skeleton v-show="docLoading && !docs.length" />
       <a-spin
         v-show="docs.length"
-        :loading="docLoading"
         style="width: 100%"
       >
         <a-row
@@ -127,6 +156,7 @@ onMounted(() => {
           </a-col>
         </a-row>
       </a-spin>
+      <skeleton v-show="docLoading && docs.length" />
     </a-layout-content>
   </a-layout>
 </template>
