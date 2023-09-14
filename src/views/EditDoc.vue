@@ -292,6 +292,7 @@ onMounted(() => {
                 @ok="doDelete"
               >
                 <a-button
+                  v-show="docID"
                   type="primary"
                   status="danger"
                 >
