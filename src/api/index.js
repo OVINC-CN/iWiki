@@ -1,6 +1,6 @@
 import axios from 'axios';
 import globalContext from '../context';
-import { redirectToLogin } from '../utils/login';
+import {redirectToLogin} from '../utils/login';
 
 const http = axios;
 
@@ -8,7 +8,7 @@ http.defaults.timeout = 10000;
 http.defaults.baseURL = globalContext.backendUrl;
 http.defaults.withCredentials = true;
 
-http.interceptors.response.use(res => res.data, (err) => {
+http.interceptors.response.use((res) => res.data, (err) => {
   // 401 redirect to log in
   if (err.response.status === 401) {
     // check code

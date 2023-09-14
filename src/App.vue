@@ -90,14 +90,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { useStore } from 'vuex';
-import { locale, langOption, changeLangAndReload } from './locale';
-import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { signOutAPI } from './api/user';
+import {computed, onMounted, ref} from 'vue';
+import {useStore} from 'vuex';
+import {locale, langOption, changeLangAndReload} from './locale';
+import {useI18n} from 'vue-i18n';
+import {useRouter} from 'vue-router';
+import {signOutAPI} from './api/user';
 import Aegis from 'aegis-web-sdk';
-import { getRUMConfigAPI } from './api/trace';
+import {getRUMConfigAPI} from './api/trace';
 
 // locale
 const i18n = useI18n();
@@ -119,11 +119,10 @@ const menu = ref([
     path_match: '/new/',
   },
 ]);
-const route = useRoute();
 const router = useRouter();
 const currentMenuItem = ref(menu.value[0].key);
 const goTo = (key) => {
-  router.push({ name: key });
+  router.push({name: key});
 };
 menu.value.forEach((item, index) => {
   if (index === 0) return;
@@ -155,11 +154,11 @@ const handlerUserDropDown = (key) => {
 // aegis
 const initRUM = () => {
   getRUMConfigAPI()
-    .then((res) => {
-      if (res.data.id) {
-        new Aegis(res.data);
-      }
-    });
+      .then((res) => {
+        if (res.data.id) {
+          new Aegis(res.data);
+        }
+      });
 };
 onMounted(() => initRUM());
 </script>

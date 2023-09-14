@@ -1,5 +1,5 @@
-import { createStore } from 'vuex';
-import { homeAPI } from '../api/home';
+import {createStore} from 'vuex';
+import {homeAPI} from '../api/home';
 
 const store = createStore({
   state() {
@@ -31,14 +31,14 @@ const store = createStore({
       state.isLogin = payload;
     },
     setUserProperty(state, payload) {
-      payload.forEach(item => state.userProperties[item.property_key] = item.property_val);
+      payload.forEach((item) => state.userProperties[item.property_key] = item.property_val);
     },
     setUserPropertyRaw(state, payload) {
       state.userPropertiesRaw = payload;
     },
   },
   actions: {
-    setMainLoading({ commit }, payload) {
+    setMainLoading({commit}, payload) {
       if (payload) {
         commit('setMainLoading', true);
       } else {
@@ -47,7 +47,7 @@ const store = createStore({
         }, 600);
       }
     },
-    getUserInfo({ commit }) {
+    getUserInfo({commit}) {
       homeAPI().then((res) => {
         commit('setUser', res.data.user);
         commit('setIsLogin', true);

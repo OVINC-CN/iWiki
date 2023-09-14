@@ -1,14 +1,14 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { uploadFileAPI } from '../api/cos';
-import { Message } from '@arco-design/web-vue';
-import { handleLoading } from '../utils/loading';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
+import {useI18n} from 'vue-i18n';
+import {uploadFileAPI} from '../api/cos';
+import {Message} from '@arco-design/web-vue';
+import {handleLoading} from '../utils/loading';
 import globalContext from '../context';
-import { createDocAPI, deleteDocAPI, loadDocDataAPI, updateDocAPI } from '../api/doc';
-import { useRoute, useRouter } from 'vue-router';
-import { getUserInfoAPI } from '../api/user';
-import { listTagsAPI } from '../api/tag';
+import {createDocAPI, deleteDocAPI, loadDocDataAPI, updateDocAPI} from '../api/doc';
+import {useRoute, useRouter} from 'vue-router';
+import {getUserInfoAPI} from '../api/user';
+import {listTagsAPI} from '../api/tag';
 
 // i18n
 const i18n = useI18n();
@@ -42,7 +42,7 @@ const toolbar = ref({
     action(editor) {
       const input = document.createElement('input');
       input.type = 'file';
-      input.onchange = function () {
+      input.onchange = function() {
         handleFileUpload(editor, input.files);
       };
       input.click();
@@ -53,7 +53,7 @@ const toolbar = ref({
 // tags
 const allTags = ref([]);
 const loadTags = () => {
-  listTagsAPI().then(res => allTags.value = res.data);
+  listTagsAPI().then((res) => allTags.value = res.data);
 };
 onMounted(() => loadTags());
 
@@ -74,7 +74,7 @@ const loadDocData = () => {
     formData.value.title = res.data.title;
     formData.value.tags = res.data.tags;
     formData.value.is_public = res.data.is_public;
-    headerImgList.value.push({ url: formData.value.header_img });
+    headerImgList.value.push({url: formData.value.header_img});
   });
 };
 onMounted(() => {
@@ -86,7 +86,7 @@ onMounted(() => {
 });
 
 // submit doc
-const doNext = ({ errors }) => {
+const doNext = ({errors}) => {
   if (errors) {
     return;
   }
@@ -102,26 +102,26 @@ const saveDoc = () => {
     req = createDocAPI(formData.value);
   }
   req.then(
-    (res) => {
-      Message.success(i18n.t('SaveDocSuccess'));
-      showNext.value = false;
-      router.push({ name: 'ShowDoc', params: { id: res.data.id } });
-    },
-    (err) => {
-      Message.error(i18n.t(err.response.data.message));
-    },
+      (res) => {
+        Message.success(i18n.t('SaveDocSuccess'));
+        showNext.value = false;
+        router.push({name: 'ShowDoc', params: {id: res.data.id}});
+      },
+      (err) => {
+        Message.error(i18n.t(err.response.data.message));
+      },
   )
-    .finally(() => handleLoading(loading, false));
+      .finally(() => handleLoading(loading, false));
 };
 
 // delete
 const doDelete = () => {
   handleLoading(loading, true);
   deleteDocAPI(docID.value).then(
-    () => router.push({ name: 'Home' }),
-    err => Message.error(err.response.data.message),
+      () => router.push({name: 'Home'}),
+      (err) => Message.error(err.response.data.message),
   )
-    .finally(() => handleLoading(loading, false));
+      .finally(() => handleLoading(loading, false));
 };
 
 // fileUploadHandler
@@ -132,17 +132,17 @@ const handleFileUpload = (editor, files) => {
   const form = new FormData();
   form.append('file', files[0]);
   uploadFileAPI(form).then(
-    (res) => {
-      editor.insert(() => ({
-        text: `![${res.data.name}](${res.data.url})`,
-      }
-      ));
-    },
-    (err) => {
-      Message.error(err.response.data.message);
-    },
+      (res) => {
+        editor.insert(() => ({
+          text: `![${res.data.name}](${res.data.url})`,
+        }
+        ));
+      },
+      (err) => {
+        Message.error(err.response.data.message);
+      },
   )
-    .finally(() => handleLoading(loading, false));
+      .finally(() => handleLoading(loading, false));
 };
 const onUploadHeaderImgSuccess = (fileItem) => {
   headerImgList.value.push(fileItem.response.data);

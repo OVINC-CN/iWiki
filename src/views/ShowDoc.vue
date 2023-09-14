@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Message } from '@arco-design/web-vue';
-import { handleLoading } from '../utils/loading';
-import { loadDocDataAPI } from '../api/doc';
+import {computed, onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {Message} from '@arco-design/web-vue';
+import {handleLoading} from '../utils/loading';
+import {loadDocDataAPI} from '../api/doc';
 import Skeleton from '../components/Skeleton.vue';
-import { useStore } from 'vuex';
+import {useStore} from 'vuex';
 
 // loading
 const loading = ref(true);
@@ -35,10 +35,10 @@ const docData = ref({
 const loadDocData = () => {
   handleLoading(loading, true);
   loadDocDataAPI(docID.value).then(
-    res => docData.value = res.data,
-    err => Message.error(err.response.data.message),
+      (res) => docData.value = res.data,
+      (err) => Message.error(err.response.data.message),
   )
-    .finally(() => handleLoading(loading, false));
+      .finally(() => handleLoading(loading, false));
 };
 onMounted(() => {
   if (!route.params.id) {
@@ -50,7 +50,7 @@ onMounted(() => {
 
 // edit
 const goToEdit = () => {
-  router.push({ name: 'EditDoc', params: { id: docID.value } });
+  router.push({name: 'EditDoc', params: {id: docID.value}});
 };
 </script>
 
