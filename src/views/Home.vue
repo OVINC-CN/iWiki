@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { listBoundTagsAPI } from '../api/tag';
-import { handleLoading } from '../utils/loading';
-import { listDocsAPI } from '../api/doc';
-import { Message } from '@arco-design/web-vue';
+import {onMounted, onUnmounted, ref} from 'vue';
+import {useI18n} from 'vue-i18n';
+import {listBoundTagsAPI} from '../api/tag';
+import {handleLoading} from '../utils/loading';
+import {listDocsAPI} from '../api/doc';
+import {Message} from '@arco-design/web-vue';
 import Skeleton from '../components/Skeleton.vue';
 import DocItem from '../components/DocItem.vue';
 
@@ -21,8 +21,8 @@ const tagsLoading = ref(true);
 const tags = ref([]);
 const loadTags = () => {
   handleLoading(tagsLoading, true);
-  listBoundTagsAPI().then(res => tags.value = res.data)
-    .finally(() => handleLoading(tagsLoading, true));
+  listBoundTagsAPI().then((res) => tags.value = res.data)
+      .finally(() => handleLoading(tagsLoading, true));
 };
 onMounted(() => loadTags());
 
@@ -48,24 +48,24 @@ const loadDocs = (isAppend) => {
     tags: searchData.value.tags.join(','),
   };
   listDocsAPI(params)
-    .then((res) => {
-      if (isAppend) {
-        docs.value = docs.value.concat(res.data.results);
-      } else {
-        docs.value = res.data.results;
-      }
-      searchData.value.current = res.data.current;
-      searchData.value.total = res.data.total;
-    }, (err) => {
-      Message.error(err.response.data.message);
-    })
-    .finally(() => {
-      if (isAppend) {
-        handleLoading(docAppendLoading, false);
-      } else {
-        handleLoading(docLoading, false);
-      }
-    });
+      .then((res) => {
+        if (isAppend) {
+          docs.value = docs.value.concat(res.data.results);
+        } else {
+          docs.value = res.data.results;
+        }
+        searchData.value.current = res.data.current;
+        searchData.value.total = res.data.total;
+      }, (err) => {
+        Message.error(err.response.data.message);
+      })
+      .finally(() => {
+        if (isAppend) {
+          handleLoading(docAppendLoading, false);
+        } else {
+          handleLoading(docLoading, false);
+        }
+      });
 };
 const doSearch = () => {
   docs.value = [];
@@ -97,8 +97,8 @@ onUnmounted(() => window.removeEventListener('resize', () => {}));
 const container = document.getElementById('app-content-scroll');
 const loadMore = () => {
   if (
-    (container.scrollTop + container.clientHeight === container.scrollHeight)
-      && (searchData.value.total > searchData.value.current * searchData.value.size)
+    (container.scrollTop + container.clientHeight === container.scrollHeight) &&
+      (searchData.value.total > searchData.value.current * searchData.value.size)
   ) {
     searchData.value.current += 1;
     loadDocs(true);
