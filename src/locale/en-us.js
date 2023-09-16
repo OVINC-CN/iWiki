@@ -27,6 +27,7 @@ const mEnUS = {
   ChooseTags: 'Search Tags',
   DeleteDocConfirm: 'Are you sure you want to delete this document ？',
   Delete: 'Delete',
+  Login: 'Login',
 };
 
 export default mEnUS;

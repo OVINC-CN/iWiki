@@ -27,6 +27,7 @@ const mZhCN = {
   ChooseTags: '标签搜索',
   DeleteDocConfirm: '确认删除此文章吗？',
   Delete: '删除',
+  Login: '登录',
 };
 
 export default mZhCN;

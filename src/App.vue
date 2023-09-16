@@ -24,6 +24,7 @@
               <a-menu-item
                 v-for="item in menu"
                 :key="item.key"
+                v-show="item.display"
               >
                 {{ item.name }}
               </a-menu-item>
@@ -47,9 +48,16 @@
                 <a-button
                   type="text"
                   style="padding: 0; color: unset"
-                  v-show="user.username"
                 >
-                  {{ user.nick_name }}
+                  <a-badge
+                    status="success"
+                    dot
+                    :count="1"
+                    v-if="user.username"
+                  >
+                    <icon-user />
+                  </a-badge>
+                  <icon-user v-else />
                 </a-button>
                 <template #content>
                   <a-doption
@@ -98,6 +106,8 @@ import {useRouter} from 'vue-router';
 import {signOutAPI} from './api/user';
 import Aegis from 'aegis-web-sdk';
 import {getRUMConfigAPI} from './api/trace';
+import {redirectToLogin} from './utils/login';
+import {PermissionItem} from './constants';
 
 // locale
 const i18n = useI18n();
@@ -106,21 +116,46 @@ const i18n = useI18n();
 const title = ref(i18n.t('iWiki'));
 document.title = title.value;
 
+// store
+const store = useStore();
+const mainLoading = computed(() => store.state.mainLoading);
+const user = computed(() => store.state.user);
+store.dispatch('getUserInfo');
+
+// permissions
+const permissions = computed(() => store.state.permissions);
+const hasCreateDocPermission = computed(() => {
+  for (const item of permissions.value) {
+    if (item.permission_item === PermissionItem.createDoc) {
+      return true;
+    }
+  }
+  return false;
+});
+onMounted(() => store.dispatch('loadPermissions'));
+
 // menu
-const menu = ref([
+const defaultMenu = ref([
   {
     key: 'Home',
     name: i18n.t('AllDoc'),
     path_match: '/',
+    display: true,
   },
   {
     key: 'NewDoc',
     name: i18n.t('NewDoc'),
     path_match: '/new/',
+    display: computed(() => hasCreateDocPermission.value),
   },
 ]);
+const menu = computed(() => {
+  return user.value.username ? defaultMenu.value : [];
+});
+const currentMenuItem = computed(() => menu.value.length ? menu.value[0].key : '');
+
+// router
 const router = useRouter();
-const currentMenuItem = ref(menu.value[0].key);
 const goTo = (key) => {
   router.push({name: key});
 };
@@ -132,22 +167,29 @@ menu.value.forEach((item, index) => {
 // footer
 const currentYear = ref(new Date().getFullYear());
 
-// store
-const store = useStore();
-const mainLoading = computed(() => store.state.mainLoading);
-store.dispatch('getUserInfo');
-
 // user
-const userDropDown = ref([
-  {
-    name: i18n.t('Logout'),
-    value: 'logout',
-  },
-]);
-const user = computed(() => store.state.user);
+const userDropDown = computed(() => {
+  if (user.value.username) {
+    return [
+      {
+        name: `${i18n.t('Logout')} (${user.value.nick_name})`,
+        value: 'logout',
+      },
+    ];
+  }
+  return [
+    {
+      name: i18n.t('Login'),
+      value: 'login',
+    },
+  ];
+});
 const handlerUserDropDown = (key) => {
   if (key === 'logout') {
     signOutAPI().finally(() => window.location.reload());
+  }
+  if (key === 'login') {
+    redirectToLogin();
   }
 };
 
@@ -203,7 +245,7 @@ onMounted(() => initRUM());
 }
 
 #app-menu-logo > div {
-  width: 100px;
+  width: 80px;
   height: 30px;
   border-radius: var(--border-radius-medium);
   border: 1px solid rgba(var(--primary-4));
