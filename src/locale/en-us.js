@@ -28,6 +28,7 @@ const mEnUS = {
   DeleteDocConfirm: 'Are you sure you want to delete this document ？',
   Delete: 'Delete',
   Login: 'Login',
+  GoBack: 'Back',
 };
 
 export default mEnUS;

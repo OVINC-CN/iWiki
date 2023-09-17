@@ -221,6 +221,15 @@ const onImageClick = (images, index) => {
   previewImageVisible.value = true;
 };
 
+// go back
+const goBack = () => {
+  if (docID.value) {
+    router.push({name: 'ShowDoc', params: {id: docID.value}});
+    return;
+  }
+  router.push({name: 'Home'});
+};
+
 // check login
 onMounted(() => getUserInfoAPI());
 
@@ -257,6 +266,12 @@ onMounted(() => {
             :loading="loading"
           >
             {{ $t('Next') }}
+          </a-button>
+          <a-button
+            :loading="loading"
+            @click="goBack"
+          >
+            {{ $t('GoBack') }}
           </a-button>
         </a-space>
       </a-form-item>

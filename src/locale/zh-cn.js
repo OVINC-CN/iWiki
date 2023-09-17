@@ -28,6 +28,7 @@ const mZhCN = {
   DeleteDocConfirm: '确认删除此文章吗？',
   Delete: '删除',
   Login: '登录',
+  GoBack: '返回',
 };
 
 export default mZhCN;
