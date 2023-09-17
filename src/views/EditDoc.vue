@@ -1,10 +1,9 @@
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
-import {uploadFileAPI} from '../api/cos';
+import {getCOSTempSecretAPI} from '../api/cos';
 import {Message} from '@arco-design/web-vue';
 import {handleLoading} from '../utils/loading';
-import globalContext from '../context';
 import {createDocAPI, deleteDocAPI, loadDocDataAPI, updateDocAPI} from '../api/doc';
 import {useRoute, useRouter} from 'vue-router';
 import {getUserInfoAPI} from '../api/user';
@@ -124,29 +123,111 @@ const doDelete = () => {
       .finally(() => handleLoading(loading, false));
 };
 
-// fileUploadHandler
+// upload file
+const loadCos = (credentials) => {
+  return new COS({
+    getAuthorization: (options, callback) => {
+      callback(
+          {
+            TmpSecretId: credentials.secret_id,
+            TmpSecretKey: credentials.secret_key,
+            SecurityToken: credentials.token,
+            StartTime: credentials.start_time,
+            ExpiredTime: credentials.expired_time,
+          },
+      );
+    },
+  });
+};
+
+// header img upload
 const headerImgList = ref([]);
-const uploadUrl = computed(() => `${globalContext.backendUrl}/cos/upload/`);
-const handleFileUpload = (editor, files) => {
-  handleLoading(loading, true);
-  const form = new FormData();
-  form.append('file', files[0]);
-  uploadFileAPI(form).then(
+const uploadHeaderImg = (option) => {
+  const {onProgress, onError, onSuccess, fileItem} = option;
+  console.log(onProgress, onError, onSuccess);
+  getCOSTempSecretAPI(fileItem.name).then(
       (res) => {
-        editor.insert(() => ({
-          text: `![${res.data.name}](${res.data.url})`,
-        }
-        ));
+        const credentials = res.data;
+        const cos = loadCos(credentials);
+        cos.putObject({
+          Bucket: credentials.cos_bucket,
+          Region: credentials.cos_region,
+          Key: credentials.key,
+          Body: fileItem.file,
+          onProgress: (event) => {
+            onProgress(event.percent, event);
+          },
+        }, (err) => {
+          if (err) {
+            Message.error(err.message);
+            onError(err);
+          } else {
+            const url = `${credentials.cos_url}/${encodeURIComponent(credentials.key)}`;
+            onSuccess({data: {name: fileItem.name, url: url}});
+            formData.value.header_img = url;
+          }
+        });
       },
       (err) => {
         Message.error(err.response.data.message);
+        onError(err.response);
       },
-  )
-      .finally(() => handleLoading(loading, false));
+  );
 };
+
+// upload file
+const handleFileUpload = (editor, files) => {
+  const file = files[0];
+  handleLoading(loading, true);
+  getCOSTempSecretAPI(file.name).then(
+      (res) => {
+        const credentials = res.data;
+        const cos = loadCos(credentials);
+        cos.putObject({
+          Bucket: credentials.cos_bucket,
+          Region: credentials.cos_region,
+          Key: credentials.key,
+          Body: file,
+        }, (err) => {
+          if (err) {
+            Message.error(err.message);
+          } else {
+            const url = `${credentials.cos_url}/${encodeURIComponent(credentials.key)}`;
+            editor.insert(() => ({
+              text: file.type.indexOf('image/') !== -1 ? `![${file.name}](${url}){{{width="auto" height="auto"}}}` : `[${file.name}](${url})`,
+            }
+            ));
+          }
+          handleLoading(loading, false);
+        });
+      },
+      (err) => {
+        Message.error(err.response.data.message);
+        handleLoading(loading, false);
+      },
+  );
+};
+
 const onUploadHeaderImgSuccess = (fileItem) => {
   headerImgList.value.push(fileItem.response.data);
   formData.value.header_img = fileItem.response.data.url;
+};
+
+// image
+const previewImageVisible = ref(false);
+const previewImageUrl = ref('');
+const onImageClick = (images, index) => {
+  previewImageUrl.value = images[index];
+  previewImageVisible.value = true;
+};
+
+// go back
+const goBack = () => {
+  if (docID.value) {
+    router.push({name: 'ShowDoc', params: {id: docID.value}});
+    return;
+  }
+  router.push({name: 'Home'});
 };
 
 // check login
@@ -176,6 +257,7 @@ onMounted(() => {
             :max-length="32"
             show-word-limit
             style="width: 100%;"
+            :disabled="loading"
           />
           <a-button
             type="primary"
@@ -185,6 +267,12 @@ onMounted(() => {
           >
             {{ $t('Next') }}
           </a-button>
+          <a-button
+            :loading="loading"
+            @click="goBack"
+          >
+            {{ $t('GoBack') }}
+          </a-button>
         </a-space>
       </a-form-item>
       <a-form-item
@@ -192,18 +280,25 @@ onMounted(() => {
         field="content"
         :rules="[{required:true,message:$t('ContentRequired')}]"
         style="margin-bottom: 0"
+        class="edit-doc-v-md-editor"
       >
-        <v-md-editor
-          height="calc(100vh - 210px)"
-          :tab-size="4"
-          autofocus
-          :left-toolbar="leftToolBar"
-          :right-toolbar="rightToolBar"
-          :codemirror-config="codemirrorConfig"
-          :toolbar="toolbar"
-          v-model="formData.content"
-          :mode="!isSmallScreen ? 'editable' : 'edit'"
-        />
+        <a-spin
+          :loading="loading"
+          style="width: 100%; height: 100%"
+        >
+          <v-md-editor
+            height="calc(100vh - 210px)"
+            :tab-size="4"
+            autofocus
+            :left-toolbar="leftToolBar"
+            :right-toolbar="rightToolBar"
+            :codemirror-config="codemirrorConfig"
+            :toolbar="toolbar"
+            v-model="formData.content"
+            :mode="!isSmallScreen ? 'editable' : 'edit'"
+            @image-click="onImageClick"
+          />
+        </a-spin>
       </a-form-item>
     </a-form>
     <a-drawer
@@ -230,12 +325,12 @@ onMounted(() => {
           >
             <a-upload
               list-type="picture-card"
-              :action="uploadUrl"
+              :custom-request="uploadHeaderImg"
               image-preview
               :default-file-list="headerImgList"
-              with-credentials
               :limit="1"
               @success="onUploadHeaderImgSuccess"
+              :disabled="loading"
             />
           </a-form-item>
           <a-form-item
@@ -267,6 +362,7 @@ onMounted(() => {
             <a-switch
               type="round"
               v-model="formData.is_public"
+              :disabled="loading"
             />
           </a-form-item>
           <a-form-item>
@@ -295,6 +391,7 @@ onMounted(() => {
                   v-show="docID"
                   type="primary"
                   status="danger"
+                  :loading="loading"
                 >
                   {{ $t('Delete') }}
                 </a-button>
@@ -305,6 +402,10 @@ onMounted(() => {
       </div>
     </a-drawer>
   </a-layout>
+  <a-image-preview
+    :src="previewImageUrl"
+    v-model:visible="previewImageVisible"
+  />
 </template>
 
 <style scoped>

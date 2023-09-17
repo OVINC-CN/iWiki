@@ -1,10 +1,9 @@
 import http from './index';
 import globalContext from '../context';
 
-export const uploadFileAPI = (data) => new Promise((resolve, reject) => {
+export const getCOSTempSecretAPI = (filename) => new Promise((resolve, reject) => {
   http.post(
-      `${globalContext.backendUrl}/cos/upload/`,
-      data,
-      {headers: {'Content-Type': 'multipart/form-data'}},
+      `${globalContext.backendUrl}/cos/temp_secret/`,
+      {filename},
   ).then((res) => resolve(res), (err) => reject(err));
 });

@@ -48,6 +48,14 @@ onMounted(() => {
   loadDocData();
 });
 
+// image
+const previewImageVisible = ref(false);
+const previewImageUrl = ref('');
+const onImageClick = (images, index) => {
+  previewImageUrl.value = images[index];
+  previewImageVisible.value = true;
+};
+
 // edit
 const goToEdit = () => {
   router.push({name: 'EditDoc', params: {id: docID.value}});
@@ -123,6 +131,7 @@ const goToEdit = () => {
       <v-md-editor
         v-model="docData.content"
         :mode="'preview'"
+        @image-click="onImageClick"
       />
     </a-layout-content>
     <a-affix
@@ -137,6 +146,10 @@ const goToEdit = () => {
       </a-button>
     </a-affix>
   </a-layout>
+  <a-image-preview
+    :src="previewImageUrl"
+    v-model:visible="previewImageVisible"
+  />
 </template>
 
 <style scoped>
