@@ -84,10 +84,12 @@ const goToEdit = () => {
           </h2>
         </a-space>
         <a-space v-show="docData.title">
-          <a-space>
+          <a-space :size="[2, 10]">
+            <icon-user />
             {{ docData.owner_nick_name }}
           </a-space>
-          <a-space>
+          <a-space :size="[2, 10]">
+            <icon-clock-circle />
             {{ docData.created_at }}
           </a-space>
           <a-space :size="[2, 10]">
