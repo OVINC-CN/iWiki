@@ -10,8 +10,8 @@ import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 
 import VMdEditor from '@kangc/v-md-editor/lib/codemirror-editor';
 import '@kangc/v-md-editor/lib/style/codemirror-editor.css';
-import githubTheme from '@kangc/v-md-editor/lib/theme/github.js';
-import '@kangc/v-md-editor/lib/theme/style/github.css';
+import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
+import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
 import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/cdn';
 import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css';
 import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index';
@@ -27,8 +27,14 @@ import '@kangc/v-md-editor/lib/plugins/tip/tip.css';
 import zhCN from '@kangc/v-md-editor/lib/lang/zh-CN';
 import enUS from '@kangc/v-md-editor/lib/lang/en-US';
 
-// highlightjs
-import hljs from 'highlight.js';
+// markdown-it
+import emoji from 'markdown-it-emoji';
+import sub from 'markdown-it-sub';
+import sup from 'markdown-it-sup';
+import ins from 'markdown-it-mark';
+
+// code hight light
+import Prism from 'prismjs';
 
 // codemirror
 import Codemirror from 'codemirror';
@@ -59,10 +65,20 @@ import 'codemirror/addon/scroll/simplescrollbars';
 import 'codemirror/addon/scroll/simplescrollbars.css';
 import 'codemirror/lib/codemirror.css';
 
-
 VMdEditor.Codemirror = Codemirror;
-VMdEditor.use(githubTheme, {
-  Hljs: hljs,
+VMdEditor.use(vuepressTheme, {
+  Prism,
+  codeHighlightExtensionMap: {
+    vue: 'javascript',
+    js: 'javascript',
+    yml: 'yaml',
+  },
+  extend(md) {
+    md.use(emoji);
+    md.use(sub);
+    md.use(sup);
+    md.use(ins);
+  },
 });
 VMdEditor.use(createMermaidPlugin());
 VMdEditor.use(createTodoListPlugin());

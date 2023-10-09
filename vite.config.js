@@ -1,9 +1,39 @@
 import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
+import prismjs from 'vite-plugin-prismjs';
 
 export default defineConfig({
   plugins: [
     vue(),
+    prismjs({
+      languages: [
+        'bash',
+        'c',
+        'cmake',
+        'cpp',
+        'css',
+        'dart',
+        'django',
+        'docker',
+        'go',
+        'go-module',
+        'java',
+        'javascript',
+        'json',
+        'latex',
+        'lua',
+        'mermaid',
+        'php',
+        'python',
+        'rust',
+        'scheme',
+        'sql',
+        'swift',
+        'toml',
+        'typescript',
+        'yaml',
+      ],
+    }),
   ],
   define: {
     'process.env': {
