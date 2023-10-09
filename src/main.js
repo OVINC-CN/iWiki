@@ -86,7 +86,7 @@ VMdEditor.use(createLineNumbertPlugin());
 VMdEditor.use(createHighlightLinesPlugin());
 VMdEditor.use(createCopyCodePlugin());
 VMdEditor.use(createAlignPlugin());
-VMdEditor.use(createTipPlugin());
+VMdEditor.use(createTipPlugin({name: 'md-tip'}));
 
 if (localStorage.getItem('user-language') === 'enUS') {
   VMdEditor.lang.use('en-US', enUS);

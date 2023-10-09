@@ -65,5 +65,20 @@ export default defineConfig({
   build: {
     sourcemap: false,
     chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('markdown')) {
+            return 'markdown';
+          }
+          if (id.includes('arco-design')) {
+            return 'arco-design';
+          }
+          if (id.includes('v-md-editor')) {
+            return 'v-md-editor';
+          }
+        },
+      },
+    },
   },
 });
