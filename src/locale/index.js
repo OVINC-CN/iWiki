@@ -34,6 +34,7 @@ export const changeLang = async (value) => {
   langOption.forEach((item) => {
     if (item.value === value) {
       curLang = item;
+      document.querySelector('html').setAttribute('lang', item.backend);
     }
   });
   locale = curLang.locale;

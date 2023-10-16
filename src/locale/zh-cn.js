@@ -29,6 +29,7 @@ const mZhCN = {
   Delete: '删除',
   Login: '登录',
   GoBack: '返回',
+  Author: '作者',
 };
 
 export default mZhCN;

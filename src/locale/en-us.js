@@ -29,6 +29,7 @@ const mEnUS = {
   Delete: 'Delete',
   Login: 'Login',
   GoBack: 'Back',
+  Author: 'Author',
 };
 
 export default mEnUS;
