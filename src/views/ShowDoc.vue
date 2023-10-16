@@ -35,7 +35,10 @@ const docData = ref({
 const loadDocData = () => {
   handleLoading(loading, true);
   loadDocDataAPI(docID.value).then(
-      (res) => docData.value = res.data,
+      (res) => {
+        docData.value = res.data;
+        setMeta();
+      },
       (err) => Message.error(err.response.data.message),
   )
       .finally(() => handleLoading(loading, false));
@@ -47,6 +50,15 @@ onMounted(() => {
   docID.value = route.params.id;
   loadDocData();
 });
+
+// meta
+const setMeta = () => {
+  document.title = `${docData.value.title} - iWiki - OVINC CN`;
+  document.querySelector('meta[name="description"]').setAttribute(
+      'content',
+      `${docData.value.title} ${docData.value.owner_nick_name} (${docData.value.tags.join(' ')})`,
+  );
+};
 
 // image
 const previewImageVisible = ref(false);
