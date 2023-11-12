@@ -4,6 +4,7 @@ import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 import mZhCN from './zh-cn';
 import mEnUS from './en-us';
 import {changeLangAPI} from '../api/home';
+import router from '../router';
 
 // language option
 export const langOption = [
@@ -41,6 +42,10 @@ export const changeLang = async (value) => {
   mLocal = curLang.value;
   await changeLangAPI(curLang.backend).then(() => {
     localStorage.setItem(userLangKey, value);
+  }, (err) => {
+    if (err.response.status === 403) {
+      router.push({name: 'Error403'});
+    }
   });
 };
 export const changeLangAndReload = (value) => {
