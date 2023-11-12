@@ -2,6 +2,12 @@
 import globalContext from '../context';
 
 const props = defineProps({
+  defaultDocData: {
+    type: Object,
+    default: () => ({
+      header_img: '/extra-assets/imgs/headimage-1.webp',
+    }),
+  },
   docData: {
     type: Object,
     default: () => ({
@@ -40,7 +46,7 @@ const showDoc = () => {
     <template #cover>
       <img
         :alt="docData.title"
-        :src="docData.header_img"
+        :src="docData.header_img || defaultDocData.header_img"
       >
     </template>
     <a-card-meta>

@@ -321,7 +321,6 @@ onMounted(() => {
           <a-form-item
             field="header_img"
             :label="$t('HeaderImg')"
-            :rules="[{required: true, message: $t('HeaderImgRequired')}]"
           >
             <a-upload
               list-type="picture-card"
@@ -369,7 +368,7 @@ onMounted(() => {
             <a-space>
               <a-button
                 @click="saveDoc"
-                :disabled="!formData.title || !formData.content || !formData.header_img"
+                :disabled="!formData.title || !formData.content"
                 :loading="loading"
                 type="primary"
               >
