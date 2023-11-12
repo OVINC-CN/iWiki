@@ -19,6 +19,9 @@ const store = useStore();
 const user = computed(() => store.state.user);
 
 // doc info
+const defaultDocData = ref({
+  header_img: '/extra-assets/imgs/headimage-1.webp',
+});
 const docID = ref('');
 const docData = ref({
   title: '',
@@ -86,7 +89,7 @@ const goToEdit = () => {
         style="width: 100%;"
       >
         <a-image
-          :src="docData.header_img"
+          :src="docData.header_img || defaultDocData.header_img"
           class="header-image"
         />
         <a-space
