@@ -74,10 +74,12 @@ const loadDocData = () => {
     formData.value.tags = res.data.tags;
     formData.value.is_public = res.data.is_public;
     headerImgList.value.push({url: formData.value.header_img});
+    loadLocalCache();
   });
 };
 onMounted(() => {
   if (!route.params.id) {
+    loadLocalCache();
     return;
   }
   docID.value = route.params.id;
@@ -102,6 +104,7 @@ const saveDoc = () => {
   }
   req.then(
       (res) => {
+        clearLocalCache();
         Message.success(i18n.t('SaveDocSuccess'));
         showNext.value = false;
         router.push({name: 'ShowDoc', params: {id: res.data.id}});
@@ -237,6 +240,22 @@ onMounted(() => getUserInfoAPI());
 onMounted(() => {
   document.title = `${i18n.t('NewDoc')} | ${i18n.t('iWiki')}`;
 });
+
+// auto save
+const autoSaveInterval = ref(5000);
+const autoSaveTask = ref();
+const localCacheKey = computed(() => `doc-edit-${docID.value}`);
+const loadLocalCache = () => {
+  const docCacheStr = localStorage.getItem(localCacheKey.value);
+  if (docCacheStr) {
+    formData.value = JSON.parse(docCacheStr);
+    headerImgList.value = [formData.value.header_img];
+  }
+};
+const saveLocalCache = () => localStorage.setItem(localCacheKey.value, JSON.stringify(formData.value));
+const clearLocalCache = () => localStorage.removeItem(localCacheKey.value);
+onMounted(() => autoSaveTask.value = setInterval(() => saveLocalCache(), autoSaveInterval.value));
+onUnmounted(() => clearInterval(autoSaveTask.value));
 </script>
 
 <template>
