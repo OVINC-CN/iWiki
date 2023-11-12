@@ -249,7 +249,9 @@ const loadLocalCache = () => {
   const docCacheStr = localStorage.getItem(localCacheKey.value);
   if (docCacheStr) {
     formData.value = JSON.parse(docCacheStr);
-    headerImgList.value = [formData.value.header_img];
+    if (formData.value.header_img) {
+      headerImgList.value = [formData.value.header_img];
+    }
   }
 };
 const saveLocalCache = () => localStorage.setItem(localCacheKey.value, JSON.stringify(formData.value));
