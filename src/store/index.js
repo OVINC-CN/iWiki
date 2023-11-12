@@ -1,6 +1,8 @@
 import {createStore} from 'vuex';
 import {homeAPI} from '../api/home';
 import {loadPermissionAPI} from '../api/permission';
+import router from '../router';
+
 
 const store = createStore({
   state() {
@@ -56,6 +58,11 @@ const store = createStore({
       homeAPI().then((res) => {
         commit('setUser', res.data.user);
         commit('setIsLogin', true);
+      }, (err) => {
+        const url = new URL(window.location.href);
+        if (err.response.status === 403 && url.pathname !== '/login/') {
+          router.push({name: 'Error403'});
+        }
       });
     },
     loadPermissions({commit}) {
