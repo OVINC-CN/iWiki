@@ -30,6 +30,7 @@ const mEnUS = {
   Login: 'Login',
   GoBack: 'Back',
   Author: 'Author',
+  AccessDenied: 'Access Denied',
 };
 
 export default mEnUS;

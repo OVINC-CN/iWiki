@@ -27,6 +27,11 @@ const routes = [
     component: () => import('../views/EditDoc.vue'),
   },
   {
+    path: '/403/',
+    name: 'Error403',
+    component: () => import('../views/Error403.vue'),
+  },
+  {
 
     path: '/:pathMatch(.*)*',
     name: 'Notfound',

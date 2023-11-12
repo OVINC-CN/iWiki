@@ -30,6 +30,7 @@ const mZhCN = {
   Login: '登录',
   GoBack: '返回',
   Author: '作者',
+  AccessDenied: '未经授权访问',
 };
 
 export default mZhCN;
