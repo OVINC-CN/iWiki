@@ -31,6 +31,7 @@ const mEnUS = {
   GoBack: 'Back',
   Author: 'Author',
   AccessDenied: 'Access Denied',
+  InputKeywords: 'Fuzzy Search',
 };
 
 export default mEnUS;

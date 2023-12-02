@@ -193,6 +193,9 @@ const handlerUserDropDown = (key) => {
   }
 };
 
+// features
+onMounted(() => store.dispatch('loadFeatures'));
+
 // aegis
 const initRUM = () => {
   getRUMConfigAPI()

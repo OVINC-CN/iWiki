@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {listBoundTagsAPI} from '../api/tag';
 import {handleLoading} from '../utils/loading';
@@ -7,6 +7,10 @@ import {listDocsAPI} from '../api/doc';
 import {Message} from '@arco-design/web-vue';
 import Skeleton from '../components/Skeleton.vue';
 import DocItem from '../components/DocItem.vue';
+import {useStore} from 'vuex';
+
+// store
+const store = useStore();
 
 // i18n
 const i18n = useI18n();
@@ -26,12 +30,26 @@ const loadTags = () => {
 };
 onMounted(() => loadTags());
 
+// searchType
+const enabledFuzzySearch = computed(() => store.state.features.doc_fuzzy_search);
+const searchType = ref('tag');
+const changeSearchType = () => {
+  searchData.value.keywords = [];
+  searchData.value.tags = [];
+  if (searchType.value === 'tag') {
+    searchType.value = 'fuzzy';
+  } else {
+    searchType.value = 'tag';
+  }
+};
+
 // search
 const docLoading = ref(true);
 const docAppendLoading = ref(false);
 const docs = ref([]);
 const searchData = ref({
   tags: [],
+  keywords: [],
   current: 1,
   size: 20,
   total: 0,
@@ -46,6 +64,7 @@ const loadDocs = (isAppend) => {
     page: searchData.value.current,
     size: searchData.value.size,
     tags: searchData.value.tags.join(','),
+    keywords: searchData.value.keywords.join(','),
   };
   listDocsAPI(params)
       .then((res) => {
@@ -122,6 +141,7 @@ onUnmounted(() => {
       <div>
         <a-space>
           <a-select
+            v-if="searchType === 'tag'"
             v-model="searchData.tags"
             :placeholder="$t('ChooseTags')"
             multiple
@@ -138,6 +158,21 @@ onUnmounted(() => {
               {{ tag.name }}
             </a-option>
           </a-select>
+          <a-input-tag
+            v-if="searchType === 'fuzzy'"
+            v-model="searchData.keywords"
+            :placeholder="$t('InputKeywords')"
+            allow-clear
+            style="width: 100%"
+            :disabled="docLoading"
+          />
+          <a-button
+            @click="changeSearchType"
+            v-if="enabledFuzzySearch"
+            :loading="docLoading"
+          >
+            <icon-swap />
+          </a-button>
           <a-button
             @click="doSearch"
             :loading="docLoading"
