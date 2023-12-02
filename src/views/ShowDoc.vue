@@ -214,4 +214,12 @@ const goToEdit = () => {
   right: 24px;
   z-index: 200;
 }
+
+#doc-show :deep(.vuepress-markdown-body) {
+  padding: unset;
+}
+
+#doc-show :deep(.vuepress-markdown-body) .v-md-pre-wrapper {
+  margin: unset;
+}
 </style>
