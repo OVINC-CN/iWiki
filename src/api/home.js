@@ -8,3 +8,9 @@ export const homeAPI = () => new Promise((resolve, reject) => {
 export const changeLangAPI = (language) => new Promise((resolve, reject) => {
   http.post('/i18n/', {language}).then((res) => resolve(res), (err) => reject(err));
 });
+
+
+export const featureAPI = () => new Promise((resolve, reject) => {
+  http.get('/features/').then((res) => resolve(res), (err) => reject(err));
+});
+

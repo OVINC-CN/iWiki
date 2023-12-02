@@ -1,5 +1,5 @@
 import {createStore} from 'vuex';
-import {homeAPI} from '../api/home';
+import {featureAPI, homeAPI} from '../api/home';
 import {loadPermissionAPI} from '../api/permission';
 import router from '../router';
 
@@ -22,6 +22,9 @@ const store = createStore({
       },
       userPropertiesRaw: [],
       permissions: [],
+      features: {
+        doc_fuzzy_search: false,
+      },
     };
   },
   mutations: {
@@ -42,6 +45,9 @@ const store = createStore({
     },
     setPermissions(state, payload) {
       state.permissions = payload;
+    },
+    setFeatures(state, payload) {
+      state.features = payload;
     },
   },
   actions: {
@@ -68,6 +74,11 @@ const store = createStore({
     loadPermissions({commit}) {
       loadPermissionAPI().then((res) => {
         commit('setPermissions', res.data);
+      });
+    },
+    loadFeatures({commit}) {
+      featureAPI().then((res) => {
+        commit('setFeatures', res.data);
       });
     },
   },
