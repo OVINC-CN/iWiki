@@ -447,4 +447,12 @@ onUnmounted(() => clearInterval(autoSaveTask.value));
 .doc-submit-drawer :deep(.arco-drawer) {
   max-width: 100%;
 }
+
+#doc-create :deep(.vuepress-markdown-body) {
+  padding: 12px;
+}
+
+#doc-create :deep(.vuepress-markdown-body) .v-md-pre-wrapper {
+  margin: unset;
+}
 </style>
