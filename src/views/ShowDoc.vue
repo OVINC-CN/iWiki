@@ -18,6 +18,42 @@ const router = useRouter();
 const store = useStore();
 const user = computed(() => store.state.user);
 
+// doc title
+const titleMenu = ref({
+  collapsed: true,
+});
+const titles = ref([]);
+const preview = ref();
+const initTitle = () => {
+  if (!preview.value) {
+    setTimeout(() => initTitle(), 1000);
+    return;
+  }
+  const anchors = preview.value.$el.querySelectorAll('h1,h2,h3,h4,h5,h6');
+  titles.value = Array.from(anchors).filter((title) => !!title.innerText.trim());
+  if (!titles.value.length) {
+    titles.value = [];
+    return;
+  }
+  const hTags = Array.from(new Set(titles.value.map((title) => title.tagName))).sort();
+  titles.value = titles.value.map((el) => ({
+    title: el.innerText,
+    lineIndex: el.getAttribute('data-v-md-line'),
+    indent: hTags.indexOf(el.tagName),
+  }));
+};
+const handleAnchorClick = (anchor) => {
+  const heading = preview.value.$el.querySelector(`[data-v-md-line="${anchor.lineIndex}"]`);
+  const container = document.getElementById('app-content-scroll');
+  if (heading) {
+    preview.value.previewScrollToTarget({
+      target: heading,
+      scrollContainer: container,
+      top: 60,
+    });
+  }
+};
+
 // doc info
 const defaultDocData = ref({
   header_img: '/extra-assets/imgs/headimage-1.webp',
@@ -41,6 +77,7 @@ const loadDocData = () => {
       (res) => {
         docData.value = res.data;
         setMeta();
+        initTitle();
       },
       (err) => Message.error(err.response.data.message),
   )
@@ -130,7 +167,7 @@ const goToEdit = () => {
         <a-space
           wrap
           style="margin-top: 10px"
-          v-show="docData.title"
+          v-show="docData.tags.length > 0"
         >
           <a-tag
             v-for="item in docData.tags"
@@ -146,6 +183,7 @@ const goToEdit = () => {
       <v-md-editor
         v-model="docData.content"
         :mode="'preview'"
+        ref="preview"
         @image-click="onImageClick"
       />
     </a-layout-content>
@@ -159,6 +197,46 @@ const goToEdit = () => {
       >
         <icon-edit />
       </a-button>
+    </a-affix>
+    <a-affix
+      class="menu-button"
+      v-show="titles.length > 0"
+    >
+      <div>
+        <a-trigger
+          :trigger="['click']"
+          v-model="titleMenu.collapsed"
+          position="left"
+        >
+          <a-button
+            shape="circle"
+          >
+            <icon-menu />
+          </a-button>
+          <template #content>
+            <a-menu
+              class="menu-button-inner-menu"
+              mode="pop"
+              :show-collapse-button="false"
+            >
+              <a-menu-item
+                v-for="anchor in titles"
+                :key="anchor"
+              >
+                <a-button
+                  type="text"
+                  style="color: unset; width: 100%; text-align: left"
+                  @click="handleAnchorClick(anchor)"
+                >
+                  <div>
+                    {{ anchor.title }}
+                  </div>
+                </a-button>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-trigger>
+      </div>
     </a-affix>
   </a-layout>
   <a-image-preview
@@ -213,6 +291,38 @@ const goToEdit = () => {
   text-align: right;
   right: 24px;
   z-index: 200;
+}
+
+.menu-button {
+  position: fixed;
+  bottom: 152px;
+  text-align: right;
+  right: 24px;
+  z-index: 200;
+}
+
+.menu-button-inner-menu {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.menu-button-inner-menu :deep(.arco-menu-inner) {
+  max-height: 100vh;
+  height: 320px;
+  max-width: 100vw;
+  width: 240px;
+  box-shadow: var(--shadow2-center);
+}
+
+.menu-button-inner-menu button div {
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-button :deep(.arco-menu-inner) {
+  padding: unset;
 }
 
 #doc-show :deep(.vuepress-markdown-body) {
