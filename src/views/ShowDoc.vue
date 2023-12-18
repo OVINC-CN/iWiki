@@ -326,7 +326,7 @@ const goToEdit = () => {
 }
 
 #doc-show :deep(.vuepress-markdown-body) {
-  padding: unset;
+  padding: 1px;
 }
 
 #doc-show :deep(.vuepress-markdown-body) .v-md-pre-wrapper {
