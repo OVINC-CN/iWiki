@@ -48,10 +48,6 @@ export default defineConfig({
   server: {
     host: process.env.HOST,
     port: 8080,
-    https: {
-      key: './.certs/key',
-      cert: './.certs/pem',
-    },
   },
   css: {
     preprocessorOptions:
