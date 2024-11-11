@@ -152,7 +152,7 @@ const uploadHeaderImg = (option) => {
       (res) => {
         const credentials = res.data;
         const cos = loadCos(credentials);
-        cos.putObject({
+        cos.uploadFile({
           Bucket: credentials.cos_bucket,
           Region: credentials.cos_region,
           Key: credentials.key,
@@ -186,7 +186,7 @@ const handleFileUpload = (editor, files) => {
       (res) => {
         const credentials = res.data;
         const cos = loadCos(credentials);
-        cos.putObject({
+        cos.uploadFile({
           Bucket: credentials.cos_bucket,
           Region: credentials.cos_region,
           Key: credentials.key,
