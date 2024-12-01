@@ -165,7 +165,14 @@ const uploadHeaderImg = (option) => {
             Message.error(err.message);
             onError(err);
           } else {
-            const url = `${credentials.cos_url}/${encodeURIComponent(credentials.key)}`;
+            let url = new URL(`${credentials.cos_url}/${encodeURIComponent(credentials.key)}`);
+            if (credentials.cdn_sign) {
+              url.searchParams.append(credentials.cdn_sign_param, credentials.cdn_sign);
+            }
+            if (credentials.image_format) {
+              url.searchParams.append(credentials.image_format, '');
+            }
+            url = url.toString();
             onSuccess({data: {name: fileItem.name, url: url}});
             formData.value.header_img = url;
           }
@@ -195,7 +202,14 @@ const handleFileUpload = (editor, files) => {
           if (err) {
             Message.error(err.message);
           } else {
-            const url = `${credentials.cos_url}/${encodeURIComponent(credentials.key)}`;
+            let url = new URL(`${credentials.cos_url}/${encodeURIComponent(credentials.key)}`);
+            if (credentials.cdn_sign) {
+              url.searchParams.append(credentials.cdn_sign_param, credentials.cdn_sign);
+            }
+            if (credentials.image_format) {
+              url.searchParams.append(credentials.image_format, '');
+            }
+            url = url.toString();
             editor.insert(() => ({
               text: file.type.indexOf('image/') !== -1 ? `![${file.name}](${url}){{{width="auto" height="auto"}}}` : `[${file.name}](${url})`,
             }
