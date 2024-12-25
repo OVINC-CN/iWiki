@@ -113,22 +113,10 @@ onMounted(() => window.addEventListener('resize', () => handleResize()));
 onUnmounted(() => window.removeEventListener('resize', () => {}));
 
 // load more
-const container = document.getElementById('app-content-scroll');
 const loadMore = () => {
-  if (
-    (container.scrollTop + container.clientHeight === container.scrollHeight) &&
-      (searchData.value.total > searchData.value.current * searchData.value.size)
-  ) {
-    searchData.value.current += 1;
-    loadDocs(true);
-  }
+  searchData.value.current += 1;
+  loadDocs(true);
 };
-onMounted(() => {
-  container.addEventListener('scroll', () => loadMore());
-});
-onUnmounted(() => {
-  container.removeEventListener('scroll', () => {});
-});
 </script>
 
 <template>
@@ -204,6 +192,17 @@ onUnmounted(() => {
           </a-col>
         </a-row>
       </a-spin>
+      <div
+        style="width: 100%; display: flex; justify-content: center; margin-top: 20px;"
+        v-if="!docLoading && (searchData.total > searchData.current * searchData.size)"
+      >
+        <a-link @click="loadMore">
+          <div style="display: flex; flex-direction: column; align-items: center">
+            <div>{{ $t('LoadMore') }}</div>
+            <icon-down style="font-size: 14px" />
+          </div>
+        </a-link>
+      </div>
       <skeleton
         v-show="(docAppendLoading && docs.length) || (!docLoading && !docs.length)"
         :animation="docAppendLoading"

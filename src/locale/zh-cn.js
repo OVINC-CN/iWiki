@@ -32,6 +32,7 @@ const mZhCN = {
   Author: '作者',
   AccessDenied: '未经授权访问',
   InputKeywords: '关键字搜索',
+  LoadMore: '加载更多',
 };
 
 export default mZhCN;

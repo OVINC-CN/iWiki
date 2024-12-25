@@ -32,6 +32,7 @@ const mEnUS = {
   Author: 'Author',
   AccessDenied: 'Access Denied',
   InputKeywords: 'Fuzzy Search',
+  LoadMore: 'Load More',
 };
 
 export default mEnUS;
