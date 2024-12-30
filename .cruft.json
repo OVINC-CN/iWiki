@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/OVINC-CN/DevTemplateVue.git",
-  "commit": "b553db276abe6a5b3990a84f796471bc1410332d",
+  "commit": "13a4c8e9247e06e37a115e0d004bb56f8f2e458c",
   "checkout": "main",
   "context": {
     "cookiecutter": {

@@ -107,6 +107,7 @@ import Aegis from 'aegis-web-sdk';
 import {getRUMConfigAPI} from './api/trace';
 import {redirectToLogin} from './utils/login';
 import {PermissionItem} from './constants';
+import {signOutAPI} from './api/user';
 
 // locale
 const i18n = useI18n();
@@ -185,7 +186,7 @@ const userDropDown = computed(() => {
 });
 const handlerUserDropDown = (key) => {
   if (key === 'logout') {
-    redirectToLogin();
+    signOutAPI().finally(() => window.location.reload());
   }
   if (key === 'login') {
     redirectToLogin();
