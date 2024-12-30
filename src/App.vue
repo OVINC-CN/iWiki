@@ -103,7 +103,6 @@ import {useStore} from 'vuex';
 import {locale, langOption, changeLangAndReload} from './locale';
 import {useI18n} from 'vue-i18n';
 import {useRouter} from 'vue-router';
-import {signOutAPI} from './api/user';
 import Aegis from 'aegis-web-sdk';
 import {getRUMConfigAPI} from './api/trace';
 import {redirectToLogin} from './utils/login';
@@ -186,7 +185,7 @@ const userDropDown = computed(() => {
 });
 const handlerUserDropDown = (key) => {
   if (key === 'logout') {
-    signOutAPI().finally(() => window.location.reload());
+    redirectToLogin();
   }
   if (key === 'login') {
     redirectToLogin();
