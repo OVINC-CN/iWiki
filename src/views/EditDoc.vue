@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {getCOSTempSecretAPI} from '../api/cos';
 import {Message} from '@arco-design/web-vue';
@@ -130,7 +130,9 @@ const loadDocData = () => {
     formData.value.header_img = res.data.header_img;
     formData.value.tags = res.data.tags;
     formData.value.is_public = res.data.is_public;
-    headerImgList.value.push({url: formData.value.header_img});
+    if (formData.value.header_img) {
+      headerImgList.value = [{url: formData.value.header_img}];
+    }
     loadLocalCache();
   });
 };
@@ -280,9 +282,14 @@ const handleFileUpload = (editor, files) => {
 };
 
 const onUploadHeaderImgSuccess = (fileItem) => {
-  headerImgList.value.push(fileItem.response.data);
   formData.value.header_img = fileItem.response.data.url;
 };
+
+watch(headerImgList, (val) => {
+  if (!val || val.length === 0) {
+    formData.value.header_img = '';
+  }
+});
 
 // image
 const previewImageVisible = ref(false);
@@ -318,7 +325,7 @@ const loadLocalCache = () => {
       vditor.value.setValue(cachedData.content);
     }
     if (formData.value.header_img) {
-      headerImgList.value = [formData.value.header_img];
+      headerImgList.value = [{url: formData.value.header_img}];
     }
   }
 };
@@ -404,7 +411,7 @@ onUnmounted(() => clearInterval(autoSaveTask.value));
               list-type="picture-card"
               :custom-request="uploadHeaderImg"
               image-preview
-              :default-file-list="headerImgList"
+              v-model:file-list="headerImgList"
               :limit="1"
               @success="onUploadHeaderImgSuccess"
               :disabled="loading"
