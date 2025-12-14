@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {getCOSTempSecretAPI} from '../api/cos';
 import {Message} from '@arco-design/web-vue';
@@ -8,6 +8,7 @@ import {createDocAPI, deleteDocAPI, loadDocDataAPI, updateDocAPI} from '../api/d
 import {useRoute, useRouter} from 'vue-router';
 import {getUserInfoAPI} from '../api/user';
 import {listTagsAPI} from '../api/tag';
+import Vditor from 'vditor';
 
 // i18n
 const i18n = useI18n();
@@ -28,25 +29,79 @@ onMounted(() => window.addEventListener('resize', () => {
 onMounted(() => isSmallScreen.value = window.innerWidth < smallScreenSize.value);
 onUnmounted(() => window.removeEventListener('resize', () => {}));
 
-// editor config
-const leftToolBar = ref('undo redo clear | upload');
-const rightToolBar = computed(() => 'preview toc sync-scroll fullscreen');
-const codemirrorConfig = ref({
-  lineNumbers: false,
-});
-const toolbar = ref({
-  upload: {
-    title: i18n.t('Upload'),
-    icon: 'v-md-icon-img',
-    action(editor) {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.onchange = function() {
-        handleFileUpload(editor, input.files);
-      };
-      input.click();
+// editor
+const vditor = ref(null);
+const isVditorReady = ref(false);
+const initVditor = () => {
+  vditor.value = new Vditor('vditor', {
+    height: 'calc(100vh - 210px)',
+    width: '100%',
+    mode: 'ir',
+    placeholder: i18n.t('ContentRequired'),
+    input: (value) => {
+      formData.value.content = value;
     },
-  },
+    upload: {
+      accept: 'image/*',
+      handler(files) {
+        handleFileUpload(vditor.value, files);
+      },
+    },
+    toolbar: [
+      'emoji',
+      'headings',
+      'bold',
+      'italic',
+      'strike',
+      'link',
+      '|',
+      'list',
+      'ordered-list',
+      'check',
+      'outdent',
+      'indent',
+      '|',
+      'quote',
+      'line',
+      'code',
+      'inline-code',
+      'insert-before',
+      'insert-after',
+      '|',
+      'upload',
+      'table',
+      '|',
+      'undo',
+      'redo',
+      '|',
+      'fullscreen',
+      'edit-mode',
+      {
+        name: 'more',
+        toolbar: [
+          'both',
+          'code-theme',
+          'content-theme',
+          'export',
+          'outline',
+          'preview',
+        ],
+      },
+    ],
+    cache: {
+      enable: false,
+    },
+    after: () => {
+      isVditorReady.value = true;
+      if (formData.value.content) {
+        vditor.value.setValue(formData.value.content);
+      }
+    },
+  });
+};
+
+onMounted(() => {
+  initVditor();
 });
 
 // tags
@@ -69,11 +124,15 @@ const loadDocData = () => {
   loadDocDataAPI(docID.value).then((res) => {
     formData.value.title = res.data.title;
     formData.value.content = res.data.content;
+    if (isVditorReady.value && vditor.value) {
+      vditor.value.setValue(formData.value.content);
+    }
     formData.value.header_img = res.data.header_img;
-    formData.value.title = res.data.title;
     formData.value.tags = res.data.tags;
     formData.value.is_public = res.data.is_public;
-    headerImgList.value.push({url: formData.value.header_img});
+    if (formData.value.header_img) {
+      headerImgList.value = [{url: formData.value.header_img}];
+    }
     loadLocalCache();
   });
 };
@@ -96,7 +155,7 @@ const doNext = ({errors}) => {
 const showNext = ref(false);
 const saveDoc = () => {
   handleLoading(loading, true);
-  let req = null;
+  let req;
   if (docID.value) {
     req = updateDocAPI(docID.value, formData.value);
   } else {
@@ -210,10 +269,7 @@ const handleFileUpload = (editor, files) => {
               url.searchParams.append(credentials.image_format, '');
             }
             url = url.toString();
-            editor.insert(() => ({
-              text: file.type.indexOf('image/') !== -1 ? `![${file.name}](${url}){{{width="auto" height="auto"}}}` : `[${file.name}](${url})`,
-            }
-            ));
+            editor.insertValue(file.type.indexOf('image/') !== -1 ? `![${file.name}](${url})` : `[${file.name}](${url})`);
           }
           handleLoading(loading, false);
         });
@@ -226,17 +282,18 @@ const handleFileUpload = (editor, files) => {
 };
 
 const onUploadHeaderImgSuccess = (fileItem) => {
-  headerImgList.value.push(fileItem.response.data);
   formData.value.header_img = fileItem.response.data.url;
 };
+
+watch(headerImgList, (val) => {
+  if (!val || val.length === 0) {
+    formData.value.header_img = '';
+  }
+});
 
 // image
 const previewImageVisible = ref(false);
 const previewImageUrl = ref('');
-const onImageClick = (images, index) => {
-  previewImageUrl.value = images[index];
-  previewImageVisible.value = true;
-};
 
 // go back
 const goBack = () => {
@@ -262,9 +319,13 @@ const localCacheKey = computed(() => `doc-edit-${docID.value}`);
 const loadLocalCache = () => {
   const docCacheStr = localStorage.getItem(localCacheKey.value);
   if (docCacheStr) {
-    formData.value = JSON.parse(docCacheStr);
+    const cachedData = JSON.parse(docCacheStr);
+    formData.value = cachedData;
+    if (isVditorReady.value && vditor.value && cachedData.content) {
+      vditor.value.setValue(cachedData.content);
+    }
     if (formData.value.header_img) {
-      headerImgList.value = [formData.value.header_img];
+      headerImgList.value = [{url: formData.value.header_img}];
     }
   }
 };
@@ -321,18 +382,7 @@ onUnmounted(() => clearInterval(autoSaveTask.value));
           :loading="loading"
           style="width: 100%; height: 100%"
         >
-          <v-md-editor
-            height="calc(100vh - 210px)"
-            :tab-size="4"
-            autofocus
-            :left-toolbar="leftToolBar"
-            :right-toolbar="rightToolBar"
-            :codemirror-config="codemirrorConfig"
-            :toolbar="toolbar"
-            v-model="formData.content"
-            :mode="!isSmallScreen ? 'editable' : 'edit'"
-            @image-click="onImageClick"
-          />
+          <div id="vditor" />
         </a-spin>
       </a-form-item>
     </a-form>
@@ -361,7 +411,7 @@ onUnmounted(() => clearInterval(autoSaveTask.value));
               list-type="picture-card"
               :custom-request="uploadHeaderImg"
               image-preview
-              :default-file-list="headerImgList"
+              v-model:file-list="headerImgList"
               :limit="1"
               @success="onUploadHeaderImgSuccess"
               :disabled="loading"

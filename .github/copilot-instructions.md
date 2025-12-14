@@ -1,0 +1,2 @@
+- use yarn for package management
+- use eslint for linting
