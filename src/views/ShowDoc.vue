@@ -1,11 +1,12 @@
 <script setup>
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, ref, nextTick, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {Message} from '@arco-design/web-vue';
 import {handleLoading} from '../utils/loading';
 import {loadDocDataAPI} from '../api/doc';
 import Skeleton from '../components/Skeleton.vue';
 import {useStore} from 'vuex';
+import Vditor from 'vditor';
 
 // loading
 const loading = ref(true);
@@ -29,7 +30,7 @@ const initTitle = () => {
     setTimeout(() => initTitle(), 1000);
     return;
   }
-  const anchors = preview.value.$el.querySelectorAll('h1,h2,h3,h4,h5,h6');
+  const anchors = preview.value.querySelectorAll('h1,h2,h3,h4,h5,h6');
   titles.value = Array.from(anchors).filter((title) => !!title.innerText.trim());
   if (!titles.value.length) {
     titles.value = [];
@@ -38,19 +39,15 @@ const initTitle = () => {
   const hTags = Array.from(new Set(titles.value.map((title) => title.tagName))).sort();
   titles.value = titles.value.map((el) => ({
     title: el.innerText,
-    lineIndex: el.getAttribute('data-v-md-line'),
+    id: el.id,
     indent: hTags.indexOf(el.tagName),
   }));
 };
 const handleAnchorClick = (anchor) => {
-  const heading = preview.value.$el.querySelector(`[data-v-md-line="${anchor.lineIndex}"]`);
-  const container = document.getElementById('app-content-scroll');
+  const heading = document.getElementById(anchor.id);
+  const container = document.getElementById('app-content-scroll'); // Assuming this is the scroll container
   if (heading) {
-    preview.value.previewScrollToTarget({
-      target: heading,
-      scrollContainer: container,
-      top: 60,
-    });
+    heading.scrollIntoView({behavior: 'smooth'});
   }
 };
 
@@ -71,13 +68,39 @@ const docData = ref({
   owner: '',
   owner_nick_name: '',
 });
+
+const renderPreview = () => {
+  if (!docData.value.content) return;
+  nextTick(() => {
+    const previewElement = document.getElementById('vditor-preview');
+    if (previewElement) {
+      Vditor.preview(previewElement, docData.value.content, {
+        after() {
+          initTitle();
+          // Add image click listeners
+          const images = previewElement.querySelectorAll('img');
+          images.forEach((img, index) => {
+            img.onclick = () => onImageClick(Array.from(images).map(i => i.src), index);
+            img.style.cursor = 'pointer';
+          });
+        },
+      });
+    }
+  });
+};
+
+watch(loading, (newVal) => {
+  if (!newVal) {
+    renderPreview();
+  }
+});
+
 const loadDocData = () => {
   handleLoading(loading, true);
   loadDocDataAPI(docID.value).then(
       (res) => {
         docData.value = res.data;
         setMeta();
-        initTitle();
       },
       (err) => Message.error(err.response.data.message),
   )
@@ -180,12 +203,7 @@ const goToEdit = () => {
     </a-layout-header>
     <a-divider v-show="!loading && docData.title" />
     <a-layout-content v-if="!loading">
-      <v-md-editor
-        v-model="docData.content"
-        :mode="'preview'"
-        ref="preview"
-        @image-click="onImageClick"
-      />
+      <div id="vditor-preview" ref="preview" />
     </a-layout-content>
     <a-affix
       class="edit-button"
