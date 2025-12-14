@@ -31,6 +31,7 @@ onUnmounted(() => window.removeEventListener('resize', () => {}));
 
 // editor
 const vditor = ref(null);
+const isVditorReady = ref(false);
 const initVditor = () => {
   vditor.value = new Vditor('vditor', {
     height: 'calc(100vh - 210px)',
@@ -91,6 +92,7 @@ const initVditor = () => {
       enable: false,
     },
     after: () => {
+      isVditorReady.value = true;
       if (formData.value.content) {
         vditor.value.setValue(formData.value.content);
       }
@@ -122,7 +124,7 @@ const loadDocData = () => {
   loadDocDataAPI(docID.value).then((res) => {
     formData.value.title = res.data.title;
     formData.value.content = res.data.content;
-    if (vditor.value) {
+    if (isVditorReady.value && vditor.value) {
       vditor.value.setValue(formData.value.content);
     }
     formData.value.header_img = res.data.header_img;
@@ -312,7 +314,7 @@ const loadLocalCache = () => {
   if (docCacheStr) {
     const cachedData = JSON.parse(docCacheStr);
     formData.value = cachedData;
-    if (vditor.value && cachedData.content) {
+    if (isVditorReady.value && vditor.value && cachedData.content) {
       vditor.value.setValue(cachedData.content);
     }
     if (formData.value.header_img) {
