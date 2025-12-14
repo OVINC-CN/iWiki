@@ -45,7 +45,6 @@ const initTitle = () => {
 };
 const handleAnchorClick = (anchor) => {
   const heading = document.getElementById(anchor.id);
-  const container = document.getElementById('app-content-scroll'); // Assuming this is the scroll container
   if (heading) {
     heading.scrollIntoView({behavior: 'smooth'});
   }
@@ -80,7 +79,7 @@ const renderPreview = () => {
           // Add image click listeners
           const images = previewElement.querySelectorAll('img');
           images.forEach((img, index) => {
-            img.onclick = () => onImageClick(Array.from(images).map(i => i.src), index);
+            img.onclick = () => onImageClick(Array.from(images).map((i) => i.src), index);
             img.style.cursor = 'pointer';
           });
         },
@@ -203,7 +202,10 @@ const goToEdit = () => {
     </a-layout-header>
     <a-divider v-show="!loading && docData.title" />
     <a-layout-content v-if="!loading">
-      <div id="vditor-preview" ref="preview" />
+      <div
+        id="vditor-preview"
+        ref="preview"
+      />
     </a-layout-content>
     <a-affix
       class="edit-button"
