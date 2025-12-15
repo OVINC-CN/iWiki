@@ -8,19 +8,22 @@
       <a-layout id="app-layout">
         <a-layout-header id="app-header">
           <div>
+            <div
+              @click="goTo('Home')"
+              id="app-menu-logo"
+            >
+              <img
+                src="/logo.webp"
+                alt="logo"
+                style="width: 80px"
+              >
+            </div>
             <a-menu
+              id="app-menu"
               mode="horizontal"
               :default-selected-keys="[currentMenuItem]"
               @menu-item-click="goTo"
             >
-              <a-menu-item
-                disabled
-                id="app-menu-logo"
-              >
-                <div @click="goTo('Home')">
-                  iWiki
-                </div>
-              </a-menu-item>
               <a-menu-item
                 v-for="item in menu"
                 :key="item.key"
@@ -30,7 +33,10 @@
               </a-menu-item>
             </a-menu>
             <a-space id="app-header-right">
-              <a-dropdown @select="changeLangAndReload">
+              <a-dropdown
+                v-if="false"
+                @select="changeLangAndReload"
+              >
                 <icon-public id="app-header-menu-lang" />
                 <template #content>
                   <a-doption
@@ -238,25 +244,22 @@ onMounted(() => initRUM());
 }
 
 #app-menu-logo {
-  padding-left: 0;
+  padding: 20px 0 20px 20px;
+  margin-left: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app-menu .arco-menu-item:not(:first-child),
+#app-menu .arco-menu-pop:not(:first-child) {
   margin-left: 0;
 }
 
 #app-header-menu-lang {
   cursor: pointer;
   margin-right: 12px;
-}
-
-#app-menu-logo > div {
-  width: 80px;
-  height: 30px;
-  border-radius: var(--border-radius-medium);
-  border: 1px solid rgba(var(--primary-4));
-  padding: 4px;
-  color: var(--color-text-1);
-  text-align: center;
-  font-weight: bold;
-  cursor: pointer;
 }
 
 #app-footer {
