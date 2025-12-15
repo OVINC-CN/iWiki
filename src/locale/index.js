@@ -25,7 +25,7 @@ export const langOption = [
 const userLangKey = 'user-language';
 
 // default language
-let mLocal = 'zhCN';
+export let mLocal = 'zhCN';
 export let locale = zhCN;
 
 // change language

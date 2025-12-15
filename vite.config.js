@@ -43,6 +43,7 @@ export default defineConfig(({mode}) => {
         SITE_URL: env.SITE_URL,
         OVINC_URL: env.OVINC_URL,
         OVINC_WEB_URL: env.OVINC_WEB_URL,
+        VDITOR_CDN: env.VDITOR_CDN,
       },
     },
     base: '/',
@@ -75,6 +76,9 @@ export default defineConfig(({mode}) => {
             }
             if (id.includes('vditor')) {
               return 'vditor';
+            }
+            if (id.includes('mermaid')) {
+              return 'mermaid';
             }
           },
         },

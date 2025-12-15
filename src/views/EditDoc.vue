@@ -9,6 +9,7 @@ import {useRoute, useRouter} from 'vue-router';
 import {getUserInfoAPI} from '../api/user';
 import {listTagsAPI} from '../api/tag';
 import Vditor from 'vditor';
+import {mLocal} from '../locale';
 
 // i18n
 const i18n = useI18n();
@@ -34,19 +35,24 @@ const vditor = ref(null);
 const isVditorReady = ref(false);
 const initVditor = () => {
   vditor.value = new Vditor('vditor', {
+    undoDelay: 500,
     height: 'calc(100vh - 210px)',
     width: '100%',
-    mode: 'ir',
     placeholder: i18n.t('ContentRequired'),
+    lang: mLocal === 'enUS' ? 'en_US' : 'zh_CN',
     input: (value) => {
       formData.value.content = value;
     },
-    upload: {
-      accept: 'image/*',
-      handler(files) {
-        handleFileUpload(vditor.value, files);
-      },
+    after: () => {
+      isVditorReady.value = true;
+      if (formData.value.content) {
+        vditor.value.setValue(formData.value.content);
+      }
     },
+    tab: '    ',
+    typewriterMode: true,
+    cdn: process.env.VDITOR_CDN || '',
+    icon: 'ant',
     toolbar: [
       'emoji',
       'headings',
@@ -88,14 +94,47 @@ const initVditor = () => {
         ],
       },
     ],
+    counter: {
+      enable: true,
+      type: 'markdown',
+    },
     cache: {
       enable: false,
     },
-    after: () => {
-      isVditorReady.value = true;
-      if (formData.value.content) {
-        vditor.value.setValue(formData.value.content);
-      }
+    preview: {
+      maxWidth: '1600',
+      mode: 'both',
+      hljs: {
+        enable: true,
+        style: 'github',
+        lineNumber: true,
+      },
+      markdown: {
+        mark: true,
+        sup: true,
+        sub: true,
+      },
+      theme: {
+        current: 'light',
+        list: {
+          light: 'Light',
+          dark: 'Dark',
+          wechat: 'WeChat',
+        },
+      },
+      math: {
+        engine: 'KaTeX',
+      },
+    },
+    mode: 'ir',
+    upload: {
+      accept: '*',
+      handler(files) {
+        handleFileUpload(vditor.value, files);
+      },
+    },
+    outline: {
+      enable: true,
     },
   });
 };

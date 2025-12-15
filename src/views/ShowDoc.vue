@@ -7,6 +7,7 @@ import {loadDocDataAPI} from '../api/doc';
 import Skeleton from '../components/Skeleton.vue';
 import {useStore} from 'vuex';
 import Vditor from 'vditor';
+import {mLocal} from '../locale';
 
 // loading
 const loading = ref(true);
@@ -74,6 +75,31 @@ const renderPreview = () => {
     const previewElement = document.getElementById('vditor-preview');
     if (previewElement) {
       Vditor.preview(previewElement, docData.value.content, {
+        mode: 'light',
+        lang: mLocal === 'enUS' ? 'en_US' : 'zh_CN',
+        hljs: {
+          enable: true,
+          style: 'github',
+          lineNumber: true,
+        },
+        math: {
+          engine: 'KaTeX',
+        },
+        cdn: process.env.VDITOR_CDN || '',
+        markdown: {
+          mark: true,
+          sup: true,
+          sub: true,
+        },
+        theme: {
+          current: 'light',
+          list: {
+            light: 'Light',
+            dark: 'Dark',
+            wechat: 'WeChat',
+          },
+        },
+        icon: 'ant',
         after() {
           initTitle();
           // Add image click listeners
