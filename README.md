@@ -76,7 +76,7 @@ Fork this repository and deploy it using [Vercel](https://vercel.com).
    | `BACKEND_URL` | API URL |
    | `OVINC_WEB_URL` | OVINC Web URL |
    | `OVINC_URL` | OVINC Union API URL |
-   | `VDITOR_CDN` | Vditor CDN URL (Optional) |
+   | `VDITOR_CDN` | Vditor CDN URL (Optional, [Configuration](https://github.com/Vanessa219/vditor?tab=readme-ov-file#cdn-%E5%88%87%E6%8D%A2)) |
 
 ### Method 2: Manual Deployment
 

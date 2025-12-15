@@ -76,7 +76,7 @@ Fork 此仓库后，使用 [Vercel](https://vercel.com) 进行部署。
    | `BACKEND_URL` | 后端 API 地址 |
    | `OVINC_WEB_URL` | OVINC Web 地址 |
    | `OVINC_URL` | OVINC 统一 API 地址 |
-   | `VDITOR_CDN` | Vditor CDN 地址 (可选) |
+   | `VDITOR_CDN` | Vditor CDN 地址 (可选，[配置方式](https://github.com/Vanessa219/vditor?tab=readme-ov-file#cdn-%E5%88%87%E6%8D%A2)) |
 
 ### 方式二：手动打包部署
 
