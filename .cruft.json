@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/OVINC-CN/DevTemplateVue.git",
-  "commit": "13a4c8e9247e06e37a115e0d004bb56f8f2e458c",
+  "commit": "0757009046f52dd4ecb04ec544991c06af85c167",
   "checkout": "main",
   "context": {
     "cookiecutter": {
@@ -9,7 +9,8 @@
         ".github",
         "src"
       ],
-      "_template": "https://github.com/OVINC-CN/DevTemplateVue.git"
+      "_template": "https://github.com/OVINC-CN/DevTemplateVue.git",
+      "_commit": "0757009046f52dd4ecb04ec544991c06af85c167"
     }
   },
   "directory": null
