@@ -111,7 +111,7 @@ import {useI18n} from 'vue-i18n';
 import {useRouter} from 'vue-router';
 import Aegis from 'aegis-web-sdk';
 import {getRUMConfigAPI} from './api/trace';
-import {redirectToLogin} from './utils/login';
+import {redirectToLogin} from './utils/login.js';
 import {PermissionItem} from './constants';
 import {signOutAPI} from './api/user';
 
