@@ -263,7 +263,7 @@ const uploadHeaderImg = (option) => {
             Message.error(err.message);
             onError(err);
           } else {
-            let url = new URL(`${credentials.cos_url}/${encodeURIComponent(credentials.key)}`);
+            let url = new URL(`${credentials.cos_url}/${credentials.key}`);
             if (credentials.cdn_sign) {
               url.searchParams.append(credentials.cdn_sign_param, credentials.cdn_sign);
             }
@@ -300,7 +300,7 @@ const handleFileUpload = (editor, files) => {
           if (err) {
             Message.error(err.message);
           } else {
-            let url = new URL(`${credentials.cos_url}/${encodeURIComponent(credentials.key)}`);
+            let url = new URL(`${credentials.cos_url}/${credentials.key}`);
             if (credentials.cdn_sign) {
               url.searchParams.append(credentials.cdn_sign_param, credentials.cdn_sign);
             }
