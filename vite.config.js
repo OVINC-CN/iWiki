@@ -4,6 +4,7 @@ import prismjs from 'vite-plugin-prismjs';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const timestamp = new Date().getTime();
   return {
     plugins: [
       vue(),
@@ -67,6 +68,9 @@ export default defineConfig(({mode}) => {
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
+          entryFileNames: `assets/[name]-[hash]-${timestamp}.js`,
+          chunkFileNames: `assets/[name]-[hash]-${timestamp}.js`,
+          assetFileNames: `assets/[name]-[hash]-${timestamp}[extname]`,
           manualChunks(id) {
             if (id.includes('markdown')) {
               return 'markdown';
