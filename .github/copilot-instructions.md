@@ -1,4 +1,8 @@
 - use yarn for package management
-- use eslint for linting
-- always use i18n for strings and do localization
-- after changing code, run lint and build to verify
+- use eslint-config-alloy
+- use i18n and do localization
+- run lint and build after code generation
+- use shadcn@latest components
+- use tailwindcss for styling
+- use nextjs@latest
+- follow the minimalist aesthetic style of Apple Inc.
