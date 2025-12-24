@@ -164,7 +164,7 @@ export const DocsList: React.FC = () => {
           )}
         </form>
 
-        {boundTags.length > 0 && (
+        {boundTags?.length > 0 && (
           <div className="tags-filter">
             {boundTags.map((tag) => (
               <button

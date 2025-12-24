@@ -51,7 +51,7 @@ export const useBoundTags = () => {
       setLoading(true);
       setError(null);
       const response = await getBoundTags({ size: 100 });
-      setTags(response.data.data.results);
+      setTags(response.data.data.results || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tags');
     } finally {
