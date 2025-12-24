@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useDocs, useBoundTags } from '../hooks/useDocs';
-import { useDebounce } from '../hooks/useDebounce';
 import { useApp } from '../contexts/useApp';
 import { DocCard } from '../components/DocCard';
 import { SkeletonCard } from '../components/Loading';
@@ -16,20 +15,20 @@ export const DocsList: React.FC = () => {
   const { features, t } = useApp();
   
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [inputValue, setInputValue] = useState(searchParams.get('keywords') || '');
+  const [inputValue, setInputValue] = useState('');
+  const [keywords, setKeywords] = useState<string[]>(
+    searchParams.get('keywords')?.split(',').filter(Boolean) || []
+  );
   const [selectedTags, setSelectedTags] = useState<string[]>(
     searchParams.get('tags')?.split(',').filter(Boolean) || []
   );
   const [showAllTags, setShowAllTags] = useState(false);
 
-  // Debounce search keywords
-  const debouncedKeywords = useDebounce(inputValue, 500);
-
   // Process keywords to support multiple values separated by space or comma
   const processedKeywords = useMemo(() => {
-    if (!debouncedKeywords) return undefined;
-    return debouncedKeywords.split(/[\s,]+/).filter(Boolean).join(',');
-  }, [debouncedKeywords]);
+    if (keywords.length === 0) return undefined;
+    return keywords.join(',');
+  }, [keywords]);
 
   const { docs, total, loading } = useDocs({
     page,
@@ -46,15 +45,34 @@ export const DocsList: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (page > 1) params.set('page', String(page));
-    if (debouncedKeywords) params.set('keywords', debouncedKeywords);
+    if (keywords.length > 0) params.set('keywords', keywords.join(','));
     if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
     setSearchParams(params, { replace: true });
-  }, [page, debouncedKeywords, selectedTags, setSearchParams]);
+  }, [page, keywords, selectedTags, setSearchParams]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    // Search is handled by debounce, this just prevents form submission refresh
   }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newKeyword = inputValue.trim();
+      if (newKeyword && !keywords.includes(newKeyword)) {
+        setKeywords([...keywords, newKeyword]);
+        setInputValue('');
+        setPage(1);
+      }
+    } else if (e.key === 'Backspace' && !inputValue && keywords.length > 0) {
+      setKeywords(keywords.slice(0, -1));
+      setPage(1);
+    }
+  };
+
+  const removeKeyword = (keyword: string) => {
+    setKeywords(keywords.filter((k) => k !== keyword));
+    setPage(1);
+  };
 
   const toggleTag = useCallback((tagName: string) => {
     setSelectedTags((prev) =>
@@ -152,15 +170,35 @@ export const DocsList: React.FC = () => {
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              <input
-                type="text"
-                placeholder={t.docs.searchPlaceholder}
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  setPage(1);
-                }}
-              />
+              <div 
+                className="search-box-container" 
+                onClick={() => document.getElementById('search-input')?.focus()}
+              >
+                {keywords.map((k) => (
+                  <span key={k} className="search-keyword-chip">
+                    {k}
+                    <button 
+                      type="button" 
+                      className="search-keyword-remove"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeKeyword(k);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  id="search-input"
+                  type="text"
+                  className="search-box-input"
+                  placeholder={keywords.length === 0 ? t.docs.searchPlaceholder : ''}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
             </div>
           </form>
         )}
