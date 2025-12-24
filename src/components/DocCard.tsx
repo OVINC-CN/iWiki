@@ -12,7 +12,7 @@ interface DocCardProps {
 }
 
 export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
-  const { t } = useApp();
+  const { t, language } = useApp();
 
   return (
     <Link to={`/docs/${doc.id}`} className="block group h-full">
@@ -60,7 +60,7 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
           <span>{doc.owner_nick_name || doc.owner}</span>
           <span className="flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
-            {formatRelativeTime(doc.created_at)}
+            {formatRelativeTime(doc.created_at, language)}
           </span>
         </CardFooter>
       </Card>
