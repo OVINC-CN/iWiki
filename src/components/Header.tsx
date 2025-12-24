@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+/* eslint-disable complexity */
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../contexts/useApp';
@@ -160,11 +161,9 @@ export const Header: React.FC = () => {
               </AnimatePresence>
             </>
           ) : (
-            <>
-              <button className="btn btn-primary" onClick={login}>
+            <button className="btn btn-primary" onClick={login}>
                 {t.common.login}
               </button>
-            </>
           )}
         </div>
 

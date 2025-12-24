@@ -15,7 +15,7 @@ export const getTranslation = (lang: string): Translations => {
 };
 
 // Helper to get nested property by path string
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const getNestedValue = (obj: any, path: string): string => {
   return path.split('.').reduce((prev, curr) => {
     return prev ? prev[curr] : null;

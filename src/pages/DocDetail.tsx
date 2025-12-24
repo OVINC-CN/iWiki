@@ -11,6 +11,7 @@ import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
 import { getDocDetail, deleteDoc } from '../api';
 import { useApp } from '../contexts/useApp';
+import { useModal } from '../contexts/useModal';
 import { Loading } from '../components/Loading';
 import { formatDate } from '../utils/date';
 import type { DocInfo } from '../types';
@@ -39,6 +40,7 @@ export const DocDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, t } = useApp();
+  const { showAlert } = useModal();
 
   const [doc, setDoc] = useState<DocInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -99,11 +101,11 @@ export const DocDetail: React.FC = () => {
       await deleteDoc(id);
       navigate('/docs');
     } catch {
-      alert(t.docs.deleteFailed);
+      showAlert(t.docs.deleteFailed);
     } finally {
       setDeleting(false);
     }
-  }, [id, navigate, t]);
+  }, [id, navigate, t, showAlert]);
 
   if (loading) {
     return <Loading fullPage text={t.common.loading} />;

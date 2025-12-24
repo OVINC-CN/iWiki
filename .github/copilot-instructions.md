@@ -1,3 +1,4 @@
 - use yarn for package management
 - use eslint for linting
 - always use i18n for strings and do localization
+- after changing code, run lint and build to verify

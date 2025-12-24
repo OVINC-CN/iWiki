@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { UserInfo, UserPermission, FeatureResponse } from '../types';
 import { getHomeInfo, getPermissions, getFeatures, signOut as apiSignOut, changeLanguage as apiChangeLanguage } from '../api';
 import { getTranslation } from '../i18n';
@@ -87,22 +87,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  const value = useMemo(() => ({
+    user,
+    permissions,
+    features,
+    loading,
+    isLoggedIn: !!user,
+    hasPermission,
+    refreshUser: fetchUserData,
+    signOut,
+    login,
+    language,
+    changeLanguage,
+    t,
+  }), [user, permissions, features, loading, hasPermission, fetchUserData, signOut, login, language, changeLanguage, t]);
+
   return (
     <AppContext.Provider
-      value={{
-        user,
-        permissions,
-        features,
-        loading,
-        isLoggedIn: !!user,
-        hasPermission,
-        refreshUser: fetchUserData,
-        signOut,
-        login,
-        language,
-        changeLanguage,
-        t,
-      }}
+      value={value}
     >
       {children}
     </AppContext.Provider>
