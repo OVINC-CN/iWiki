@@ -145,8 +145,6 @@ export const DocsList: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="docs-title">{t.docs.listTitle}</h1>
-        
         {features?.doc_fuzzy_search && (
           <form className="docs-filters" onSubmit={handleSearch}>
             <div className="search-box">
