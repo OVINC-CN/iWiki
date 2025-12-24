@@ -64,39 +64,38 @@ export const Header: React.FC = () => {
           
           {/* Mobile user section */}
           <div className="mobile-only" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: `1px solid var(--border)` }}>
-            <button 
-              className="nav-link" 
-              onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-              style={{ width: '100%', textAlign: 'left' }}
-            >
-              {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-            </button>
             {isLoggedIn ? (
               <>
                 <div className="nav-link" style={{ color: 'var(--text-primary)' }}>
                   {user?.nick_name || user?.username}
                 </div>
-                <button className="nav-link" onClick={signOut} style={{ width: '100%', textAlign: 'left' }}>
+                <button 
+                  className="nav-link mobile-action-btn" 
+                  onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+                  style={{ width: '100%', textAlign: 'left' }}
+                >
+                  {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                </button>
+                <button className="nav-link mobile-danger-btn" onClick={signOut} style={{ width: '100%', textAlign: 'left' }}>
                   {t.common.logout}
                 </button>
               </>
             ) : (
-              <button className="nav-link" onClick={login} style={{ width: '100%', textAlign: 'left' }}>
-                {t.common.login}
-              </button>
+              <>
+                <button 
+                  className="nav-link mobile-action-btn" 
+                  onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+                  style={{ width: '100%', textAlign: 'left' }}
+                >
+                  {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                </button>
+                <button className="nav-link mobile-primary-btn" onClick={login} style={{ width: '100%', textAlign: 'left' }}>
+                  {t.common.login}
+                </button>
+              </>
             )}
           </div>
         </nav>
-
-        <div className="desktop-only" style={{ marginRight: '1rem' }}>
-          <button 
-            className="nav-link" 
-            onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem' }}
-          >
-            {language === 'zh-hans' ? t.common.english : t.common.chinese}
-          </button>
-        </div>
 
         <div className="user-menu desktop-only" ref={dropdownRef}>
           {isLoggedIn ? (
@@ -122,6 +121,12 @@ export const Header: React.FC = () => {
                     <div className="user-dropdown-item" style={{ borderBottom: '1px solid var(--border)' }}>
                       <span>{user?.nick_name || user?.username}</span>
                     </div>
+                    <button 
+                      className="user-dropdown-item" 
+                      onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+                    >
+                      {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                    </button>
                     <button className="user-dropdown-item danger" onClick={signOut}>
                       {t.common.logout}
                     </button>
@@ -130,9 +135,18 @@ export const Header: React.FC = () => {
               </AnimatePresence>
             </>
           ) : (
-            <button className="btn btn-primary" onClick={login}>
-              {t.common.login}
-            </button>
+            <>
+              <button 
+                className="nav-link" 
+                onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', marginRight: '1rem' }}
+              >
+                {language === 'zh-hans' ? t.common.english : t.common.chinese}
+              </button>
+              <button className="btn btn-primary" onClick={login}>
+                {t.common.login}
+              </button>
+            </>
           )}
         </div>
 
