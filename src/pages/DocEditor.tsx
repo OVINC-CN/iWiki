@@ -62,8 +62,45 @@ export const DocEditor: React.FC = () => {
         }
       };
       fetchDoc();
+    } else {
+      // Load from cache if creating new doc
+      const cached = localStorage.getItem('doc_draft');
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          // Only load if cache is recent (e.g. within 24 hours)
+          if (Date.now() - data.updatedAt < 24 * 60 * 60 * 1000) {
+            setTitle(data.title || '');
+            setContent(data.content || '');
+            setHeaderImg(data.headerImg || '');
+            setIsPublic(data.isPublic ?? true);
+            setTags(data.tags || []);
+          }
+        } catch (e) {
+          console.error('Failed to load draft', e);
+        }
+      }
+      setLoading(false);
     }
   }, [id, isEditing, navigate]);
+
+  // Save to cache when content changes
+  useEffect(() => {
+    if (!isEditing && !loading) {
+      const timer = setTimeout(() => {
+        const data = {
+          title,
+          content,
+          headerImg,
+          isPublic,
+          tags,
+          updatedAt: Date.now(),
+        };
+        localStorage.setItem('doc_draft', JSON.stringify(data));
+      }, 1000); // Debounce save
+      return () => clearTimeout(timer);
+    }
+  }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
 
   // Load all tags for suggestions
   useEffect(() => {
@@ -103,6 +140,7 @@ export const DocEditor: React.FC = () => {
         navigate(`/docs/${id}`);
       } else {
         const response = await createDoc(data);
+        localStorage.removeItem('doc_draft');
         navigate(`/docs/${response.data.data.id}`);
       }
     } catch {
@@ -336,20 +374,20 @@ export const DocEditor: React.FC = () => {
       <div className="editor-body">
         <div className={`editor-toolbar ${showPreview ? 'hidden' : ''}`}>
           <div className="editor-toolbar-group">
-            <button className="toolbar-btn" title={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
                 <path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.italic} onClick={() => insertMarkdown('*', '*')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.italic} onClick={() => insertMarkdown('*', '*')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="19" y1="4" x2="10" y2="4" />
                 <line x1="14" y1="20" x2="5" y2="20" />
                 <line x1="15" y1="4" x2="9" y2="20" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.strikethrough} onClick={() => insertMarkdown('~~', '~~')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.strikethrough} onClick={() => insertMarkdown('~~', '~~')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 4H9a3 3 0 00-3 3v1a3 3 0 003 3h6" />
                 <path d="M8 20h7a3 3 0 003-3v-1a3 3 0 00-3-3H8" />
@@ -359,12 +397,12 @@ export const DocEditor: React.FC = () => {
           </div>
           <div className="editor-toolbar-divider" />
           <div className="editor-toolbar-group">
-            <button className="toolbar-btn" title={t.editor.tools.heading} onClick={() => insertMarkdown('## ')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.heading} onClick={() => insertMarkdown('## ')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 12h8M4 6v12M12 6v12M20 8l-4 4 4 4" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.quote} onClick={() => insertMarkdown('> ')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.quote} onClick={() => insertMarkdown('> ')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z" />
                 <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z" />
@@ -373,26 +411,26 @@ export const DocEditor: React.FC = () => {
           </div>
           <div className="editor-toolbar-divider" />
           <div className="editor-toolbar-group">
-            <button className="toolbar-btn" title={t.editor.tools.code} onClick={() => insertMarkdown('`', '`')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.code} onClick={() => insertMarkdown('`', '`')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="16 18 22 12 16 6" />
                 <polyline points="8 6 2 12 8 18" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.codeBlock} onClick={() => insertMarkdown('```\n', '\n```')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.codeBlock} onClick={() => insertMarkdown('```\n', '\n```')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <polyline points="9 9 5 12 9 15" />
                 <polyline points="15 9 19 12 15 15" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.link} onClick={() => insertMarkdown('[', '](url)')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.link} onClick={() => insertMarkdown('[', '](url)')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
                 <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.image} onClick={() => fileInputRef.current?.click()}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.image} onClick={() => fileInputRef.current?.click()}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
@@ -412,7 +450,7 @@ export const DocEditor: React.FC = () => {
                 }
               }}
             />
-            <button className="toolbar-btn" title={t.editor.tools.file} onClick={() => fileUploadRef.current?.click()}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.file} onClick={() => fileUploadRef.current?.click()}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
               </svg>
@@ -432,7 +470,7 @@ export const DocEditor: React.FC = () => {
           </div>
           <div className="editor-toolbar-divider" />
           <div className="editor-toolbar-group">
-            <button className="toolbar-btn" title={t.editor.tools.ul} onClick={() => insertMarkdown('- ')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.ul} onClick={() => insertMarkdown('- ')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="8" y1="6" x2="21" y2="6" />
                 <line x1="8" y1="12" x2="21" y2="12" />
@@ -442,7 +480,7 @@ export const DocEditor: React.FC = () => {
                 <circle cx="4" cy="18" r="1" fill="currentColor" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.ol} onClick={() => insertMarkdown('1. ')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.ol} onClick={() => insertMarkdown('1. ')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="10" y1="6" x2="21" y2="6" />
                 <line x1="10" y1="12" x2="21" y2="12" />
@@ -450,7 +488,7 @@ export const DocEditor: React.FC = () => {
                 <path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.task} onClick={() => insertMarkdown('- [ ] ')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.task} onClick={() => insertMarkdown('- [ ] ')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="5" width="6" height="6" rx="1" />
                 <path d="M5 11l1 1 3-3" />
@@ -462,12 +500,12 @@ export const DocEditor: React.FC = () => {
           </div>
           <div className="editor-toolbar-divider" />
           <div className="editor-toolbar-group">
-            <button className="toolbar-btn" title={t.editor.tools.math} onClick={() => insertMarkdown('$', '$')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.math} onClick={() => insertMarkdown('$', '$')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <text x="6" y="18" fontSize="16" fontStyle="italic">∑</text>
               </svg>
             </button>
-            <button className="toolbar-btn" title={t.editor.tools.mermaid} onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')}>
+            <button className="toolbar-btn" data-tooltip={t.editor.tools.mermaid} onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="7" height="7" />
                 <rect x="14" y="3" width="7" height="7" />

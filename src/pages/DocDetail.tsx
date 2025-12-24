@@ -25,9 +25,12 @@ mermaid.initialize({
     primaryColor: '#6366f1',
     primaryTextColor: '#f1f5f9',
     primaryBorderColor: '#334155',
-    lineColor: '#64748b',
+    lineColor: '#94a3b8',
     secondaryColor: '#1e293b',
     tertiaryColor: '#0f172a',
+    textColor: '#f1f5f9',
+    mainBkg: '#1e293b',
+    nodeBorder: '#334155',
   },
 });
 
@@ -71,7 +74,11 @@ export const DocDetail: React.FC = () => {
             const { svg } = await mermaid.render(`mermaid-${i}`, code);
             const container = document.createElement('div');
             container.className = 'mermaid';
-            const safeSvg = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
+            const safeSvg = DOMPurify.sanitize(svg, { 
+              USE_PROFILES: { svg: true, svgFilters: true },
+              ADD_TAGS: ['foreignObject'],
+              ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
+            });
             container.innerHTML = safeSvg;
             element.parentElement?.replaceWith(container);
           } catch (e) {
