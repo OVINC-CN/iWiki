@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { DocList } from '../types';
 import { formatRelativeTime } from '../utils/date';
+import { useApp } from '../contexts/useApp';
 import '../styles/docCard.css';
 
 interface DocCardProps {
@@ -9,6 +10,8 @@ interface DocCardProps {
 }
 
 export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
+  const { t } = useApp();
+  
   return (
     <Link to={`/docs/${doc.id}`} className="doc-card">
       <div className="doc-card-image">
@@ -24,6 +27,15 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
               <polyline points="10 9 9 9 8 9" />
             </svg>
           </div>
+        )}
+        {!doc.is_public && (
+          <span className="doc-card-private-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            {t.editor.private}
+          </span>
         )}
       </div>
       <div className="doc-card-content">
