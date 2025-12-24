@@ -14,7 +14,7 @@ import type {
 
 // Home API
 export const getHomeInfo = () =>
-  apiClient.get<ApiResponse<PaginatedResponse<HomeResponse>>>('/');
+  apiClient.get<ApiResponse<HomeResponse>>('/');
 
 // Account APIs
 export const signIn = (code: string) =>

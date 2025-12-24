@@ -19,8 +19,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getFeatures().catch(() => null),
       ]);
 
-      const userData = homeRes.data.data.results?.[0]?.user;
-      if (userData) {
+      const userData = homeRes.data.data.user;
+      if (userData?.username) {
         setUser(userData);
       }
 
