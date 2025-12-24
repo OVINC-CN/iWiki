@@ -1,6 +1,6 @@
 - use yarn for package management
 - use eslint-config-alloy
-- use i18n and do localization
+- use i18n for string and do localization, nver hardcode Chinese or English text directly in components
 - run lint and build after code generation
 - use shadcn@latest components
 - use tailwindcss for styling

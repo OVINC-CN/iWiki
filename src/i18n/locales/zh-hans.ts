@@ -56,6 +56,7 @@ export default {
     showMore: '查看更多',
     showLess: '收起',
     deleteConfirm: '确定要删除这篇文章吗？',
+    deleteWarning: '此操作无法撤销，文章将被永久删除。',
     deleteFailed: '删除失败',
     deleting: '删除中...',
     notFound: '文章不存在',

@@ -195,11 +195,11 @@ export const DocDetail: React.FC = () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t.docs.deleteConfirm}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      此操作无法撤销，文章将被永久删除。
+                      {t.docs.deleteWarning}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t.common.cancel || '取消'}</AlertDialogCancel>
+                    <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                       {t.common.delete}
                     </AlertDialogAction>

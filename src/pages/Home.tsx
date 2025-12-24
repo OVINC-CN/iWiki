@@ -21,9 +21,26 @@ export const Home: React.FC = () => {
       >
         {/* Colorful gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/50" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div 
+          className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" 
+          style={{ 
+            animation: 'float 8s ease-in-out infinite',
+          }} 
+        />
+        <div 
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" 
+          style={{ 
+            animation: 'float 10s ease-in-out infinite',
+            animationDelay: '2s',
+          }} 
+        />
+        <div 
+          className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl" 
+          style={{ 
+            animation: 'float 12s ease-in-out infinite',
+            animationDelay: '4s',
+          }} 
+        />
         
         <div className="relative max-w-3xl mx-auto space-y-6 z-10">
           <motion.h1
