@@ -1,2 +1,3 @@
 - use yarn for package management
 - use eslint for linting
+- always use i18n for strings and do localization

@@ -511,7 +511,7 @@ export const DocEditor: React.FC = () => {
                         ))}
                       {allTags?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase())).length === 0 && (
                         <div className="tag-suggestion-empty">
-                          {tagInput ? `按回车创建 "${tagInput}"` : '输入以创建标签'}
+                          {tagInput ? `${t.editor.createTag} "${tagInput}"` : t.editor.typeToCreateTag}
                         </div>
                       )}
                     </div>
@@ -530,7 +530,7 @@ export const DocEditor: React.FC = () => {
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  公开
+                  {t.editor.public}
                 </button>
                 <button
                   className={`visibility-btn ${!isPublic ? 'active' : ''}`}
@@ -540,7 +540,7 @@ export const DocEditor: React.FC = () => {
                     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
                     <line x1="1" y1="1" x2="23" y2="23" />
                   </svg>
-                  私密
+                  {t.editor.private}
                 </button>
               </div>
             </div>

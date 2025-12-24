@@ -1,31 +1,41 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useDocs, useBoundTags } from '../hooks/useDocs';
+import { useDebounce } from '../hooks/useDebounce';
 import { useApp } from '../contexts/useApp';
 import { DocCard } from '../components/DocCard';
 import { SkeletonCard } from '../components/Loading';
-import type { SearchMode } from '../types';
 import '../styles/docs.css';
 
 const PAGE_SIZE = 12;
+const INITIAL_TAGS_COUNT = 10;
 
 export const DocsList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { features, t } = useApp();
   
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [keywords, setKeywords] = useState(searchParams.get('keywords') || '');
-  const [searchMode, setSearchMode] = useState<SearchMode>((searchParams.get('mode') as SearchMode) || 'title');
+  const [inputValue, setInputValue] = useState(searchParams.get('keywords') || '');
   const [selectedTags, setSelectedTags] = useState<string[]>(
     searchParams.get('tags')?.split(',').filter(Boolean) || []
   );
+  const [showAllTags, setShowAllTags] = useState(false);
 
-  const { docs, total, loading, refetch } = useDocs({
+  // Debounce search keywords
+  const debouncedKeywords = useDebounce(inputValue, 500);
+
+  // Process keywords to support multiple values separated by space or comma
+  const processedKeywords = useMemo(() => {
+    if (!debouncedKeywords) return undefined;
+    return debouncedKeywords.split(/[\s,]+/).filter(Boolean).join(',');
+  }, [debouncedKeywords]);
+
+  const { docs, total, loading } = useDocs({
     page,
     size: PAGE_SIZE,
     tags: selectedTags,
-    keywords: keywords || undefined,
+    keywords: processedKeywords,
   });
 
   const { tags: boundTags } = useBoundTags();
@@ -36,17 +46,15 @@ export const DocsList: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (page > 1) params.set('page', String(page));
-    if (keywords) params.set('keywords', keywords);
-    if (searchMode !== 'title') params.set('mode', searchMode);
+    if (debouncedKeywords) params.set('keywords', debouncedKeywords);
     if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
     setSearchParams(params, { replace: true });
-  }, [page, keywords, searchMode, selectedTags, setSearchParams]);
+  }, [page, debouncedKeywords, selectedTags, setSearchParams]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
-    refetch();
-  }, [refetch]);
+    // Search is handled by debounce, this just prevents form submission refresh
+  }, []);
 
   const toggleTag = useCallback((tagName: string) => {
     setSelectedTags((prev) =>
@@ -56,6 +64,11 @@ export const DocsList: React.FC = () => {
     );
     setPage(1);
   }, []);
+
+  const visibleTags = useMemo(() => {
+    if (showAllTags) return boundTags;
+    return boundTags.slice(0, INITIAL_TAGS_COUNT);
+  }, [boundTags, showAllTags]);
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -134,47 +147,56 @@ export const DocsList: React.FC = () => {
       >
         <h1 className="docs-title">{t.docs.listTitle}</h1>
         
-        <form className="docs-filters" onSubmit={handleSearch}>
-          <div className="search-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              type="text"
-              placeholder={t.docs.searchPlaceholder}
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-            />
-          </div>
-          
-          {features?.doc_fuzzy_search && (
-            <select
-              className="search-mode-select"
-              value={searchMode}
-              onChange={(e) => {
-                setSearchMode(e.target.value as SearchMode);
-                setPage(1);
-              }}
-            >
-              <option value="title">{t.docs.searchTitle}</option>
-              <option value="content">{t.docs.searchContent}</option>
-              <option value="all">{t.docs.searchAll}</option>
-            </select>
-          )}
-        </form>
+        {features?.doc_fuzzy_search && (
+          <form className="docs-filters" onSubmit={handleSearch}>
+            <div className="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                placeholder={t.docs.searchPlaceholder}
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+          </form>
+        )}
 
         {boundTags?.length > 0 && (
-          <div className="tags-filter">
-            {boundTags.map((tag) => (
-              <button
-                key={tag.id}
-                className={`tag-btn ${selectedTags.includes(tag.name) ? 'active' : ''}`}
-                onClick={() => toggleTag(tag.name)}
+          <div className="tags-filter-container">
+            <div className="tags-filter">
+              {visibleTags.map((tag) => (
+                <button
+                  key={tag.id}
+                  className={`tag-btn ${selectedTags.includes(tag.name) ? 'active' : ''}`}
+                  onClick={() => toggleTag(tag.name)}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+            {boundTags.length > INITIAL_TAGS_COUNT && (
+              <button 
+                className="tags-expand-btn"
+                onClick={() => setShowAllTags(!showAllTags)}
               >
-                {tag.name}
+                {showAllTags ? t.docs.showLess : `${t.docs.showMore} (${boundTags.length - INITIAL_TAGS_COUNT})`}
+                <svg 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  style={{ transform: showAllTags ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
               </button>
-            ))}
+            )}
           </div>
         )}
       </motion.div>
