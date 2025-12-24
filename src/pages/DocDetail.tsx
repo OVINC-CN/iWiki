@@ -8,6 +8,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 import { getDocDetail, deleteDoc } from '../api';
 import { useApp } from '../contexts/useApp';
 import { Loading } from '../components/Loading';
@@ -70,7 +71,8 @@ export const DocDetail: React.FC = () => {
             const { svg } = await mermaid.render(`mermaid-${i}`, code);
             const container = document.createElement('div');
             container.className = 'mermaid';
-            container.innerHTML = svg;
+            const safeSvg = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
+            container.innerHTML = safeSvg;
             element.parentElement?.replaceWith(container);
           } catch (e) {
             console.error('Mermaid render error:', e);

@@ -25,7 +25,8 @@
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "dompurify": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
