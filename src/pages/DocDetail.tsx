@@ -14,7 +14,7 @@ import { useApp } from '../contexts/useApp';
 import { Loading } from '../components/Loading';
 import { formatDate } from '../utils/date';
 import type { DocInfo } from '../types';
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
 import '../styles/docDetail.css';
 

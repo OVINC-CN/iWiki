@@ -12,7 +12,7 @@ import { useApp } from '../contexts/useApp';
 import { uploadFileToCOS } from '../utils/cos';
 import { Loading } from '../components/Loading';
 import type { TagInfo, EditDocRequest } from '../types';
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
 import '../styles/editor.css';
 import '../styles/docDetail.css';
