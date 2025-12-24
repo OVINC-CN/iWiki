@@ -50,6 +50,7 @@ export const DocEditor: React.FC = () => {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [previewKey, setPreviewKey] = useState(0);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -121,33 +122,48 @@ export const DocEditor: React.FC = () => {
     }
   }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
 
-  // Render mermaid diagrams in preview
+  // Update preview key when content changes to force re-render
   useEffect(() => {
     if (content) {
-      const renderMermaid = async () => {
-        const elements = document.querySelectorAll('.editor-preview .language-mermaid');
-        for (let i = 0; i < elements.length; i++) {
-          const element = elements[i];
-          const code = element.textContent || '';
-          try {
-            const { svg } = await mermaid.render(`mermaid-editor-${i}-${Date.now()}`, code);
-            const container = document.createElement('div');
-            container.className = 'mermaid';
-            const safeSvg = DOMPurify.sanitize(svg, { 
-              USE_PROFILES: { svg: true, svgFilters: true },
-              ADD_TAGS: ['foreignObject'],
-              ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
-            });
-            container.innerHTML = safeSvg;
-            element.parentElement?.replaceWith(container);
-          } catch (e) {
-            console.error('Mermaid render error:', e);
-          }
-        }
-      };
-      setTimeout(renderMermaid, 100);
+      const timer = setTimeout(() => {
+        setPreviewKey(prev => prev + 1);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [content]);
+
+  // Render mermaid diagrams in preview
+  useEffect(() => {
+    const renderMermaid = async () => {
+      const previewContainer = document.querySelector('.editor-preview .doc-detail-content');
+      if (!previewContainer) return;
+      
+      const codeBlocks = previewContainer.querySelectorAll('pre code.language-mermaid');
+      for (let i = 0; i < codeBlocks.length; i++) {
+        const codeBlock = codeBlocks[i];
+        const preElement = codeBlock.parentElement;
+        if (!preElement) continue;
+        
+        const code = codeBlock.textContent || '';
+        try {
+          const { svg } = await mermaid.render(`mermaid-editor-${i}-${Date.now()}`, code);
+          const container = document.createElement('div');
+          container.className = 'mermaid';
+          const safeSvg = DOMPurify.sanitize(svg, { 
+            USE_PROFILES: { svg: true, svgFilters: true },
+            ADD_TAGS: ['foreignObject'],
+            ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
+          });
+          container.innerHTML = safeSvg;
+          preElement.replaceWith(container);
+        } catch (e) {
+          console.error('Mermaid render error:', e);
+        }
+      }
+    };
+    const timer = setTimeout(renderMermaid, 100);
+    return () => clearTimeout(timer);
+  }, [previewKey]);
 
   // Load all tags for suggestions
   useEffect(() => {
@@ -582,7 +598,7 @@ export const DocEditor: React.FC = () => {
           </div>
           <div className="editor-pane editor-preview">
             <div className="editor-pane-header">{t.editor.preview}</div>
-            <div className="doc-detail-content" style={{ padding: '1.5rem' }}>
+            <div className="doc-detail-content" style={{ padding: '1.5rem' }} key={previewKey}>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
