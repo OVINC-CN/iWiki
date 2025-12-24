@@ -4,13 +4,13 @@
 
 .hero {
   position: relative;
-  padding: 6rem 1.5rem;
+  padding: 0 1.5rem;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 100vh;
+  height: calc(100vh - 64px);
 }
 
 .hero::before {
@@ -31,7 +31,7 @@
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(1.5rem, 3vw, 3rem);
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
