@@ -41,6 +41,11 @@ export const DocsList: React.FC = () => {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [page]);
+
   // Update URL params
   useEffect(() => {
     const params = new URLSearchParams();
