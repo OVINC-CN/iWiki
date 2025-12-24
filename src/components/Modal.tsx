@@ -1,6 +1,11 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import '../styles/modal.css';
+import type React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,30 +17,16 @@ interface ModalProps {
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, footer }) => {
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            key="modal-backdrop"
-            className="modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          <motion.div
-            key="modal-container"
-            className="modal-container"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          >
-            {title && <div className="modal-header">{title}</div>}
-            <div className="modal-content">{content}</div>
-            {footer && <div className="modal-footer">{footer}</div>}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        {title && (
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
+        )}
+        <div className="py-4">{content}</div>
+        {footer && <DialogFooter>{footer}</DialogFooter>}
+      </DialogContent>
+    </Dialog>
   );
 };

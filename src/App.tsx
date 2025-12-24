@@ -1,13 +1,13 @@
 import { Routes, Route } from 'react-router-dom'
-import { useApp } from './contexts/useApp'
-import { Layout } from './components/Layout'
-import { Loading } from './components/Loading'
-import { Home } from './pages/Home'
-import { DocsList } from './pages/DocsList'
-import { DocDetail } from './pages/DocDetail'
-import { DocEditor } from './pages/DocEditor'
-import { LoginCallback } from './pages/LoginCallback'
-import { Forbidden } from './pages/Forbidden'
+import { useApp } from '@/contexts/useApp'
+import { Layout } from '@/components/Layout'
+import { Loading } from '@/components/Loading'
+import { Home } from '@/pages/Home'
+import { DocsList } from '@/pages/DocsList'
+import { DocDetail } from '@/pages/DocDetail'
+import { DocEditor } from '@/pages/DocEditor'
+import { LoginCallback } from '@/pages/LoginCallback'
+import { Forbidden } from '@/pages/Forbidden'
 
 function App() {
   const { loading, t } = useApp()

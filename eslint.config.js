@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 })
 
 export default defineConfig([
-  globalIgnores(['dist', 'public', 'node_modules']),
+  globalIgnores(['dist', 'public', 'node_modules', 'src/components/ui']),
   {
     settings: {
       react: {
@@ -37,6 +37,7 @@ export default defineConfig([
     },
     rules: {
       'react-hooks/set-state-in-effect': 'off',
+      'complexity': ['error', { max: 25 }],
     },
   },
 ])

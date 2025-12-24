@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { signIn } from '../api';
-import { Loading } from '../components/Loading';
-import { useApp } from '../contexts/useApp';
+import { signIn } from '@/api';
+import { Loading } from '@/components/Loading';
+import { useApp } from '@/contexts/useApp';
 
 export const LoginCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,13 +18,11 @@ export const LoginCallback: React.FC = () => {
           throw new Error('No code provided');
         }
         await signIn(code);
-        
-        // Get redirect URL from params
+
         const redirect = searchParams.get('redirect');
         if (redirect) {
           try {
             const url = new URL(decodeURIComponent(redirect));
-            // Only redirect to same origin for security
             if (url.origin === window.location.origin) {
               window.location.href = redirect;
               return;
@@ -32,7 +31,7 @@ export const LoginCallback: React.FC = () => {
             // Invalid URL, ignore
           }
         }
-        
+
         navigate('/', { replace: true });
       } catch {
         navigate('/', { replace: true });

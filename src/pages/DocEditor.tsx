@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import type React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -9,16 +10,43 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
-import { getDocDetail, createDoc, updateDoc, getTags } from '../api';
-import { useApp } from '../contexts/useApp';
-import { useModal } from '../contexts/useModal';
-import { uploadFileToCOS } from '../utils/cos';
-import { Loading } from '../components/Loading';
-import type { TagInfo, EditDocRequest } from '../types';
+import { getDocDetail, createDoc, updateDoc, getTags } from '@/api';
+import { useApp } from '@/contexts/useApp';
+import { useModal } from '@/contexts/useModal';
+import { uploadFileToCOS } from '@/utils/cos';
+import { Loading } from '@/components/Loading';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import type { TagInfo, EditDocRequest } from '@/types';
+import {
+  ArrowLeft,
+  Bold,
+  Italic,
+  Strikethrough,
+  Heading2,
+  Quote,
+  Code,
+  FileCode,
+  LinkIcon,
+  Image,
+  Paperclip,
+  List,
+  ListOrdered,
+  CheckSquare,
+  Calculator,
+  GitBranch,
+  Eye,
+  EyeOff,
+  Upload,
+  X,
+} from 'lucide-react';
 import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
-import '../styles/editor.css';
-import '../styles/docDetail.css';
 
 mermaid.initialize({
   startOnLoad: false,
@@ -36,6 +64,29 @@ mermaid.initialize({
     nodeTextColor: '#1e293b',
   },
 });
+
+const ToolbarButton = ({
+  icon: Icon,
+  tooltip,
+  onClick,
+}: {
+  icon: React.ElementType;
+  tooltip: string;
+  onClick: () => void;
+}) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClick}>
+          <Icon className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
 
 export const DocEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -137,24 +188,24 @@ export const DocEditor: React.FC = () => {
   // Render mermaid diagrams in preview
   useEffect(() => {
     const renderMermaid = async () => {
-      const previewContainer = document.querySelector('.editor-preview .doc-detail-content');
+      const previewContainer = document.querySelector('.prose');
       if (!previewContainer) return;
-      
+
       const codeBlocks = previewContainer.querySelectorAll('pre code.language-mermaid');
       for (let i = 0; i < codeBlocks.length; i++) {
         const codeBlock = codeBlocks[i];
         const preElement = codeBlock.parentElement;
         if (!preElement) continue;
-        
+
         const code = codeBlock.textContent || '';
         try {
           const { svg } = await mermaid.render(`mermaid-editor-${i}-${Date.now()}`, code);
           const container = document.createElement('div');
           container.className = 'mermaid';
-          const safeSvg = DOMPurify.sanitize(svg, { 
+          const safeSvg = DOMPurify.sanitize(svg, {
             USE_PROFILES: { svg: true, svgFilters: true },
             ADD_TAGS: ['foreignObject'],
-            ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
+            ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style'],
           });
           container.innerHTML = safeSvg;
           preElement.replaceWith(container);
@@ -399,197 +450,114 @@ export const DocEditor: React.FC = () => {
 
   return (
     <motion.div
-      className="doc-editor"
+      className="flex flex-col h-[calc(100vh-3.5rem)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="editor-header">
-        <div className="editor-header-left">
-          <Link to={isEditing ? `/docs/${id}` : '/docs'} className="editor-back">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-          </Link>
-          <input
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-background h-14">
+        <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
+          <Button asChild variant="ghost" size="icon" className="shrink-0">
+            <Link to={isEditing ? `/docs/${id}` : '/docs'}>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Input
             type="text"
-            className="editor-title-input"
             placeholder={t.editor.titlePlaceholder}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="border-0 text-lg font-semibold bg-transparent focus-visible:ring-0 px-0 h-9"
           />
         </div>
-        <div className="editor-header-right">
-          <button 
-            className="btn btn-secondary mobile-only" 
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            className="md:hidden"
             onClick={() => setShowPreview(!showPreview)}
           >
             {showPreview ? t.common.edit : t.editor.preview}
-          </button>
-          <button className="btn btn-secondary" onClick={() => navigate(-1)} disabled={saving}>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} disabled={saving}>
             {t.common.cancel}
-          </button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? t.editor.saving : isEditing ? t.common.update : t.common.publish}
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="editor-body">
-        <div className={`editor-toolbar ${showPreview ? 'hidden' : ''}`}>
-          <div className="editor-toolbar-group">
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
-                <path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.italic} onClick={() => insertMarkdown('*', '*')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="19" y1="4" x2="10" y2="4" />
-                <line x1="14" y1="20" x2="5" y2="20" />
-                <line x1="15" y1="4" x2="9" y2="20" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.strikethrough} onClick={() => insertMarkdown('~~', '~~')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M16 4H9a3 3 0 00-3 3v1a3 3 0 003 3h6" />
-                <path d="M8 20h7a3 3 0 003-3v-1a3 3 0 00-3-3H8" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-              </svg>
-            </button>
+      {/* Body */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Toolbar */}
+        <div className={cn('flex items-center gap-1 px-4 py-2 border-b bg-muted/50 overflow-x-auto', showPreview && 'hidden')}>
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton icon={Bold} tooltip={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')} />
+            <ToolbarButton icon={Italic} tooltip={t.editor.tools.italic} onClick={() => insertMarkdown('*', '*')} />
+            <ToolbarButton icon={Strikethrough} tooltip={t.editor.tools.strikethrough} onClick={() => insertMarkdown('~~', '~~')} />
           </div>
-          <div className="editor-toolbar-divider" />
-          <div className="editor-toolbar-group">
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.heading} onClick={() => insertMarkdown('## ')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 12h8M4 6v12M12 6v12M20 8l-4 4 4 4" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.quote} onClick={() => insertMarkdown('> ')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z" />
-                <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z" />
-              </svg>
-            </button>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton icon={Heading2} tooltip={t.editor.tools.heading} onClick={() => insertMarkdown('## ')} />
+            <ToolbarButton icon={Quote} tooltip={t.editor.tools.quote} onClick={() => insertMarkdown('> ')} />
           </div>
-          <div className="editor-toolbar-divider" />
-          <div className="editor-toolbar-group">
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.code} onClick={() => insertMarkdown('`', '`')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.codeBlock} onClick={() => insertMarkdown('```\n', '\n```')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <polyline points="9 9 5 12 9 15" />
-                <polyline points="15 9 19 12 15 15" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.link} onClick={() => insertMarkdown('[', '](url)')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
-                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.image} onClick={() => fileInputRef.current?.click()}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            </button>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton icon={Code} tooltip={t.editor.tools.code} onClick={() => insertMarkdown('`', '`')} />
+            <ToolbarButton icon={FileCode} tooltip={t.editor.tools.codeBlock} onClick={() => insertMarkdown('```\n', '\n```')} />
+            <ToolbarButton icon={LinkIcon} tooltip={t.editor.tools.link} onClick={() => insertMarkdown('[', '](url)')} />
+            <ToolbarButton icon={Image} tooltip={t.editor.tools.image} onClick={() => fileInputRef.current?.click()} />
             <input
               type="file"
               ref={fileInputRef}
-              style={{ display: 'none' }}
+              className="hidden"
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   handleImageUpload(file);
-                  e.target.value = ''; // Reset input
+                  e.target.value = '';
                 }
               }}
             />
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.file} onClick={() => fileUploadRef.current?.click()}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-              </svg>
-            </button>
+            <ToolbarButton icon={Paperclip} tooltip={t.editor.tools.file} onClick={() => fileUploadRef.current?.click()} />
             <input
               type="file"
               ref={fileUploadRef}
-              style={{ display: 'none' }}
+              className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   handleFileUpload(file);
-                  e.target.value = ''; // Reset input
+                  e.target.value = '';
                 }
               }}
             />
           </div>
-          <div className="editor-toolbar-divider" />
-          <div className="editor-toolbar-group">
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.ul} onClick={() => insertMarkdown('- ')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <circle cx="4" cy="6" r="1" fill="currentColor" />
-                <circle cx="4" cy="12" r="1" fill="currentColor" />
-                <circle cx="4" cy="18" r="1" fill="currentColor" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.ol} onClick={() => insertMarkdown('1. ')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="10" y1="6" x2="21" y2="6" />
-                <line x1="10" y1="12" x2="21" y2="12" />
-                <line x1="10" y1="18" x2="21" y2="18" />
-                <path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.task} onClick={() => insertMarkdown('- [ ] ')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="5" width="6" height="6" rx="1" />
-                <path d="M5 11l1 1 3-3" />
-                <line x1="12" y1="8" x2="21" y2="8" />
-                <rect x="3" y="14" width="6" height="6" rx="1" />
-                <line x1="12" y1="17" x2="21" y2="17" />
-              </svg>
-            </button>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton icon={List} tooltip={t.editor.tools.ul} onClick={() => insertMarkdown('- ')} />
+            <ToolbarButton icon={ListOrdered} tooltip={t.editor.tools.ol} onClick={() => insertMarkdown('1. ')} />
+            <ToolbarButton icon={CheckSquare} tooltip={t.editor.tools.task} onClick={() => insertMarkdown('- [ ] ')} />
           </div>
-          <div className="editor-toolbar-divider" />
-          <div className="editor-toolbar-group">
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.math} onClick={() => insertMarkdown('$', '$')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <text x="6" y="18" fontSize="16" fontStyle="italic">∑</text>
-              </svg>
-            </button>
-            <button className="toolbar-btn" data-tooltip={t.editor.tools.mermaid} onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="8.5" y="14" width="7" height="7" />
-                <line x1="6.5" y1="10" x2="6.5" y2="14" />
-                <line x1="17.5" y1="10" x2="17.5" y2="14" />
-                <line x1="6.5" y1="14" x2="12" y2="14" />
-                <line x1="17.5" y1="14" x2="12" y2="14" />
-              </svg>
-            </button>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton icon={Calculator} tooltip={t.editor.tools.math} onClick={() => insertMarkdown('$', '$')} />
+            <ToolbarButton icon={GitBranch} tooltip={t.editor.tools.mermaid} onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')} />
           </div>
         </div>
 
-        <div className={`editor-main ${showPreview ? 'preview-mode' : ''}`}>
-          <div className="editor-pane">
-            <div className="editor-pane-header">{t.common.edit}</div>
+        {/* Editor Area */}
+        <div className={cn('flex flex-1 overflow-hidden', showPreview && 'hidden md:flex')}>
+          <div className={cn('flex flex-col flex-1 border-r', showPreview && 'hidden md:flex')}>
+            <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
+              {t.common.edit}
+            </div>
             <textarea
               ref={textareaRef}
-              className="editor-textarea"
+              className="flex-1 p-4 resize-none border-0 focus:outline-none focus:ring-0 bg-background font-mono text-sm"
               placeholder={t.editor.contentPlaceholder}
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -598,25 +566,25 @@ export const DocEditor: React.FC = () => {
               onDragOver={(e) => e.preventDefault()}
             />
           </div>
-          <div className="editor-pane editor-preview">
-            <div className="editor-pane-header">{t.editor.preview}</div>
-            <div className="doc-detail-content" style={{ padding: '1.5rem' }} key={previewKey}>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-              >
+          <div className={cn('flex-col flex-1 hidden md:flex', showPreview && 'flex')}>
+            <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
+              {t.editor.preview}
+            </div>
+            <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none" key={previewKey}>
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
                 {content || t.editor.previewHint}
               </ReactMarkdown>
             </div>
           </div>
         </div>
 
-        <div className={`editor-meta ${showPreview ? 'hidden' : ''}`}>
-          <div className="editor-meta-row">
-            <div className="editor-meta-field">
-              <label className="editor-meta-label">{t.editor.headerImg}</label>
-              <div className="header-img-input-wrapper">
-                <input
+        {/* Meta Fields */}
+        <div className={cn('border-t bg-muted/30 p-4', showPreview && 'hidden')}>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px] space-y-2">
+              <label className="text-sm font-medium">{t.editor.headerImg}</label>
+              <div className="flex gap-2">
+                <Input
                   type="url"
                   placeholder="https://example.com/image.jpg"
                   value={headerImg}
@@ -626,40 +594,47 @@ export const DocEditor: React.FC = () => {
                   onDragOver={(e) => e.preventDefault()}
                 />
                 {canUpload && (
-                  <label className="header-img-upload-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-                    </svg>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleHeaderImageUpload(file);
-                      }}
-                      hidden
-                    />
-                  </label>
+                  <Button variant="outline" size="icon" asChild className="shrink-0">
+                    <label className="cursor-pointer">
+                      <Upload className="h-4 w-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleHeaderImageUpload(file);
+                        }}
+                      />
+                    </label>
+                  </Button>
                 )}
               </div>
             </div>
-            <div className="editor-meta-field">
-              <label className="editor-meta-label">{t.editor.tags}</label>
-              <div className="editor-tags-container">
-                <div className="editor-tags-input" onClick={() => setShowTagSuggestions(true)}>
+            <div className="flex-1 min-w-[200px] space-y-2">
+              <label className="text-sm font-medium">{t.editor.tags}</label>
+              <div className="relative">
+                <div
+                  className="flex flex-wrap items-center gap-2 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text"
+                  onClick={() => setShowTagSuggestions(true)}
+                >
                   {tags.map((tag) => (
-                    <span key={tag} className="editor-tag">
+                    <Badge key={tag} variant="secondary" className="gap-1">
                       {tag}
-                      <button className="editor-tag-remove" onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveTag(tag);
-                      }}>
-                        ×
+                      <button
+                        className="hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveTag(tag);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
                       </button>
-                    </span>
+                    </Badge>
                   ))}
                   <input
                     type="text"
+                    className="flex-1 min-w-[80px] bg-transparent outline-none placeholder:text-muted-foreground"
                     placeholder={tags.length === 0 ? t.editor.tagPlaceholder : ''}
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
@@ -670,20 +645,20 @@ export const DocEditor: React.FC = () => {
                 {showTagSuggestions && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setShowTagSuggestions(false)} />
-                    <div className="tag-suggestions">
+                    <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-popover shadow-md z-20">
                       {allTags
                         ?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase()))
                         .map((tag) => (
                           <button
                             key={tag.id}
-                            className="tag-suggestion-item"
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-accent"
                             onClick={() => handleSelectTag(tag.name)}
                           >
                             {tag.name}
                           </button>
                         ))}
                       {allTags?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase())).length === 0 && (
-                        <div className="tag-suggestion-empty">
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
                           {tagInput ? `${t.editor.createTag} "${tagInput}"` : t.editor.typeToCreateTag}
                         </div>
                       )}
@@ -692,40 +667,31 @@ export const DocEditor: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="editor-meta-field">
-              <label className="editor-meta-label">{t.editor.visibility}</label>
-              <div className="visibility-toggle">
-                <button
-                  className={`visibility-btn ${isPublic ? 'active' : ''}`}
-                  onClick={() => setIsPublic(true)}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t.editor.visibility}</label>
+              <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')}>
+                <ToggleGroupItem value="public" className="gap-1">
+                  <Eye className="h-4 w-4" />
                   {t.editor.public}
-                </button>
-                <button
-                  className={`visibility-btn ${!isPublic ? 'active' : ''}`}
-                  onClick={() => setIsPublic(false)}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
+                </ToggleGroupItem>
+                <ToggleGroupItem value="private" className="gap-1">
+                  <EyeOff className="h-4 w-4" />
                   {t.editor.private}
-                </button>
-              </div>
+                </ToggleGroupItem>
+              </ToggleGroup>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Upload Progress */}
       {uploadProgress !== null && (
-        <div className="upload-progress">
-          <div className="upload-progress-text">{t.editor.uploading} {uploadProgress}%</div>
-          <div className="upload-progress-bar">
-            <div className="upload-progress-fill" style={{ width: `${uploadProgress}%` }} />
+        <div className="fixed bottom-4 right-4 bg-card border rounded-lg shadow-lg p-4 min-w-[200px]">
+          <div className="text-sm mb-2">
+            {t.editor.uploading} {uploadProgress}%
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
           </div>
         </div>
       )}

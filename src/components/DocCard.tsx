@@ -1,9 +1,11 @@
-import React from 'react';
+import type React from 'react';
 import { Link } from 'react-router-dom';
-import type { DocList } from '../types';
-import { formatRelativeTime } from '../utils/date';
-import { useApp } from '../contexts/useApp';
-import '../styles/docCard.css';
+import type { DocList } from '@/types';
+import { formatRelativeTime } from '@/utils/date';
+import { useApp } from '@/contexts/useApp';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Lock, Calendar } from 'lucide-react';
 
 interface DocCardProps {
   doc: DocList;
@@ -11,64 +13,57 @@ interface DocCardProps {
 
 export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
   const { t } = useApp();
-  
+
   return (
-    <Link to={`/docs/${doc.id}`} className="doc-card">
-      <div className="doc-card-image">
-        {doc.header_img ? (
-          <img src={doc.header_img} alt={doc.title} loading="lazy" />
-        ) : (
-          <div className="doc-card-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-          </div>
-        )}
-        {!doc.is_public && (
-          <span className="doc-card-private-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            {t.editor.private}
-          </span>
-        )}
-      </div>
-      <div className="doc-card-content">
-        <h3 className="doc-card-title">{doc.title}</h3>
-        {doc.tags.length > 0 && (
-          <div className="doc-card-tags">
-            {doc.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="doc-card-tag">
-                {tag}
-              </span>
-            ))}
-            {doc.tags.length > 3 && (
-              <span className="doc-card-tag">+{doc.tags.length - 3}</span>
+    <Link to={`/docs/${doc.id}`} className="block group h-full">
+      <Card className="h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 flex flex-col">
+        <CardHeader className="p-0">
+          <div className="relative aspect-video bg-muted overflow-hidden">
+            {doc.header_img ? (
+              <img
+                src={doc.header_img}
+                alt={doc.title}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                <FileText className="h-12 w-12" />
+              </div>
+            )}
+            {!doc.is_public && (
+              <Badge variant="secondary" className="absolute top-2 right-2 gap-1">
+                <Lock className="h-3 w-3" />
+                {t.editor.private}
+              </Badge>
             )}
           </div>
-        )}
-      </div>
-      <div className="doc-card-footer">
-        <div className="doc-card-author">
+        </CardHeader>
+        <CardContent className="p-4 flex-1">
+          <h3 className="font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+            {doc.title}
+          </h3>
+          <div className="flex flex-wrap gap-1 min-h-[1.5rem]">
+            {doc.tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+            {doc.tags.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{doc.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="p-4 pt-0 flex items-center justify-between text-sm text-muted-foreground">
           <span>{doc.owner_nick_name || doc.owner}</span>
-        </div>
-        <div className="doc-card-stats">
-          <span className="doc-card-stat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5" />
             {formatRelativeTime(doc.created_at)}
           </span>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </Link>
   );
 };

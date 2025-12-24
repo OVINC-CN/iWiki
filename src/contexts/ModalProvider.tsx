@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Modal } from '../components/Modal.tsx';
+import type React from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { Modal } from '@/components/Modal';
 import { useApp } from './useApp';
-import { ModalContext } from './ModalContext';
+import { ModalContext } from './modalContext';
+import { Button } from '@/components/ui/button';
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +23,9 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       title,
       content: <p>{message}</p>,
       footer: (
-        <button className="btn btn-primary" onClick={closeModal}>
+        <Button onClick={closeModal}>
           {t.common?.confirm || 'OK'}
-        </button>
+        </Button>
       ),
     });
     setIsOpen(true);
