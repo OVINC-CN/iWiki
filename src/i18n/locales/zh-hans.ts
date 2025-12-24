@@ -5,7 +5,7 @@ export default {
     write: '写文章',
     login: '登录',
     logout: '退出登录',
-    switchToEn: 'Switch to English',
+    switchToEn: '切换到英文',
     switchToZh: '切换到中文',
     chinese: '中文',
     english: 'English',
