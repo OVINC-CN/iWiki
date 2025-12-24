@@ -5,7 +5,7 @@ import { useApp } from '../contexts/useApp';
 import '../styles/header.css';
 
 export const Header: React.FC = () => {
-  const { user, isLoggedIn, hasPermission, signOut, login } = useApp();
+  const { user, isLoggedIn, hasPermission, signOut, login, language, changeLanguage, t } = useApp();
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,41 +45,58 @@ export const Header: React.FC = () => {
             to="/" 
             className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
           >
-            首页
+            {t.common.home}
           </Link>
           <Link 
             to="/docs" 
             className={`nav-link ${location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') ? 'active' : ''}`}
           >
-            文章
+            {t.common.articles}
           </Link>
           {canCreateDoc && (
             <Link 
               to="/docs/new" 
               className={`nav-link ${location.pathname === '/docs/new' ? 'active' : ''}`}
             >
-              写文章
+              {t.common.write}
             </Link>
           )}
           
           {/* Mobile user section */}
           <div className="mobile-only" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: `1px solid var(--border)` }}>
+            <button 
+              className="nav-link" 
+              onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+              style={{ width: '100%', textAlign: 'left' }}
+            >
+              {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+            </button>
             {isLoggedIn ? (
               <>
                 <div className="nav-link" style={{ color: 'var(--text-primary)' }}>
                   {user?.nick_name || user?.username}
                 </div>
                 <button className="nav-link" onClick={signOut} style={{ width: '100%', textAlign: 'left' }}>
-                  退出登录
+                  {t.common.logout}
                 </button>
               </>
             ) : (
               <button className="nav-link" onClick={login} style={{ width: '100%', textAlign: 'left' }}>
-                登录
+                {t.common.login}
               </button>
             )}
           </div>
         </nav>
+
+        <div className="desktop-only" style={{ marginRight: '1rem' }}>
+          <button 
+            className="nav-link" 
+            onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem' }}
+          >
+            {language === 'zh-hans' ? t.common.english : t.common.chinese}
+          </button>
+        </div>
 
         <div className="user-menu desktop-only" ref={dropdownRef}>
           {isLoggedIn ? (
@@ -106,7 +123,7 @@ export const Header: React.FC = () => {
                       <span>{user?.nick_name || user?.username}</span>
                     </div>
                     <button className="user-dropdown-item danger" onClick={signOut}>
-                      退出登录
+                      {t.common.logout}
                     </button>
                   </motion.div>
                 )}
@@ -114,7 +131,7 @@ export const Header: React.FC = () => {
             </>
           ) : (
             <button className="btn btn-primary" onClick={login}>
-              登录
+              {t.common.login}
             </button>
           )}
         </div>

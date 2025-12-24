@@ -1,6 +1,8 @@
 import { createContext } from 'react';
 import type { UserInfo, UserPermission, FeatureResponse } from '../types';
 
+import { type Translations } from '../i18n';
+
 export interface AppContextType {
   user: UserInfo | null;
   permissions: UserPermission[];
@@ -11,6 +13,9 @@ export interface AppContextType {
   refreshUser: () => Promise<void>;
   signOut: () => Promise<void>;
   login: () => void;
+  language: string;
+  changeLanguage: (lang: string) => Promise<void>;
+  t: Translations;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);

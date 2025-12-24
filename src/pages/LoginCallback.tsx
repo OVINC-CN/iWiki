@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { signIn } from '../api';
 import { Loading } from '../components/Loading';
+import { useApp } from '../contexts/useApp';
 
 export const LoginCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useApp();
 
   useEffect(() => {
     const handleLogin = async () => {
@@ -40,7 +42,7 @@ export const LoginCallback: React.FC = () => {
     handleLogin();
   }, [searchParams, navigate]);
 
-  return <Loading fullPage text="登录中..." />;
+  return <Loading fullPage text={t.login.loggingIn} />;
 };
 
 export default LoginCallback;

@@ -12,7 +12,7 @@ const PAGE_SIZE = 12;
 
 export const DocsList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { features } = useApp();
+  const { features, t } = useApp();
   
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [keywords, setKeywords] = useState(searchParams.get('keywords') || '');
@@ -132,7 +132,7 @@ export const DocsList: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="docs-title">文章列表</h1>
+        <h1 className="docs-title">{t.docs.listTitle}</h1>
         
         <form className="docs-filters" onSubmit={handleSearch}>
           <div className="search-box">
@@ -142,7 +142,7 @@ export const DocsList: React.FC = () => {
             </svg>
             <input
               type="text"
-              placeholder="搜索文章..."
+              placeholder={t.docs.searchPlaceholder}
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
             />
@@ -157,9 +157,9 @@ export const DocsList: React.FC = () => {
                 setPage(1);
               }}
             >
-              <option value="title">标题搜索</option>
-              <option value="content">内容搜索</option>
-              <option value="all">全文搜索</option>
+              <option value="title">{t.docs.searchTitle}</option>
+              <option value="content">{t.docs.searchContent}</option>
+              <option value="all">{t.docs.searchAll}</option>
             </select>
           )}
         </form>
@@ -222,8 +222,8 @@ export const DocsList: React.FC = () => {
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-            <h3>暂无文章</h3>
-            <p>没有找到符合条件的文章</p>
+            <h3>{t.docs.noDocs}</h3>
+            <p>{t.docs.noDocsDesc}</p>
           </motion.div>
         )}
       </AnimatePresence>

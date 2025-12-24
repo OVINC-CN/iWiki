@@ -9,10 +9,10 @@ import { DocEditor } from './pages/DocEditor'
 import { LoginCallback } from './pages/LoginCallback'
 
 function App() {
-  const { loading } = useApp()
+  const { loading, t } = useApp()
 
   if (loading) {
-    return <Loading fullPage text="加载中..." />
+    return <Loading fullPage text={t.common.loading} />
   }
 
   return (

@@ -33,7 +33,7 @@ mermaid.initialize({
 export const DocDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user, t } = useApp();
 
   const [doc, setDoc] = useState<DocInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,14 +49,14 @@ export const DocDetail: React.FC = () => {
         const response = await getDocDetail(id);
         setDoc(response.data.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '加载失败');
+        setError(err instanceof Error ? err.message : t.docs.loadFailed);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDoc();
-  }, [id]);
+  }, [id, t]);
 
   // Render mermaid diagrams
   useEffect(() => {
@@ -82,21 +82,21 @@ export const DocDetail: React.FC = () => {
   }, [doc?.content]);
 
   const handleDelete = useCallback(async () => {
-    if (!id || !window.confirm('确定要删除这篇文章吗？')) return;
+    if (!id || !window.confirm(t.docs.deleteConfirm)) return;
 
     try {
       setDeleting(true);
       await deleteDoc(id);
       navigate('/docs');
     } catch {
-      alert('删除失败');
+      alert(t.docs.deleteFailed);
     } finally {
       setDeleting(false);
     }
-  }, [id, navigate]);
+  }, [id, navigate, t]);
 
   if (loading) {
-    return <Loading fullPage text="加载中..." />;
+    return <Loading fullPage text={t.common.loading} />;
   }
 
   if (error || !doc) {
@@ -108,9 +108,9 @@ export const DocDetail: React.FC = () => {
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <h3>{error || '文章不存在'}</h3>
+          <h3>{error || t.docs.notFound}</h3>
           <Link to="/docs" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            返回列表
+            {t.common.backToList}
           </Link>
         </div>
       </div>
@@ -131,7 +131,7 @@ export const DocDetail: React.FC = () => {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        返回列表
+        {t.common.backToList}
       </Link>
 
       <header className="doc-detail-header">
@@ -148,7 +148,7 @@ export const DocDetail: React.FC = () => {
           {isOwner && (
             <div className="doc-detail-actions">
               <Link to={`/docs/${id}/edit`} className="btn btn-secondary">
-                编辑
+                {t.common.edit}
               </Link>
               <button
                 className="btn btn-ghost"
@@ -156,7 +156,7 @@ export const DocDetail: React.FC = () => {
                 disabled={deleting}
                 style={{ color: 'var(--error)' }}
               >
-                {deleting ? '删除中...' : '删除'}
+                {deleting ? t.docs.deleting : t.common.delete}
               </button>
             </div>
           )}
