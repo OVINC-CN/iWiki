@@ -7,6 +7,7 @@ import { DocsList } from './pages/DocsList'
 import { DocDetail } from './pages/DocDetail'
 import { DocEditor } from './pages/DocEditor'
 import { LoginCallback } from './pages/LoginCallback'
+import { Forbidden } from './pages/Forbidden'
 
 function App() {
   const { loading, t } = useApp()
@@ -18,6 +19,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login/callback" element={<LoginCallback />} />
+      <Route path="/403" element={<Forbidden />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/docs" element={<DocsList />} />

@@ -19,6 +19,9 @@ export default {
     publish: '发布',
     back: '返回',
     backToList: '返回列表',
+    forbidden: '访问被拒绝',
+    forbiddenDesc: '您没有权限访问此页面。',
+    backHome: '返回首页',
   },
   home: {
     heroTitle: '探索知识的',

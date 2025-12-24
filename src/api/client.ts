@@ -32,6 +32,10 @@ apiClient.interceptors.response.use(
         const callbackUrl = encodeURIComponent(`${FRONTEND_URL}/login/callback`);
         window.location.href = `${SSO_URL}/login/?next=${callbackUrl}?redirect=${currentUrl}`;
       }
+    } else if (error.response?.status === 403) {
+      if (window.location.pathname !== '/403' && !window.location.pathname.includes('/login/callback')) {
+        window.location.href = '/403';
+      }
     }
     return Promise.reject(error);
   }

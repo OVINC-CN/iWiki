@@ -14,6 +14,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const t = getTranslation(language);
 
   const fetchUserData = useCallback(async () => {
+    // Skip fetching user data if on 403 page
+    if (window.location.pathname === '/403') {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const [homeRes, permRes, featRes] = await Promise.all([

@@ -19,6 +19,9 @@ export default {
     publish: 'Publish',
     back: 'Back',
     backToList: 'Back to List',
+    forbidden: 'Access Denied',
+    forbiddenDesc: 'You do not have permission to access this page.',
+    backHome: 'Back to Home',
   },
   home: {
     heroTitle: 'Explore the Infinite Possibilities of ',
