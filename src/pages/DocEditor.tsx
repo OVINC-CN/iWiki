@@ -7,6 +7,8 @@ import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 import { getDocDetail, createDoc, updateDoc, getTags } from '../api';
 import { useApp } from '../contexts/useApp';
 import { uploadFileToCOS } from '../utils/cos';
@@ -16,6 +18,23 @@ import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
 import '../styles/editor.css';
 import '../styles/docDetail.css';
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#6366f1',
+    primaryTextColor: '#1e293b',
+    primaryBorderColor: '#334155',
+    lineColor: '#94a3b8',
+    secondaryColor: '#e2e8f0',
+    tertiaryColor: '#f1f5f9',
+    textColor: '#1e293b',
+    mainBkg: '#e2e8f0',
+    nodeBorder: '#334155',
+    nodeTextColor: '#1e293b',
+  },
+});
 
 export const DocEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,6 +120,34 @@ export const DocEditor: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
+
+  // Render mermaid diagrams in preview
+  useEffect(() => {
+    if (content) {
+      const renderMermaid = async () => {
+        const elements = document.querySelectorAll('.editor-preview .language-mermaid');
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i];
+          const code = element.textContent || '';
+          try {
+            const { svg } = await mermaid.render(`mermaid-editor-${i}-${Date.now()}`, code);
+            const container = document.createElement('div');
+            container.className = 'mermaid';
+            const safeSvg = DOMPurify.sanitize(svg, { 
+              USE_PROFILES: { svg: true, svgFilters: true },
+              ADD_TAGS: ['foreignObject'],
+              ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
+            });
+            container.innerHTML = safeSvg;
+            element.parentElement?.replaceWith(container);
+          } catch (e) {
+            console.error('Mermaid render error:', e);
+          }
+        }
+      };
+      setTimeout(renderMermaid, 100);
+    }
+  }, [content]);
 
   // Load all tags for suggestions
   useEffect(() => {
