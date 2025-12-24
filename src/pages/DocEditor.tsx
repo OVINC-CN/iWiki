@@ -65,7 +65,7 @@ export const DocEditor: React.FC = () => {
     const fetchTags = async () => {
       try {
         const response = await getTags({ size: 100 });
-        setAllTags(response.data.data.results);
+        setAllTags(response.data.data.results || []);
       } catch (err) {
         console.error('Failed to fetch tags:', err);
       }
@@ -405,7 +405,7 @@ export const DocEditor: React.FC = () => {
                   list="tag-suggestions"
                 />
                 <datalist id="tag-suggestions">
-                  {allTags.filter((t) => !tags.includes(t.name)).map((tag) => (
+                  {allTags?.filter((t) => !tags.includes(t.name)).map((tag) => (
                     <option key={tag.id} value={tag.name} />
                   ))}
                 </datalist>
