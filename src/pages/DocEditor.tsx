@@ -11,6 +11,7 @@ import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
 import { getDocDetail, createDoc, updateDoc, getTags } from '../api';
 import { useApp } from '../contexts/useApp';
+import { useModal } from '../contexts/useModal';
 import { uploadFileToCOS } from '../utils/cos';
 import { Loading } from '../components/Loading';
 import type { TagInfo, EditDocRequest } from '../types';
@@ -40,6 +41,7 @@ export const DocEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { hasPermission, t } = useApp();
+  const { showAlert } = useModal();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileUploadRef = useRef<HTMLInputElement>(null);
@@ -180,11 +182,11 @@ export const DocEditor: React.FC = () => {
 
   const handleSave = useCallback(async () => {
     if (!title.trim()) {
-      alert(t.editor.enterTitle);
+      showAlert(t.editor.enterTitle);
       return;
     }
     if (!content.trim()) {
-      alert(t.editor.enterContent);
+      showAlert(t.editor.enterContent);
       return;
     }
 
@@ -207,15 +209,15 @@ export const DocEditor: React.FC = () => {
         navigate(`/docs/${response.data.data.id}`);
       }
     } catch {
-      alert(t.editor.saveFailed);
+      showAlert(t.editor.saveFailed);
     } finally {
       setSaving(false);
     }
-  }, [title, content, headerImg, isPublic, tags, isEditing, id, navigate, t]);
+  }, [title, content, headerImg, isPublic, tags, isEditing, id, navigate, t, showAlert]);
 
   const handleHeaderImageUpload = useCallback(async (file: File) => {
     if (!canUpload) {
-      alert(t.editor.noUploadPerm);
+      showAlert(t.editor.noUploadPerm);
       return;
     }
 
@@ -224,11 +226,11 @@ export const DocEditor: React.FC = () => {
       const url = await uploadFileToCOS(file, setUploadProgress);
       setHeaderImg(url);
     } catch {
-      alert(t.editor.uploadFailed);
+      showAlert(t.editor.uploadFailed);
     } finally {
       setUploadProgress(null);
     }
-  }, [canUpload, t]);
+  }, [canUpload, t, showAlert]);
 
   const handleHeaderImagePaste = useCallback((e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
@@ -285,7 +287,7 @@ export const DocEditor: React.FC = () => {
 
   const handleImageUpload = useCallback(async (file: File) => {
     if (!canUpload) {
-      alert(t.editor.noUploadPerm);
+      showAlert(t.editor.noUploadPerm);
       return;
     }
 
@@ -308,15 +310,15 @@ export const DocEditor: React.FC = () => {
         }, 0);
       }
     } catch {
-      alert(t.editor.uploadFailed);
+      showAlert(t.editor.uploadFailed);
     } finally {
       setUploadProgress(null);
     }
-  }, [canUpload, content, t]);
+  }, [canUpload, content, t, showAlert]);
 
   const handleFileUpload = useCallback(async (file: File) => {
     if (!canUpload) {
-      alert(t.editor.noUploadPerm);
+      showAlert(t.editor.noUploadPerm);
       return;
     }
 
@@ -339,11 +341,11 @@ export const DocEditor: React.FC = () => {
         }, 0);
       }
     } catch {
-      alert(t.editor.uploadFailed);
+      showAlert(t.editor.uploadFailed);
     } finally {
       setUploadProgress(null);
     }
-  }, [canUpload, content, t]);
+  }, [canUpload, content, t, showAlert]);
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
@@ -374,7 +376,7 @@ export const DocEditor: React.FC = () => {
     }
   }, [handleImageUpload]);
 
-  const insertMarkdown = useCallback((prefix: string, suffix: string = '') => {
+  const insertMarkdown = useCallback((prefix: string, suffix = '') => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
