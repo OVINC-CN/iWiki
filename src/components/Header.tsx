@@ -49,7 +49,7 @@ export const Header: React.FC = () => {
           </Link>
           <Link 
             to="/docs" 
-            className={`nav-link ${location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') ? 'active' : ''}`}
+            className={`nav-link ${location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') && !location.pathname.includes("/new") ? 'active' : ''}`}
           >
             {t.common.articles}
           </Link>

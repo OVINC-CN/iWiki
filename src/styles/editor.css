@@ -156,7 +156,6 @@
 
 .editor-preview {
   flex: 1;
-  padding: 1.5rem;
   overflow-y: auto;
   background: var(--background);
   border-left: 1px solid var(--border);
