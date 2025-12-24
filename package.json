@@ -1,13 +1,13 @@
 {
   "name": "iwiki",
-  "private": true,
-  "version": "0.0.0",
+  "license": "MIT",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node generate-config.js && vite",
+    "build": "tsc -b && vite build && node generate-config.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "node generate-config.js && vite preview"
   },
   "dependencies": {
     "@uiw/react-md-editor": "^4.0.11",

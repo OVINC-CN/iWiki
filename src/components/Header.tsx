@@ -136,13 +136,6 @@ export const Header: React.FC = () => {
             </>
           ) : (
             <>
-              <button 
-                className="nav-link" 
-                onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', marginRight: '1rem' }}
-              >
-                {language === 'zh-hans' ? t.common.english : t.common.chinese}
-              </button>
               <button className="btn btn-primary" onClick={login}>
                 {t.common.login}
               </button>

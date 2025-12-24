@@ -25,3 +25,4 @@ dist-ssr
 
 .localdev
 .env
+public/config.js

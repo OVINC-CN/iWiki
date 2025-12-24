@@ -1,8 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { config } from '../config';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
-const SSO_URL = import.meta.env.VITE_SSO_URL || '';
-const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
+const { API_BASE_URL, SSO_URL, FRONTEND_URL } = config;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
