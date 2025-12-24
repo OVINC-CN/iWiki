@@ -90,6 +90,8 @@ export default {
       code: 'Code',
       codeBlock: 'Code Block',
       link: 'Link',
+      image: 'Image',
+      file: 'File',
       ul: 'Bullet List',
       ol: 'Ordered List',
       task: 'Task List',

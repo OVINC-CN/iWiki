@@ -90,6 +90,8 @@ export default {
       code: '代码',
       codeBlock: '代码块',
       link: '链接',
+      image: '图片',
+      file: '文件',
       ul: '无序列表',
       ol: '有序列表',
       task: '任务列表',

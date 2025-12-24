@@ -1,7 +1,7 @@
 import COS from 'cos-js-sdk-v5';
 import { getTempSecret } from '../api';
 
-export const uploadImageToCOS = async (
+export const uploadFileToCOS = async (
   file: File,
   onProgress?: (progress: number) => void
 ): Promise<string> => {
