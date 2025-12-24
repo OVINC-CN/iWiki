@@ -33,18 +33,11 @@ export const Header: React.FC = () => {
     closeMobileMenu();
   }, [location.pathname, closeMobileMenu]);
 
-  const getAvatarLetter = () => {
-    if (user?.nick_name) return user.nick_name.charAt(0).toUpperCase();
-    if (user?.username) return user.username.charAt(0).toUpperCase();
-    return 'U';
-  };
-
   return (
     <header className="header">
       <div className="header-content">
         <Link to="/" className="header-logo">
           <img src="/logo.webp" alt="iWiki" />
-          <span>iWiki</span>
         </Link>
 
         <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
@@ -95,7 +88,10 @@ export const Header: React.FC = () => {
                 className="user-avatar" 
                 onClick={() => setShowDropdown(!showDropdown)}
               >
-                {getAvatarLetter()}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
               </div>
               <AnimatePresence>
                 {showDropdown && (

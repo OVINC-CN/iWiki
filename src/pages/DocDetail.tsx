@@ -118,7 +118,6 @@ export const DocDetail: React.FC = () => {
   }
 
   const isOwner = user?.username === doc.owner;
-  const authorInitial = doc.owner_nick_name?.charAt(0).toUpperCase() || doc.owner.charAt(0).toUpperCase();
 
   return (
     <motion.article
@@ -140,7 +139,6 @@ export const DocDetail: React.FC = () => {
         
         <div className="doc-detail-meta">
           <div className="doc-detail-author">
-            <span className="doc-detail-author-avatar">{authorInitial}</span>
             <div className="doc-detail-author-info">
               <span className="doc-detail-author-name">{doc.owner_nick_name || doc.owner}</span>
               <span className="doc-detail-date">{formatDate(doc.created_at)}</span>
