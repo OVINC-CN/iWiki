@@ -44,8 +44,8 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
         {doc.tags.length > 0 && (
           <div className="doc-card-tags">
             {doc.tags.slice(0, 3).map((tag) => (
-              <span key={tag.id} className="doc-card-tag">
-                {tag.name}
+              <span key={tag} className="doc-card-tag">
+                {tag}
               </span>
             ))}
             {doc.tags.length > 3 && (

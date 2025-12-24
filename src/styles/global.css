@@ -48,6 +48,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.katex-html {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 #root {
   min-height: 100vh;
   display: flex;

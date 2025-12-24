@@ -165,8 +165,8 @@ export const DocDetail: React.FC = () => {
         {doc.tags.length > 0 && (
           <div className="doc-detail-tags">
             {doc.tags.map((tag) => (
-              <span key={tag.id} className="doc-detail-tag">
-                {tag.name}
+              <span key={tag} className="doc-detail-tag">
+                {tag}
               </span>
             ))}
           </div>

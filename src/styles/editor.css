@@ -291,6 +291,131 @@
   transition: width 0.2s;
 }
 
+.editor-toolbar.hidden,
+.editor-meta.hidden {
+  display: none;
+}
+
+.header-img-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.header-img-input-wrapper input[type="url"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-img-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.header-img-upload-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--surface-hover);
+}
+
+.header-img-upload-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.editor-tags-container {
+  position: relative;
+  width: 100%;
+}
+
+.tag-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 20;
+  margin-top: 0.25rem;
+}
+
+.tag-suggestion-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.tag-suggestion-item:hover {
+  background: var(--surface-hover);
+}
+
+.tag-suggestion-empty {
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.visibility-toggle {
+  display: flex;
+  background: var(--background);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.visibility-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.visibility-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.visibility-btn.active {
+  background: var(--surface);
+  color: var(--primary-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.fixed.inset-0 {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
 @media (max-width: 1024px) {
   .editor-main {
     grid-template-columns: 1fr;
@@ -318,6 +443,10 @@
   .editor-title-input {
     font-size: 1rem;
     min-width: 150px;
+  }
+
+  .editor-meta-field {
+    width: 100%;
   }
 
   .editor-meta-field input,

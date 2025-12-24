@@ -35,7 +35,7 @@ export interface DocList {
   is_public: boolean;
   pv: number;
   comments: number;
-  tags: TagInfo[];
+  tags: string[];
   updated_at: string;
   created_at: string;
 }

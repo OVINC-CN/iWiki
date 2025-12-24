@@ -38,6 +38,9 @@ export const DocEditor: React.FC = () => {
   const [tagInput, setTagInput] = useState('');
   const [allTags, setAllTags] = useState<TagInfo[]>([]);
 
+  const [showPreview, setShowPreview] = useState(false);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+
   // Load document data if editing
   useEffect(() => {
     if (isEditing && id) {
@@ -49,7 +52,7 @@ export const DocEditor: React.FC = () => {
           setContent(doc.content);
           setHeaderImg(doc.header_img || '');
           setIsPublic(doc.is_public);
-          setTags(doc.tags.map((t) => t.name));
+          setTags(doc.tags.map((t) => t));
         } catch {
           navigate('/docs');
         } finally {
@@ -64,8 +67,8 @@ export const DocEditor: React.FC = () => {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const response = await getTags({ size: 100 });
-        setAllTags(response.data.data.results || []);
+        const response = await getTags();
+        setAllTags(response.data.data || []);
       } catch (err) {
         console.error('Failed to fetch tags:', err);
       }
@@ -107,6 +110,52 @@ export const DocEditor: React.FC = () => {
     }
   }, [title, content, headerImg, isPublic, tags, isEditing, id, navigate, t]);
 
+  const handleHeaderImageUpload = useCallback(async (file: File) => {
+    if (!canUpload) {
+      alert(t.editor.noUploadPerm);
+      return;
+    }
+
+    try {
+      setUploadProgress(0);
+      const url = await uploadImageToCOS(file, setUploadProgress);
+      setHeaderImg(url);
+    } catch {
+      alert(t.editor.uploadFailed);
+    } finally {
+      setUploadProgress(null);
+    }
+  }, [canUpload, t]);
+
+  const handleHeaderImagePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          handleHeaderImageUpload(file);
+        }
+        break;
+      }
+    }
+  }, [handleHeaderImageUpload]);
+
+  const handleHeaderImageDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer?.files;
+    if (!files) return;
+
+    for (const file of files) {
+      if (file.type.startsWith('image/')) {
+        handleHeaderImageUpload(file);
+        break;
+      }
+    }
+  }, [handleHeaderImageUpload]);
+
   const handleAddTag = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -115,8 +164,17 @@ export const DocEditor: React.FC = () => {
         setTags([...tags, newTag]);
       }
       setTagInput('');
+      setShowTagSuggestions(false);
     }
   }, [tagInput, tags]);
+
+  const handleSelectTag = useCallback((tagName: string) => {
+    if (!tags.includes(tagName)) {
+      setTags([...tags, tagName]);
+    }
+    setTagInput('');
+    setShowTagSuggestions(false);
+  }, [tags]);
 
   const handleRemoveTag = useCallback((tagToRemove: string) => {
     setTags(tags.filter((t) => t !== tagToRemove));
@@ -227,6 +285,12 @@ export const DocEditor: React.FC = () => {
           />
         </div>
         <div className="editor-header-right">
+          <button 
+            className="btn btn-secondary mobile-only" 
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? t.common.edit : t.editor.preview}
+          </button>
           <button className="btn btn-secondary" onClick={() => navigate(-1)} disabled={saving}>
             {t.common.cancel}
           </button>
@@ -237,7 +301,7 @@ export const DocEditor: React.FC = () => {
       </div>
 
       <div className="editor-body">
-        <div className="editor-toolbar">
+        <div className={`editor-toolbar ${showPreview ? 'hidden' : ''}`}>
           <div className="editor-toolbar-group">
             <button className="toolbar-btn" title={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -347,7 +411,7 @@ export const DocEditor: React.FC = () => {
           </div>
         </div>
 
-        <div className="editor-main">
+        <div className={`editor-main ${showPreview ? 'preview-mode' : ''}`}>
           <div className="editor-pane">
             <div className="editor-pane-header">{t.common.edit}</div>
             <textarea
@@ -374,53 +438,111 @@ export const DocEditor: React.FC = () => {
           </div>
         </div>
 
-        <div className="editor-meta">
+        <div className={`editor-meta ${showPreview ? 'hidden' : ''}`}>
           <div className="editor-meta-row">
             <div className="editor-meta-field">
               <label className="editor-meta-label">{t.editor.headerImg}</label>
-              <input
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={headerImg}
-                onChange={(e) => setHeaderImg(e.target.value)}
-              />
+              <div className="header-img-input-wrapper">
+                <input
+                  type="url"
+                  placeholder="https://example.com/image.jpg"
+                  value={headerImg}
+                  onChange={(e) => setHeaderImg(e.target.value)}
+                  onPaste={handleHeaderImagePaste}
+                  onDrop={handleHeaderImageDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                />
+                {canUpload && (
+                  <label className="header-img-upload-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleHeaderImageUpload(file);
+                      }}
+                      hidden
+                    />
+                  </label>
+                )}
+              </div>
             </div>
             <div className="editor-meta-field">
               <label className="editor-meta-label">{t.editor.tags}</label>
-              <div className="editor-tags-input">
-                {tags.map((tag) => (
-                  <span key={tag} className="editor-tag">
-                    {tag}
-                    <button className="editor-tag-remove" onClick={() => handleRemoveTag(tag)}>
-                      ×
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  placeholder={t.editor.tagPlaceholder}
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                  list="tag-suggestions"
-                />
-                <datalist id="tag-suggestions">
-                  {allTags?.filter((t) => !tags.includes(t.name)).map((tag) => (
-                    <option key={tag.id} value={tag.name} />
+              <div className="editor-tags-container">
+                <div className="editor-tags-input" onClick={() => setShowTagSuggestions(true)}>
+                  {tags.map((tag) => (
+                    <span key={tag} className="editor-tag">
+                      {tag}
+                      <button className="editor-tag-remove" onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveTag(tag);
+                      }}>
+                        ×
+                      </button>
+                    </span>
                   ))}
-                </datalist>
+                  <input
+                    type="text"
+                    placeholder={tags.length === 0 ? t.editor.tagPlaceholder : ''}
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    onFocus={() => setShowTagSuggestions(true)}
+                  />
+                </div>
+                {showTagSuggestions && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowTagSuggestions(false)} />
+                    <div className="tag-suggestions">
+                      {allTags
+                        ?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase()))
+                        .map((tag) => (
+                          <button
+                            key={tag.id}
+                            className="tag-suggestion-item"
+                            onClick={() => handleSelectTag(tag.name)}
+                          >
+                            {tag.name}
+                          </button>
+                        ))}
+                      {allTags?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase())).length === 0 && (
+                        <div className="tag-suggestion-empty">
+                          {tagInput ? `按回车创建 "${tagInput}"` : '输入以创建标签'}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             <div className="editor-meta-field">
               <label className="editor-meta-label">{t.editor.visibility}</label>
-              <label className="editor-checkbox">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                <span>{t.editor.public}</span>
-              </label>
+              <div className="visibility-toggle">
+                <button
+                  className={`visibility-btn ${isPublic ? 'active' : ''}`}
+                  onClick={() => setIsPublic(true)}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  公开
+                </button>
+                <button
+                  className={`visibility-btn ${!isPublic ? 'active' : ''}`}
+                  onClick={() => setIsPublic(false)}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                  私密
+                </button>
+              </div>
             </div>
           </div>
         </div>

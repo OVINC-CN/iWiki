@@ -49,10 +49,10 @@ export const deleteDoc = (id: string) =>
 
 // Tag APIs
 export const getTags = (params?: { page?: number; size?: number }) =>
-  apiClient.get<ApiResponse<PaginatedResponse<TagInfo>>>('/tags/', { params });
+  apiClient.get<ApiResponse<TagInfo[]>>('/tags/', { params });
 
 export const getBoundTags = (params?: { page?: number; size?: number }) =>
-  apiClient.get<ApiResponse<PaginatedResponse<TagInfo>>>('/tags/bound/', { params });
+  apiClient.get<ApiResponse<TagInfo[]>>('/tags/bound/', { params });
 
 // Permission API
 export const getPermissions = () =>
