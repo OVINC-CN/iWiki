@@ -13,13 +13,19 @@ export const Home: React.FC = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <motion.section
-        className="relative flex flex-col items-center justify-center px-4 text-center bg-gradient-to-b from-background to-muted/50"
-        style={{ minHeight: 'calc(100vh - 3.5rem - 5rem)' }} // 100vh - header(3.5rem) - footer(approx 5rem)
+        className="relative flex flex-col items-center justify-center px-4 text-center overflow-hidden"
+        style={{ minHeight: 'calc(100vh - 3.5rem - 5rem)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-3xl mx-auto space-y-6">
+        {/* Colorful gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/50" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        
+        <div className="relative max-w-3xl mx-auto space-y-6 z-10">
           <motion.h1
             className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground"
             initial={{ opacity: 0, y: 30 }}

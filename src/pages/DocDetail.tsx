@@ -19,6 +19,17 @@ import type { DocInfo } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Lock, AlertCircle, Pencil, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
 
@@ -96,7 +107,7 @@ export const DocDetail: React.FC = () => {
   }, [doc?.content]);
 
   const handleDelete = useCallback(async () => {
-    if (!id || !window.confirm(t.docs.deleteConfirm)) return;
+    if (!id) return;
 
     try {
       setDeleting(true);
@@ -168,16 +179,33 @@ export const DocDetail: React.FC = () => {
                   {t.common.edit}
                 </Link>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-destructive hover:text-destructive gap-1"
-              >
-                <Trash2 className="h-4 w-4" />
-                {deleting ? t.docs.deleting : t.common.delete}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={deleting}
+                    className="text-destructive hover:text-destructive gap-1"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deleting ? t.docs.deleting : t.common.delete}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.docs.deleteConfirm}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      此操作无法撤销，文章将被永久删除。
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.common.cancel || '取消'}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      {t.common.delete}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </div>

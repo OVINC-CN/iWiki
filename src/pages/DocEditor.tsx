@@ -615,7 +615,7 @@ export const DocEditor: React.FC = () => {
               <label className="text-sm font-medium">{t.editor.tags}</label>
               <div className="relative">
                 <div
-                  className="flex flex-wrap items-center gap-2 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text"
+                  className="flex flex-wrap items-center gap-2 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text overflow-y-auto"
                   onClick={() => setShowTagSuggestions(true)}
                 >
                   {tags.map((tag) => (
@@ -645,7 +645,7 @@ export const DocEditor: React.FC = () => {
                 {showTagSuggestions && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setShowTagSuggestions(false)} />
-                    <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-popover shadow-md z-20">
+                    <div className="absolute bottom-full left-0 right-0 mb-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md z-50" style={{minWidth: 200}}>
                       {allTags
                         ?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase()))
                         .map((tag) => (
@@ -669,12 +669,12 @@ export const DocEditor: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.editor.visibility}</label>
-              <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')}>
-                <ToggleGroupItem value="public" className="gap-1">
+              <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')} className="border rounded-lg p-0.5 bg-muted/50">
+                <ToggleGroupItem value="public" className="gap-1 data-[state=on]:bg-green-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                   <Eye className="h-4 w-4" />
                   {t.editor.public}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="private" className="gap-1">
+                <ToggleGroupItem value="private" className="gap-1 data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                   <EyeOff className="h-4 w-4" />
                   {t.editor.private}
                 </ToggleGroupItem>
