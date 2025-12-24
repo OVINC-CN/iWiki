@@ -10,7 +10,7 @@ export const Layout: React.FC = () => {
         <Outlet />
       </main>
       <footer style={{
-        padding: '2rem',
+        padding: '1rem 2rem',
         textAlign: 'center',
         borderTop: '1px solid var(--border)',
         color: 'var(--text-muted)',
