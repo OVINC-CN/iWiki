@@ -88,7 +88,7 @@ export const DocEditor: React.FC = () => {
       const data: EditDocRequest = {
         title: title.trim(),
         content,
-        header_img: headerImg || null,
+        header_img: headerImg || '',
         is_public: isPublic,
         tags,
       };
