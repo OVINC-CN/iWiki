@@ -1,97 +1,73 @@
-<p align="center">
-  <img src="public/logo.png" alt="iWiki Logo" width="120">
-</p>
+# React + TypeScript + Vite
 
-<h1 align="center">iWiki</h1>
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-<p align="center">
-  <strong>A document management system that combines blogs and knowledge bases.</strong>
-</p>
+Currently, two official plugins are available:
 
-<p align="center">
-  <a href="./README_CN.md">简体中文</a> |
-  <a href="./README.md">English</a>
-</p>
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
----
+## React Compiler
 
-## ✨ Features
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-- **Unified Platform**: Seamlessly combines blog and knowledge base functionalities.
-- **Modern Stack**: Built with [Vue 3](https://vuejs.org/), [Vite](https://vitejs.dev/), and [Arco Design](https://arco.design/).
-- **Rich Editing**: Integrated [Vditor](https://github.com/Vanessa219/vditor) for a powerful Markdown editing experience.
-- **Diagrams & Code**: Native support for [Mermaid](https://mermaid.js.org/) diagrams and [PrismJS](https://prismjs.com/) syntax highlighting.
+## Expanding the ESLint configuration
 
-## 🛠️ Development
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-### Prerequisites
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-- Node.js
-- Yarn
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-### Local Setup
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/OVINC/iWiki.git
-   cd iWiki
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   yarn install
-   ```
-
-3. **Start development server**
-
-   ```bash
-   yarn dev
-   ```
-
-4. **Build for production**
-
-   ```bash
-   yarn build
-   ```
-
-## 🚀 Deployment
-
-### Method 1: Deploy on Vercel (Recommended)
-
-Fork this repository and deploy it using [Vercel](https://vercel.com).
-
-**Configuration:**
-
-1. **Build Settings:**
-   - Build Command: `yarn build`
-   - Install Command: `yarn`
-
-2. **Environment Variables:**
-
-   | Variable | Description |
-   | --- | --- |
-   | `SITE_URL` | Your site URL |
-   | `BACKEND_URL` | API URL |
-   | `OVINC_WEB_URL` | OVINC Web URL |
-   | `OVINC_URL` | OVINC Union API URL |
-   | `VDITOR_CDN` | Vditor CDN URL (Optional, [Configuration](https://github.com/Vanessa219/vditor?tab=readme-ov-file#cdn-%E5%88%87%E6%8D%A2)) |
-
-### Method 2: Manual Deployment
-
-You can host the static resources on any static file server (Nginx, Apache) or object storage (COS, OSS, S3).
-
-```bash
-# Set environment variables and build
-SITE_URL=<SITE URL> \
-BACKEND_URL=<API URL> \
-OVINC_WEB_URL=<OVINC WEB URL> \
-OVINC_URL=<OVINC UNION API URL> \
-VDITOR_CDN=<VDITOR CDN URL> \
-yarn && yarn build
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-## 📄 License
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-[MIT](./LICENSE) © [OVINC-CN](https://github.com/OVINC)
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
