@@ -466,9 +466,9 @@ export const DocEditor: React.FC = () => {
           <Input
             type="text"
             placeholder={t.editor.titlePlaceholder}
+            className="h-8"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="border-0 text-lg font-semibold bg-transparent focus-visible:ring-0 px-0 h-9"
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -581,11 +581,12 @@ export const DocEditor: React.FC = () => {
         {/* Meta Fields */}
         <div className={cn('border-t bg-muted/30 p-4', showPreview && 'hidden')}>
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px] space-y-2">
+            <div className="flex-1 min-w-50 space-y-2 h-10">
               <label className="text-sm font-medium">{t.editor.headerImg}</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 h-full">
                 <Input
                   type="url"
+                  className="h-10"
                   placeholder="https://example.com/image.jpg"
                   value={headerImg}
                   onChange={(e) => setHeaderImg(e.target.value)}
@@ -594,7 +595,7 @@ export const DocEditor: React.FC = () => {
                   onDragOver={(e) => e.preventDefault()}
                 />
                 {canUpload && (
-                  <Button variant="outline" size="icon" asChild className="shrink-0">
+                  <Button variant="outline" size="icon" asChild className="shrink-0 h-full">
                     <label className="cursor-pointer">
                       <Upload className="h-4 w-4" />
                       <input
@@ -634,7 +635,7 @@ export const DocEditor: React.FC = () => {
                   ))}
                   <input
                     type="text"
-                    className="flex-1 min-w-[80px] bg-transparent outline-none placeholder:text-muted-foreground"
+                    className="flex-1 min-w-20 bg-transparent outline-none placeholder:text-muted-foreground"
                     placeholder={tags.length === 0 ? t.editor.tagPlaceholder : ''}
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
@@ -669,12 +670,12 @@ export const DocEditor: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.editor.visibility}</label>
-              <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')} className="border rounded-lg p-0.5 bg-muted/50">
-                <ToggleGroupItem value="public" className="gap-1 data-[state=on]:bg-green-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
+              <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')} className="border rounded-lg p-0.5 bg-muted/50 h-10">
+                <ToggleGroupItem value="public" className="gap-1 h-full data-[state=on]:bg-green-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                   <Eye className="h-4 w-4" />
                   {t.editor.public}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="private" className="gap-1 data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
+                <ToggleGroupItem value="private" className="gap-1 h-full data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                   <EyeOff className="h-4 w-4" />
                   {t.editor.private}
                 </ToggleGroupItem>
