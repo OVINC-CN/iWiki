@@ -24,12 +24,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUser(userData);
       }
 
-      if (permRes?.data.data.results) {
-        setPermissions(permRes.data.data.results);
+      if (permRes?.data.data) {
+        setPermissions(permRes.data.data);
       }
 
-      if (featRes?.data.data.results?.[0]) {
-        setFeatures(featRes.data.data.results[0]);
+      if (featRes?.data.data) {
+        setFeatures(featRes.data.data);
       }
     } catch {
       setUser(null);

@@ -56,11 +56,11 @@ export const getBoundTags = (params?: { page?: number; size?: number }) =>
 
 // Permission API
 export const getPermissions = () =>
-  apiClient.get<ApiResponse<PaginatedResponse<UserPermission>>>('/permissions/');
+  apiClient.get<ApiResponse<UserPermission[]>>('/permissions/');
 
 // Feature API
 export const getFeatures = () =>
-  apiClient.get<ApiResponse<PaginatedResponse<FeatureResponse>>>('/features/');
+  apiClient.get<ApiResponse<FeatureResponse>>('/features/');
 
 // COS API
 export const getTempSecret = (filename: string) =>
