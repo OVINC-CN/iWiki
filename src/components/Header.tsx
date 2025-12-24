@@ -72,11 +72,21 @@ export const Header: React.FC = () => {
                 <button 
                   className="nav-link mobile-action-btn" 
                   onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                  style={{ width: '100%', textAlign: 'left' }}
+                  style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
                   {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
                 </button>
-                <button className="nav-link mobile-danger-btn" onClick={signOut} style={{ width: '100%', textAlign: 'left' }}>
+                <button className="nav-link mobile-danger-btn" onClick={signOut} style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
                   {t.common.logout}
                 </button>
               </>
@@ -85,8 +95,13 @@ export const Header: React.FC = () => {
                 <button 
                   className="nav-link mobile-action-btn" 
                   onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                  style={{ width: '100%', textAlign: 'left' }}
+                  style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
                   {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
                 </button>
                 <button className="nav-link mobile-primary-btn" onClick={login} style={{ width: '100%', textAlign: 'left' }}>
@@ -125,10 +140,20 @@ export const Header: React.FC = () => {
                       className="user-dropdown-item" 
                       onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
                     >
-                      {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                      <span>{language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}</span>
                     </button>
                     <button className="user-dropdown-item danger" onClick={signOut}>
-                      {t.common.logout}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      <span>{t.common.logout}</span>
                     </button>
                   </motion.div>
                 )}
