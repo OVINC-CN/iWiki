@@ -56,6 +56,7 @@ export default {
     showMore: 'Show More',
     showLess: 'Show Less',
     deleteConfirm: 'Are you sure you want to delete this article?',
+    deleteWarning: 'This action cannot be undone. The article will be permanently deleted.',
     deleteFailed: 'Delete failed',
     deleting: 'Deleting...',
     notFound: 'Article not found',

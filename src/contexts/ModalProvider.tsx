@@ -1,15 +1,23 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Modal } from '../components/Modal.tsx';
+import type React from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useApp } from './useApp';
-import { ModalContext } from './ModalContext';
+import { ModalContext } from './modalContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     title?: string;
-    content: React.ReactNode;
-    footer?: React.ReactNode;
-  }>({ content: null });
+    message: string;
+  }>({ message: '' });
   const { t } = useApp();
 
   const closeModal = useCallback(() => {
@@ -19,28 +27,31 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const showAlert = useCallback((message: string, title?: string) => {
     setModalConfig({
       title,
-      content: <p>{message}</p>,
-      footer: (
-        <button className="btn btn-primary" onClick={closeModal}>
-          {t.common?.confirm || 'OK'}
-        </button>
-      ),
+      message,
     });
     setIsOpen(true);
-  }, [closeModal, t]);
+  }, []);
 
   const value = useMemo(() => ({ showAlert, closeModal }), [showAlert, closeModal]);
 
   return (
     <ModalContext.Provider value={value}>
       {children}
-      <Modal
-        isOpen={isOpen}
-        onClose={closeModal}
-        title={modalConfig.title}
-        content={modalConfig.content}
-        footer={modalConfig.footer}
-      />
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            {modalConfig.title && <AlertDialogTitle>{modalConfig.title}</AlertDialogTitle>}
+            <AlertDialogDescription>
+              {modalConfig.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={closeModal}>
+              {t.common?.confirm || 'OK'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ModalContext.Provider>
   );
 };

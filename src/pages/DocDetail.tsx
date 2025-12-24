@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import type React from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -9,15 +10,28 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
-import { getDocDetail, deleteDoc } from '../api';
-import { useApp } from '../contexts/useApp';
-import { useModal } from '../contexts/useModal';
-import { Loading } from '../components/Loading';
-import { formatDate } from '../utils/date';
-import type { DocInfo } from '../types';
+import { getDocDetail, deleteDoc } from '@/api';
+import { useApp } from '@/contexts/useApp';
+import { useModal } from '@/contexts/useModal';
+import { Loading } from '@/components/Loading';
+import { formatDate } from '@/utils/date';
+import type { DocInfo } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Lock, AlertCircle, Pencil, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
-import '../styles/docDetail.css';
 
 mermaid.initialize({
   startOnLoad: false,
@@ -65,7 +79,6 @@ export const DocDetail: React.FC = () => {
     fetchDoc();
   }, [id, t]);
 
-  // Render mermaid diagrams
   useEffect(() => {
     if (doc?.content) {
       const renderMermaid = async () => {
@@ -77,10 +90,10 @@ export const DocDetail: React.FC = () => {
             const { svg } = await mermaid.render(`mermaid-${i}`, code);
             const container = document.createElement('div');
             container.className = 'mermaid';
-            const safeSvg = DOMPurify.sanitize(svg, { 
+            const safeSvg = DOMPurify.sanitize(svg, {
               USE_PROFILES: { svg: true, svgFilters: true },
               ADD_TAGS: ['foreignObject'],
-              ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style']
+              ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style'],
             });
             container.innerHTML = safeSvg;
             element.parentElement?.replaceWith(container);
@@ -94,7 +107,7 @@ export const DocDetail: React.FC = () => {
   }, [doc?.content]);
 
   const handleDelete = useCallback(async () => {
-    if (!id || !window.confirm(t.docs.deleteConfirm)) return;
+    if (!id) return;
 
     try {
       setDeleting(true);
@@ -113,17 +126,13 @@ export const DocDetail: React.FC = () => {
 
   if (error || !doc) {
     return (
-      <div className="doc-detail">
-        <div className="docs-empty">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <h3>{error || t.docs.notFound}</h3>
-          <Link to="/docs" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            {t.common.backToList}
-          </Link>
+      <div className="container mx-auto px-4 py-20">
+        <div className="flex flex-col items-center justify-center text-center">
+          <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">{error || t.docs.notFound}</h3>
+          <Button asChild className="mt-4">
+            <Link to="/docs">{t.common.backToList}</Link>
+          </Button>
         </div>
       </div>
     );
@@ -133,64 +142,80 @@ export const DocDetail: React.FC = () => {
 
   return (
     <motion.article
-      className="doc-detail"
+      className="container mx-auto px-4 py-8 max-w-4xl"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Link to="/docs" className="doc-detail-back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <line x1="19" y1="12" x2="5" y2="12" />
-          <polyline points="12 19 5 12 12 5" />
-        </svg>
-        {t.common.backToList}
-      </Link>
+      <Button asChild variant="ghost" size="sm" className="mb-6">
+        <Link to="/docs" className="gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          {t.common.backToList}
+        </Link>
+      </Button>
 
-      <header className="doc-detail-header">
-        <div className="doc-detail-title-row">
-          <h1 className="doc-detail-title">{doc.title}</h1>
+      <header className="space-y-4 mb-8">
+        <div className="flex items-start gap-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground flex-1">{doc.title}</h1>
           {!doc.is_public && (
-            <span className="doc-detail-private-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
+            <Badge variant="secondary" className="gap-1">
+              <Lock className="h-3 w-3" />
               {t.editor.private}
-            </span>
+            </Badge>
           )}
         </div>
-        
-        <div className="doc-detail-meta">
-          <div className="doc-detail-author">
-            <div className="doc-detail-author-info">
-              <span className="doc-detail-author-name">{doc.owner_nick_name || doc.owner}</span>
-              <span className="doc-detail-date">{formatDate(doc.created_at)}</span>
-            </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{doc.owner_nick_name || doc.owner}</span>
+            <span>{formatDate(doc.created_at)}</span>
           </div>
 
           {isOwner && (
-            <div className="doc-detail-actions">
-              <Link to={`/docs/${id}/edit`} className="btn btn-secondary">
-                {t.common.edit}
-              </Link>
-              <button
-                className="btn btn-ghost"
-                onClick={handleDelete}
-                disabled={deleting}
-                style={{ color: 'var(--error)' }}
-              >
-                {deleting ? t.docs.deleting : t.common.delete}
-              </button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/docs/${id}/edit`} className="gap-1">
+                  <Pencil className="h-4 w-4" />
+                  {t.common.edit}
+                </Link>
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={deleting}
+                    className="text-destructive hover:text-destructive gap-1"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deleting ? t.docs.deleting : t.common.delete}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.docs.deleteConfirm}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t.docs.deleteWarning}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      {t.common.delete}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </div>
 
         {doc.tags.length > 0 && (
-          <div className="doc-detail-tags">
+          <div className="flex flex-wrap gap-2">
             {doc.tags.map((tag) => (
-              <span key={tag} className="doc-detail-tag">
+              <Badge key={tag} variant="outline">
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
@@ -200,15 +225,12 @@ export const DocDetail: React.FC = () => {
         <img
           src={doc.header_img}
           alt={doc.title}
-          className="doc-detail-header-img"
+          className="w-full max-h-96 object-cover rounded-lg mb-8"
         />
       )}
 
-      <div className="doc-detail-content">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-        >
+      <div className="prose prose-neutral dark:prose-invert max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
           {doc.content}
         </ReactMarkdown>
       </div>

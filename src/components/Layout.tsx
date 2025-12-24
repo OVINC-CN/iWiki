@@ -1,21 +1,17 @@
-import React from 'react';
+import type React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
+import { Separator } from '@/components/ui/separator';
 
 export const Layout: React.FC = () => {
   return (
     <>
       <Header />
-      <main style={{ flex: 1 }}>
+      <main className="flex-1">
         <Outlet />
       </main>
-      <footer style={{
-        padding: '1rem 2rem',
-        textAlign: 'center',
-        borderTop: '1px solid var(--border)',
-        color: 'var(--text-muted)',
-        fontSize: '0.875rem',
-      }}>
+      <Separator />
+      <footer className="py-4 px-8 text-center text-muted-foreground text-sm">
         <p>© {new Date().getFullYear()} iWiki. All rights reserved.</p>
       </footer>
     </>

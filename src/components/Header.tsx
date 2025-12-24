@@ -1,31 +1,41 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-/* eslint-disable complexity */
+import type React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useApp } from '../contexts/useApp';
-import '../styles/header.css';
+import { useApp } from '@/contexts/useApp';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { User, LogOut, Globe, Menu, X } from 'lucide-react';
+
+const NavLink = ({ to, children, active }: { to: string; children: React.ReactNode; active: boolean }) => (
+  <Link
+    to={to}
+    className={cn(
+      'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+      active
+        ? 'text-primary bg-primary/10'
+        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+    )}
+  >
+    {children}
+  </Link>
+);
 
 export const Header: React.FC = () => {
   const { user, isLoggedIn, hasPermission, signOut, login, language, changeLanguage, t } = useApp();
-  const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const canCreateDoc = hasPermission('create_doc');
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Close mobile menu when route changes
   const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false);
   }, []);
@@ -35,160 +45,158 @@ export const Header: React.FC = () => {
   }, [location.pathname, closeMobileMenu]);
 
   return (
-    <header className="header">
-      <div className="header-content">
-        <Link to="/" className="header-logo">
-          <img src="/logo.webp" alt="iWiki" />
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+        <Link to="/" className="flex items-center">
+          <img src="/logo.webp" alt="iWiki" className="h-6" />
         </Link>
 
-        <nav className={`header-nav ${mobileMenuOpen ? 'open' : ''}`}>
-          <Link 
-            to="/" 
-            className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-          >
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-1">
+          <NavLink to="/" active={location.pathname === '/'}>
             {t.common.home}
-          </Link>
-          <Link 
-            to="/docs" 
-            className={`nav-link ${location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') && !location.pathname.includes("/new") ? 'active' : ''}`}
+          </NavLink>
+          <NavLink
+            to="/docs"
+            active={location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') && !location.pathname.includes('/new')}
           >
             {t.common.articles}
-          </Link>
+          </NavLink>
           {canCreateDoc && (
-            <Link 
-              to="/docs/new" 
-              className={`nav-link ${location.pathname === '/docs/new' ? 'active' : ''}`}
-            >
+            <NavLink to="/docs/new" active={location.pathname === '/docs/new'}>
               {t.common.write}
-            </Link>
+            </NavLink>
           )}
-          
-          {/* Mobile user section */}
-          <div className="mobile-only" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: `1px solid var(--border)` }}>
-            {isLoggedIn ? (
-              <>
-                <div className="nav-link" style={{ color: 'var(--text-primary)' }}>
-                  {user?.nick_name || user?.username}
-                </div>
-                <button 
-                  className="nav-link mobile-action-btn" 
-                  onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                  style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
-                  {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-                </button>
-                <button className="nav-link mobile-danger-btn" onClick={signOut} style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  {t.common.logout}
-                </button>
-              </>
-            ) : (
-              <>
-                <button 
-                  className="nav-link mobile-action-btn" 
-                  onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                  style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
-                  {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-                </button>
-                <button className="nav-link mobile-primary-btn" onClick={login} style={{ width: '100%', textAlign: 'left' }}>
-                  {t.common.login}
-                </button>
-              </>
-            )}
-          </div>
         </nav>
 
-        <div className="user-menu desktop-only" ref={dropdownRef}>
+        {/* Desktop User Menu */}
+        <div className="hidden md:flex items-center gap-2">
           {isLoggedIn ? (
-            <>
-              <div 
-                className="user-avatar" 
-                onClick={() => setShowDropdown(!showDropdown)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <AnimatePresence>
-                {showDropdown && (
-                  <motion.div
-                    className="user-dropdown"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <div className="user-dropdown-item" style={{ borderBottom: '1px solid var(--border)' }}>
-                      <span>{user?.nick_name || user?.username}</span>
-                    </div>
-                    <button 
-                      className="user-dropdown-item" 
-                      onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="2" y1="12" x2="22" y2="12" />
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                      <span>{language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}</span>
-                    </button>
-                    <button className="user-dropdown-item danger" onClick={signOut}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16 17 21 12 16 7" />
-                        <line x1="21" y1="12" x2="9" y2="12" />
-                      </svg>
-                      <span>{t.common.logout}</span>
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem disabled className="font-medium">
+                  {user?.nick_name || user?.username}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}>
+                  <Globe className="mr-2 h-4 w-4" />
+                  {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {t.common.logout}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <button className="btn btn-primary" onClick={login}>
-                {t.common.login}
-              </button>
+            <Button onClick={login} size="sm">
+              {t.common.login}
+            </Button>
           )}
         </div>
 
-        <button 
-          className="mobile-menu-btn"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {mobileMenuOpen ? (
-              <path d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path d="M3 12h18M3 6h18M3 18h18" />
-            )}
-          </svg>
-        </button>
+        {/* Mobile Menu */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon">
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-72">
+            <nav className="flex flex-col gap-4 mt-8">
+              <Link
+                to="/"
+                onClick={closeMobileMenu}
+                className={cn(
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  location.pathname === '/'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                )}
+              >
+                {t.common.home}
+              </Link>
+              <Link
+                to="/docs"
+                onClick={closeMobileMenu}
+                className={cn(
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') && !location.pathname.includes('/new')
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                )}
+              >
+                {t.common.articles}
+              </Link>
+              {canCreateDoc && (
+                <Link
+                  to="/docs/new"
+                  onClick={closeMobileMenu}
+                  className={cn(
+                    'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    location.pathname === '/docs/new'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  )}
+                >
+                  {t.common.write}
+                </Link>
+              )}
+              
+              <Separator className="my-2" />
+              
+              {isLoggedIn ? (
+                <>
+                  <div className="px-3 py-2 text-sm font-medium text-foreground">
+                    {user?.nick_name || user?.username}
+                  </div>
+                  <button
+                    onClick={() => {
+                      changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans');
+                      closeMobileMenu();
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                  </button>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      closeMobileMenu();
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t.common.logout}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans');
+                      closeMobileMenu();
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
+                  </button>
+                  <Button onClick={() => { login(); closeMobileMenu(); }} className="mx-3">
+                    {t.common.login}
+                  </Button>
+                </>
+              )}
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      <style>{`
-        .mobile-only { display: none; }
-        @media (max-width: 768px) {
-          .desktop-only { display: none; }
-          .mobile-only { display: block; }
-        }
-      `}</style>
     </header>
   );
 };
