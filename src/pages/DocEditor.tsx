@@ -13,6 +13,7 @@ import DOMPurify from 'dompurify';
 import { getDocDetail, createDoc, updateDoc, getTags } from '@/api';
 import { useApp } from '@/contexts/useApp';
 import { useModal } from '@/contexts/useModal';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { uploadFileToCOS } from '@/utils/cos';
 import { Loading } from '@/components/Loading';
 import { Button } from '@/components/ui/button';
@@ -115,6 +116,8 @@ export const DocEditor: React.FC = () => {
 
   const [showPreview, setShowPreview] = useState(false);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  
+  useDocumentTitle(isEditing && title ? title : t.common.write);
 
   // Load document data if editing
   useEffect(() => {

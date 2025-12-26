@@ -2,11 +2,14 @@ import type React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/useApp';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Button } from '@/components/ui/button';
 import { ShieldX } from 'lucide-react';
 
 export const Forbidden: React.FC = () => {
   const { t, login } = useApp();
+  
+  useDocumentTitle(t.common?.forbidden || 'Access Denied');
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">

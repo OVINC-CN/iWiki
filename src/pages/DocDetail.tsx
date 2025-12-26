@@ -13,6 +13,7 @@ import DOMPurify from 'dompurify';
 import { getDocDetail, deleteDoc } from '@/api';
 import { useApp } from '@/contexts/useApp';
 import { useModal } from '@/contexts/useModal';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loading } from '@/components/Loading';
 import { formatDate } from '@/utils/date';
 import type { DocInfo } from '@/types';
@@ -60,6 +61,8 @@ export const DocDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  
+  useDocumentTitle(doc?.title);
 
   useEffect(() => {
     const fetchDoc = async () => {

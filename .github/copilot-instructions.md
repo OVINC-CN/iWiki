@@ -4,5 +4,5 @@
 - run lint and build after code generation
 - use shadcn@latest components
 - use tailwindcss for styling
-- use nextjs@latest
+- use react router for routing
 - follow the minimalist aesthetic style of Apple Inc.
