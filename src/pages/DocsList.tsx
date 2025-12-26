@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { useDocs, useBoundTags } from '@/hooks/useDocs';
 import { useApp } from '@/contexts/useApp';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { DocCard } from '@/components/DocCard';
 import { SkeletonCard } from '@/components/Loading';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ const INITIAL_TAGS_COUNT = 10;
 export const DocsList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { features, t } = useApp();
+  
+  useDocumentTitle(t.common.articles);
 
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [inputValue, setInputValue] = useState('');

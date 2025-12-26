@@ -2,10 +2,13 @@ import type React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/useApp';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Button } from '@/components/ui/button';
 
 export const Home: React.FC = () => {
   const { isLoggedIn, hasPermission, login, t } = useApp();
+  
+  useDocumentTitle(t.common.home);
 
   const canCreateDoc = hasPermission('create_doc');
 

@@ -4,11 +4,14 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { signIn } from '@/api';
 import { Loading } from '@/components/Loading';
 import { useApp } from '@/contexts/useApp';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export const LoginCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useApp();
+  
+  useDocumentTitle(t.login.loggingIn);
 
   useEffect(() => {
     const handleLogin = async () => {
