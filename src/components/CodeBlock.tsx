@@ -43,13 +43,21 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...pr
     return <code {...props}>{children}</code>;
   }
 
+  // Mermaid code blocks - don't wrap, let mermaid render them
+  if (language === 'mermaid') {
+    return <code className={className} {...props}>{children}</code>;
+  }
+
   return (
     <div className="relative group">
-      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      <div className="flex items-center justify-between pb-1 bg-slate-800 border-b border-slate-700 rounded-t-md">
+        <span className="text-xs text-slate-400 font-mono">
+          {language || 'code'}
+        </span>
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
-          className="h-8 gap-1.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200"
+          className="h-6 gap-1.5 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={handleCopy}
         >
           {copied ? (
@@ -65,12 +73,14 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...pr
           )}
         </Button>
       </div>
-      {language && (
-        <div className="absolute left-3 top-2 text-xs text-slate-400 font-mono">
-          {language}
-        </div>
-      )}
-      <code className={`${className} block pt-8`} {...props}>
+      <code
+        className={`${className} block pt-1 py-4 rounded-t-none overflow-x-auto`}
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#475569 transparent',
+        }}
+        {...props}
+      >
         {children}
       </code>
     </div>

@@ -52,18 +52,14 @@ import 'katex/dist/katex.min.css';
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
+  theme: 'default',
   themeVariables: {
     primaryColor: '#6366f1',
-    primaryTextColor: '#1e293b',
-    primaryBorderColor: '#334155',
-    lineColor: '#94a3b8',
-    secondaryColor: '#e2e8f0',
-    tertiaryColor: '#f1f5f9',
-    textColor: '#1e293b',
-    mainBkg: '#e2e8f0',
-    nodeBorder: '#334155',
-    nodeTextColor: '#1e293b',
+    primaryTextColor: '#fff',
+    primaryBorderColor: '#4f46e5',
+    lineColor: '#6366f1',
+    secondaryColor: '#8b5cf6',
+    tertiaryColor: '#ec4899',
   },
 });
 
@@ -566,8 +562,8 @@ export const DocEditor: React.FC = () => {
         </div>
 
         {/* Editor Area */}
-        <div className={cn('flex flex-1 overflow-hidden', showPreview && 'hidden md:flex')}>
-          <div className={cn('flex flex-col flex-1 border-r', showPreview && 'hidden md:flex')}>
+        <div className="flex flex-1 overflow-hidden">
+          <div className={cn('flex flex-col flex-1 border-r', showPreview ? 'hidden md:flex' : 'flex')}>
             <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
               {t.common.edit}
             </div>
@@ -583,7 +579,7 @@ export const DocEditor: React.FC = () => {
               onDragOver={(e) => e.preventDefault()}
             />
           </div>
-          <div className={cn('flex-col flex-1 hidden md:flex', showPreview && 'flex')}>
+          <div className={cn('flex-col flex-1', showPreview ? 'flex' : 'hidden md:flex')}>
             <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
               {t.editor.preview}
             </div>
