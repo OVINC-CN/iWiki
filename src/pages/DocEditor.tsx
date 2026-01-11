@@ -16,6 +16,7 @@ import { useModal } from '@/contexts/useModal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { uploadFileToCOS } from '@/utils/cos';
 import { Loading } from '@/components/Loading';
+import { CodeBlock } from '@/components/CodeBlock';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -447,6 +448,18 @@ export const DocEditor: React.FC = () => {
     }, 0);
   }, [content]);
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const spaces = '    ';
+      // Use execCommand to preserve undo history
+      document.execCommand('insertText', false, spaces);
+    }
+  }, []);
+
   if (loading) {
     return <Loading fullPage text={t.common.loading} />;
   }
@@ -564,6 +577,7 @@ export const DocEditor: React.FC = () => {
               placeholder={t.editor.contentPlaceholder}
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              onKeyDown={handleKeyDown}
               onPaste={handlePaste}
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
@@ -574,7 +588,11 @@ export const DocEditor: React.FC = () => {
               {t.editor.preview}
             </div>
             <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none" key={previewKey}>
-              <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
+                components={{ code: CodeBlock }}
+              >
                 {content || t.editor.previewHint}
               </ReactMarkdown>
             </div>

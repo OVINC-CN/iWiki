@@ -15,6 +15,7 @@ import { useApp } from '@/contexts/useApp';
 import { useModal } from '@/contexts/useModal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loading } from '@/components/Loading';
+import { CodeBlock } from '@/components/CodeBlock';
 import { formatDate } from '@/utils/date';
 import type { DocInfo } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -233,7 +234,11 @@ export const DocDetail: React.FC = () => {
       )}
 
       <div className="prose prose-neutral dark:prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
+          components={{ code: CodeBlock }}
+        >
           {doc.content}
         </ReactMarkdown>
       </div>

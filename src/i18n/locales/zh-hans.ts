@@ -22,6 +22,8 @@ export default {
     forbidden: '访问被拒绝',
     forbiddenDesc: '您没有权限访问此页面。',
     backHome: '返回首页',
+    copy: '复制',
+    copied: '已复制',
   },
   home: {
     heroTitle: '探索知识的',
