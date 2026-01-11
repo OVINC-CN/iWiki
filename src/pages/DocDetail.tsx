@@ -37,18 +37,14 @@ import 'katex/dist/katex.min.css';
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
+  theme: 'default',
   themeVariables: {
     primaryColor: '#6366f1',
-    primaryTextColor: '#1e293b',
-    primaryBorderColor: '#334155',
-    lineColor: '#94a3b8',
-    secondaryColor: '#e2e8f0',
-    tertiaryColor: '#f1f5f9',
-    textColor: '#1e293b',
-    mainBkg: '#e2e8f0',
-    nodeBorder: '#334155',
-    nodeTextColor: '#1e293b',
+    primaryTextColor: '#fff',
+    primaryBorderColor: '#4f46e5',
+    lineColor: '#6366f1',
+    secondaryColor: '#8b5cf6',
+    tertiaryColor: '#ec4899',
   },
 });
 
