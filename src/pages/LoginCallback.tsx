@@ -7,44 +7,44 @@ import { useApp } from '@/contexts/useApp';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 export const LoginCallback: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { t } = useApp();
-  
-  useDocumentTitle(t.login.loggingIn);
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const { t } = useApp();
 
-  useEffect(() => {
-    const handleLogin = async () => {
-      try {
-        const code = searchParams.get('code');
-        if (!code) {
-          throw new Error('No code provided');
-        }
-        await signIn(code);
+    useDocumentTitle(t.login.loggingIn);
 
-        const redirect = searchParams.get('redirect');
-        if (redirect) {
-          try {
-            const url = new URL(decodeURIComponent(redirect));
-            if (url.origin === window.location.origin) {
-              window.location.href = redirect;
-              return;
+    useEffect(() => {
+        const handleLogin = async () => {
+            try {
+                const code = searchParams.get('code');
+                if (!code) {
+                    throw new Error('No code provided');
+                }
+                await signIn(code);
+
+                const redirect = searchParams.get('redirect');
+                if (redirect) {
+                    try {
+                        const url = new URL(decodeURIComponent(redirect));
+                        if (url.origin === window.location.origin) {
+                            window.location.href = redirect;
+                            return;
+                        }
+                    } catch {
+                        // Invalid URL, ignore
+                    }
+                }
+
+                navigate('/', { replace: true });
+            } catch {
+                navigate('/', { replace: true });
             }
-          } catch {
-            // Invalid URL, ignore
-          }
-        }
+        };
 
-        navigate('/', { replace: true });
-      } catch {
-        navigate('/', { replace: true });
-      }
-    };
+        handleLogin();
+    }, [searchParams, navigate]);
 
-    handleLogin();
-  }, [searchParams, navigate]);
-
-  return <Loading fullPage text={t.login.loggingIn} />;
+    return <Loading fullPage text={t.login.loggingIn} />;
 };
 
 export default LoginCallback;
