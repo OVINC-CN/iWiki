@@ -32,7 +32,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import 'highlight.js/styles/github.css';
+import 'highlight.js/styles/github-dark.css';
 import 'katex/dist/katex.min.css';
 
 mermaid.initialize({
