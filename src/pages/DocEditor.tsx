@@ -579,7 +579,7 @@ export const DocEditor: React.FC = () => {
 
                 {/* Editor Area */}
                 <div className="flex flex-1 overflow-hidden">
-                    <div className={cn('flex flex-col flex-1 border-r', showPreview ? 'hidden md:flex' : 'flex')}>
+                    <div className={cn('flex flex-col flex-1 min-w-0 border-r', showPreview ? 'hidden md:flex' : 'flex')}>
                         <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
                             {t.common.edit}
                         </div>
@@ -595,7 +595,7 @@ export const DocEditor: React.FC = () => {
                             onDragOver={(e) => e.preventDefault()}
                         />
                     </div>
-                    <div className={cn('flex-col flex-1', showPreview ? 'flex' : 'hidden md:flex')}>
+                    <div className={cn('flex flex-col flex-1 min-w-0 overflow-hidden', showPreview ? 'flex' : 'hidden md:flex')}>
                         <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
                             {t.editor.preview}
                         </div>
