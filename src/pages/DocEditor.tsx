@@ -175,7 +175,7 @@ export const DocEditor: React.FC = () => {
         }
     }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
 
-    // Update preview key when content changes to force re-render
+    // Update preview key when content changes to force mermaid re-render
     useEffect(() => {
         if (content) {
             const timer = setTimeout(() => {
@@ -599,8 +599,9 @@ export const DocEditor: React.FC = () => {
                         <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
                             {t.editor.preview}
                         </div>
-                        <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none" key={previewKey}>
+                        <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none">
                             <ReactMarkdown
+                                key={previewKey}
                                 remarkPlugins={[remarkGfm, remarkMath]}
                                 rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
                                 components={{ code: CodeBlock }}
