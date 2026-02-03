@@ -14,6 +14,7 @@ import { useModal } from '@/contexts/useModal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loading } from '@/components/Loading';
 import { CodeBlock, PreBlock } from '@/components/CodeBlock';
+import { ImagePreview } from '@/components/ImagePreview';
 import { formatDate } from '@/utils/date';
 import type { DocInfo } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -195,7 +196,7 @@ export const DocDetail: React.FC = () => {
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-                    components={{ code: CodeBlock, pre: PreBlock }}
+                    components={{ code: CodeBlock, pre: PreBlock, img: ImagePreview }}
                 >
                     {doc.content}
                 </ReactMarkdown>

@@ -15,6 +15,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { uploadFileToCOS } from '@/utils/cos';
 import { Loading } from '@/components/Loading';
 import { CodeBlock, PreBlock } from '@/components/CodeBlock';
+import { ImagePreview } from '@/components/ImagePreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -540,7 +541,7 @@ export const DocEditor: React.FC = () => {
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm, remarkMath]}
                                 rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-                                components={{ code: CodeBlock, pre: PreBlock }}
+                                components={{ code: CodeBlock, pre: PreBlock, img: ImagePreview }}
                             >
                                 {content || t.editor.previewHint}
                             </ReactMarkdown>
