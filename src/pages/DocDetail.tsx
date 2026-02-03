@@ -8,14 +8,12 @@ import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
-import mermaid from 'mermaid';
-import DOMPurify from 'dompurify';
 import { getDocDetail, deleteDoc } from '@/api';
 import { useApp } from '@/contexts/useApp';
 import { useModal } from '@/contexts/useModal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loading } from '@/components/Loading';
-import { CodeBlock } from '@/components/CodeBlock';
+import { CodeBlock, PreBlock } from '@/components/CodeBlock';
 import { formatDate } from '@/utils/date';
 import type { DocInfo } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -32,21 +30,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
-
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    themeVariables: {
-        primaryColor: '#6366f1',
-        primaryTextColor: '#fff',
-        primaryBorderColor: '#4f46e5',
-        lineColor: '#6366f1',
-        secondaryColor: '#8b5cf6',
-        tertiaryColor: '#ec4899',
-    },
-});
 
 export const DocDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -80,33 +65,6 @@ export const DocDetail: React.FC = () => {
 
         fetchDoc();
     }, [id, t]);
-
-    useEffect(() => {
-        if (doc?.content) {
-            const renderMermaid = async () => {
-                const elements = document.querySelectorAll('.language-mermaid');
-                for (let i = 0; i < elements.length; i++) {
-                    const element = elements[i];
-                    const code = element.textContent || '';
-                    try {
-                        const { svg } = await mermaid.render(`mermaid-${i}`, code);
-                        const container = document.createElement('div');
-                        container.className = 'mermaid';
-                        const safeSvg = DOMPurify.sanitize(svg, {
-                            USE_PROFILES: { svg: true, svgFilters: true },
-                            ADD_TAGS: ['foreignObject'],
-                            ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style'],
-                        });
-                        container.innerHTML = safeSvg;
-                        element.parentElement?.replaceWith(container);
-                    } catch (e) {
-                        console.error('Mermaid render error:', e);
-                    }
-                }
-            };
-            setTimeout(renderMermaid, 100);
-        }
-    }, [doc?.content]);
 
     const handleDelete = useCallback(async () => {
         if (!id) {
@@ -237,7 +195,7 @@ export const DocDetail: React.FC = () => {
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-                    components={{ code: CodeBlock }}
+                    components={{ code: CodeBlock, pre: PreBlock }}
                 >
                     {doc.content}
                 </ReactMarkdown>

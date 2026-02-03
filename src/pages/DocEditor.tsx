@@ -8,15 +8,13 @@ import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
-import mermaid from 'mermaid';
-import DOMPurify from 'dompurify';
 import { getDocDetail, createDoc, updateDoc, getTags } from '@/api';
 import { useApp } from '@/contexts/useApp';
 import { useModal } from '@/contexts/useModal';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { uploadFileToCOS } from '@/utils/cos';
 import { Loading } from '@/components/Loading';
-import { CodeBlock } from '@/components/CodeBlock';
+import { CodeBlock, PreBlock } from '@/components/CodeBlock';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -47,21 +45,8 @@ import {
     Upload,
     X,
 } from 'lucide-react';
-import 'highlight.js/styles/github-dark.css';
+import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
-
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    themeVariables: {
-        primaryColor: '#6366f1',
-        primaryTextColor: '#fff',
-        primaryBorderColor: '#4f46e5',
-        lineColor: '#6366f1',
-        secondaryColor: '#8b5cf6',
-        tertiaryColor: '#ec4899',
-    },
-});
 
 const ToolbarButton = ({
     icon: Icon,
@@ -101,7 +86,6 @@ export const DocEditor: React.FC = () => {
     const [loading, setLoading] = useState(isEditing);
     const [saving, setSaving] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-    const [previewKey, setPreviewKey] = useState(0);
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -174,53 +158,6 @@ export const DocEditor: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
-
-    // Update preview key when content changes to force mermaid re-render
-    useEffect(() => {
-        if (content) {
-            const timer = setTimeout(() => {
-                setPreviewKey(prev => prev + 1);
-            }, 500);
-            return () => clearTimeout(timer);
-        }
-    }, [content]);
-
-    // Render mermaid diagrams in preview
-    useEffect(() => {
-        const renderMermaid = async () => {
-            const previewContainer = document.querySelector('.prose');
-            if (!previewContainer) {
-                return;
-            }
-
-            const codeBlocks = previewContainer.querySelectorAll('pre code.language-mermaid');
-            for (let i = 0; i < codeBlocks.length; i++) {
-                const codeBlock = codeBlocks[i];
-                const preElement = codeBlock.parentElement;
-                if (!preElement) {
-                    continue;
-                }
-
-                const code = codeBlock.textContent || '';
-                try {
-                    const { svg } = await mermaid.render(`mermaid-editor-${i}-${Date.now()}`, code);
-                    const container = document.createElement('div');
-                    container.className = 'mermaid';
-                    const safeSvg = DOMPurify.sanitize(svg, {
-                        USE_PROFILES: { svg: true, svgFilters: true },
-                        ADD_TAGS: ['foreignObject'],
-                        ADD_ATTR: ['id', 'width', 'height', 'viewBox', 'preserveAspectRatio', 'style'],
-                    });
-                    container.innerHTML = safeSvg;
-                    preElement.replaceWith(container);
-                } catch (e) {
-                    console.error('Mermaid render error:', e);
-                }
-            }
-        };
-        const timer = setTimeout(renderMermaid, 100);
-        return () => clearTimeout(timer);
-    }, [previewKey]);
 
     // Load all tags for suggestions
     useEffect(() => {
@@ -601,10 +538,9 @@ export const DocEditor: React.FC = () => {
                         </div>
                         <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none">
                             <ReactMarkdown
-                                key={previewKey}
                                 remarkPlugins={[remarkGfm, remarkMath]}
                                 rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-                                components={{ code: CodeBlock }}
+                                components={{ code: CodeBlock, pre: PreBlock }}
                             >
                                 {content || t.editor.previewHint}
                             </ReactMarkdown>

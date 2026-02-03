@@ -165,8 +165,8 @@
 
 /* Typography overrides */
 .prose :where(pre):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
-  background-color: #1e293b;
-  color: #e2e8f0;
+  background-color: var(--color-gray-100);
+  color: #24292e;
 }
 
 .prose :where(code):not(:where([class~="not-prose"],[class~="not-prose"] *))::before,
