@@ -63,6 +63,8 @@ export default {
         deleting: '删除中...',
         notFound: '文章不存在',
         loadFailed: '加载失败',
+        searchFor: '搜索',
+        noMatchingTags: '没有匹配的标签',
     },
     editor: {
         titlePlaceholder: '输入文章标题...',

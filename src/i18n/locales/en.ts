@@ -63,6 +63,8 @@ export default {
         deleting: 'Deleting...',
         notFound: 'Article not found',
         loadFailed: 'Load failed',
+        searchFor: 'Search for',
+        noMatchingTags: 'No matching tags',
     },
     editor: {
         titlePlaceholder: 'Enter article title...',
