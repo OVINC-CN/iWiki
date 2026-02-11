@@ -9,11 +9,10 @@ import { DocCard } from '@/components/DocCard';
 import { SkeletonCard } from '@/components/Loading';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { Search, FileText, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
+import { Search, FileText, ChevronLeft, ChevronRight, Tag, X } from 'lucide-react';
 
 const PAGE_SIZE = 12;
-const INITIAL_TAGS_COUNT = 10;
+const TAG_PREFIX = 'tag:';
 
 export const DocsList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -23,25 +22,43 @@ export const DocsList: React.FC = () => {
 
     const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
     const [inputValue, setInputValue] = useState('');
-    const [keywords, setKeywords] = useState<string[]>(
-        searchParams.get('keywords')?.split(',').filter(Boolean) || [],
-    );
-    const [selectedTags, setSelectedTags] = useState<string[]>(
-        searchParams.get('tags')?.split(',').filter(Boolean) || [],
-    );
-    const [showAllTags, setShowAllTags] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    const [tokens, setTokens] = useState<string[]>(() => {
+        const q = searchParams.get('q');
+        if (q) {
+            return q.split(',').filter(Boolean);
+        }
+        // Backward compatibility: read old format
+        const oldKeywords = searchParams.get('keywords')?.split(',').filter(Boolean) || [];
+        const oldTags = searchParams.get('tags')?.split(',').filter(Boolean).map((t) => `${TAG_PREFIX}${t}`) || [];
+        return [...oldKeywords, ...oldTags];
+    });
+
+    const parsedTokens = useMemo(() => {
+        const tags: string[] = [];
+        const keywords: string[] = [];
+        for (const token of tokens) {
+            if (token.startsWith(TAG_PREFIX)) {
+                tags.push(token.slice(TAG_PREFIX.length));
+            } else {
+                keywords.push(token);
+            }
+        }
+        return { tags, keywords };
+    }, [tokens]);
 
     const processedKeywords = useMemo(() => {
-        if (keywords.length === 0) {
+        if (parsedTokens.keywords.length === 0) {
             return undefined;
         }
-        return keywords.join(',');
-    }, [keywords]);
+        return parsedTokens.keywords.join(',');
+    }, [parsedTokens.keywords]);
 
     const { docs, total, loading } = useDocs({
         page,
         size: PAGE_SIZE,
-        tags: selectedTags,
+        tags: parsedTokens.tags,
         keywords: processedKeywords,
     });
 
@@ -58,54 +75,51 @@ export const DocsList: React.FC = () => {
         if (page > 1) {
             params.set('page', String(page));
         }
-        if (keywords.length > 0) {
-            params.set('keywords', keywords.join(','));
-        }
-        if (selectedTags.length > 0) {
-            params.set('tags', selectedTags.join(','));
+        if (tokens.length > 0) {
+            params.set('q', tokens.join(','));
         }
         setSearchParams(params, { replace: true });
-    }, [page, keywords, selectedTags, setSearchParams]);
+    }, [page, tokens, setSearchParams]);
 
     const handleSearch = useCallback((e: React.FormEvent) => {
         e.preventDefault();
+    }, []);
+
+    const addToken = useCallback((token: string) => {
+        setTokens((prev) => (prev.includes(token) ? prev : [...prev, token]));
+        setInputValue('');
+        setPage(1);
+    }, []);
+
+    const removeToken = useCallback((token: string) => {
+        setTokens((prev) => prev.filter((t) => t !== token));
+        setPage(1);
     }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
             const newKeyword = inputValue.trim();
-            if (newKeyword && !keywords.includes(newKeyword)) {
-                setKeywords([...keywords, newKeyword]);
-                setInputValue('');
-                setPage(1);
+            if (newKeyword) {
+                addToken(newKeyword);
+                setShowDropdown(false);
             }
-        } else if (e.key === 'Backspace' && !inputValue && keywords.length > 0) {
-            setKeywords(keywords.slice(0, -1));
+        } else if (e.key === 'Backspace' && !inputValue && tokens.length > 0) {
+            setTokens((prev) => prev.slice(0, -1));
             setPage(1);
+        } else if (e.key === 'Escape') {
+            setShowDropdown(false);
         }
     };
 
-    const removeKeyword = (keyword: string) => {
-        setKeywords(keywords.filter((k) => k !== keyword));
-        setPage(1);
-    };
-
-    const toggleTag = useCallback((tagName: string) => {
-        setSelectedTags((prev) =>
-            prev.includes(tagName)
-                ? prev.filter((t) => t !== tagName)
-                : [...prev, tagName],
+    const filteredTags = useMemo(() => {
+        const selectedTagNames = new Set(parsedTokens.tags);
+        return boundTags.filter(
+            (tag) =>
+                !selectedTagNames.has(tag.name) &&
+                tag.name.toLowerCase().includes(inputValue.toLowerCase()),
         );
-        setPage(1);
-    }, []);
-
-    const visibleTags = useMemo(() => {
-        if (showAllTags) {
-            return boundTags;
-        }
-        return boundTags.slice(0, INITIAL_TAGS_COUNT);
-    }, [boundTags, showAllTags]);
+    }, [boundTags, parsedTokens.tags, inputValue]);
 
     const renderPagination = () => {
         if (totalPages <= 1) {
@@ -188,68 +202,83 @@ export const DocsList: React.FC = () => {
                 {features?.doc_fuzzy_search && (
                     <form onSubmit={handleSearch}>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-1" />
                             <div
                                 className="flex flex-wrap items-center gap-2 min-h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 cursor-text"
                                 onClick={() => document.getElementById('search-input')?.focus()}
                             >
-                                {keywords.map((k) => (
-                                    <Badge key={k} variant="secondary" className="gap-1">
-                                        {k}
-                                        <button
-                                            type="button"
-                                            className="hover:text-destructive"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                removeKeyword(k);
-                                            }}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </Badge>
-                                ))}
+                                {tokens.map((token) => {
+                                    const isTag = token.startsWith(TAG_PREFIX);
+                                    return (
+                                        <Badge key={token} variant={isTag ? 'default' : 'secondary'} className="gap-1">
+                                            {isTag && <Tag className="h-3 w-3" />}
+                                            {isTag ? token.slice(TAG_PREFIX.length) : token}
+                                            <button
+                                                type="button"
+                                                className="hover:text-destructive"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeToken(token);
+                                                }}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </Badge>
+                                    );
+                                })}
                                 <input
                                     id="search-input"
                                     type="text"
                                     className="flex-1 min-w-[120px] bg-transparent outline-none placeholder:text-muted-foreground"
-                                    placeholder={keywords.length === 0 ? t.docs.searchPlaceholder : ''}
+                                    placeholder={tokens.length === 0 ? t.docs.searchPlaceholder : ''}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyDown={handleKeyDown}
+                                    onFocus={() => setShowDropdown(true)}
                                 />
                             </div>
+                            {showDropdown && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                                    <div className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md z-50">
+                                        {inputValue.trim() && (
+                                            <button
+                                                className="w-full px-3 py-2 text-left text-sm hover:bg-accent flex items-center gap-2"
+                                                onClick={() => {
+                                                    addToken(inputValue.trim());
+                                                    setShowDropdown(false);
+                                                }}
+                                            >
+                                                <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                                                {t.docs.searchFor} &quot;{inputValue.trim()}&quot;
+                                            </button>
+                                        )}
+                                        {filteredTags.length > 0 ? (
+                                            filteredTags.map((tag) => (
+                                                <button
+                                                    key={tag.id}
+                                                    className="w-full px-3 py-2 text-left text-sm hover:bg-accent flex items-center gap-2"
+                                                    onClick={() => {
+                                                        addToken(`${TAG_PREFIX}${tag.name}`);
+                                                        setShowDropdown(false);
+                                                    }}
+                                                >
+                                                    <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                                                    {tag.name}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            !inputValue.trim() && (
+                                                <div className="px-3 py-2 text-sm text-muted-foreground">
+                                                    {t.docs.noMatchingTags}
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </form>
-                )}
-
-                {boundTags?.length > 0 && (
-                    <div className="space-y-3">
-                        <div className="flex flex-wrap gap-2">
-                            {visibleTags.map((tag) => (
-                                <Badge
-                                    key={tag.id}
-                                    variant={selectedTags.includes(tag.name) ? 'default' : 'outline'}
-                                    className="cursor-pointer transition-colors hover:bg-primary/20"
-                                    onClick={() => toggleTag(tag.name)}
-                                >
-                                    {tag.name}
-                                </Badge>
-                            ))}
-                        </div>
-                        {boundTags.length > INITIAL_TAGS_COUNT && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-muted-foreground"
-                                onClick={() => setShowAllTags(!showAllTags)}
-                            >
-                                {showAllTags ? t.docs.showLess : `${t.docs.showMore} (${boundTags.length - INITIAL_TAGS_COUNT})`}
-                                <ChevronDown
-                                    className={cn('h-4 w-4 ml-1 transition-transform', showAllTags && 'rotate-180')}
-                                />
-                            </Button>
-                        )}
-                    </div>
                 )}
             </motion.div>
 
