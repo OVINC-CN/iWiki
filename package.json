@@ -25,7 +25,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@uiw/react-md-editor": "^4.0.11",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cos-js-sdk-v5": "^1.10.1",
