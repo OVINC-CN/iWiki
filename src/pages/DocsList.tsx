@@ -13,6 +13,21 @@ import { Search, FileText, ChevronLeft, ChevronRight, Tag, X } from 'lucide-reac
 
 const PAGE_SIZE = 12;
 const TAG_PREFIX = 'tag:';
+const STORAGE_KEY = 'docsListSearch';
+
+const readSavedSearch = (): { page: number; tokens: string[] } => {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const params = new URLSearchParams(saved);
+            const page = Number(params.get('page')) || 1;
+            const q = params.get('q');
+            const tokens = q ? q.split(',').filter(Boolean) : [];
+            return { page, tokens };
+        }
+    } catch {}
+    return { page: 1, tokens: [] };
+};
 
 export const DocsList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -20,19 +35,29 @@ export const DocsList: React.FC = () => {
 
     useDocumentTitle(t.common.articles);
 
-    const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+    const hasUrlParams = searchParams.has('q') || searchParams.has('page') || searchParams.has('keywords') || searchParams.has('tags');
+
+    const [page, setPage] = useState(() => {
+        if (hasUrlParams) {
+            return Number(searchParams.get('page')) || 1;
+        }
+        return readSavedSearch().page;
+    });
     const [inputValue, setInputValue] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
 
     const [tokens, setTokens] = useState<string[]>(() => {
-        const q = searchParams.get('q');
-        if (q) {
-            return q.split(',').filter(Boolean);
+        if (hasUrlParams) {
+            const q = searchParams.get('q');
+            if (q) {
+                return q.split(',').filter(Boolean);
+            }
+            // Backward compatibility: read old format
+            const oldKeywords = searchParams.get('keywords')?.split(',').filter(Boolean) || [];
+            const oldTags = searchParams.get('tags')?.split(',').filter(Boolean).map((t) => `${TAG_PREFIX}${t}`) || [];
+            return [...oldKeywords, ...oldTags];
         }
-        // Backward compatibility: read old format
-        const oldKeywords = searchParams.get('keywords')?.split(',').filter(Boolean) || [];
-        const oldTags = searchParams.get('tags')?.split(',').filter(Boolean).map((t) => `${TAG_PREFIX}${t}`) || [];
-        return [...oldKeywords, ...oldTags];
+        return readSavedSearch().tokens;
     });
 
     const parsedTokens = useMemo(() => {
@@ -79,6 +104,7 @@ export const DocsList: React.FC = () => {
             params.set('q', tokens.join(','));
         }
         setSearchParams(params, { replace: true });
+        localStorage.setItem(STORAGE_KEY, params.toString());
     }, [page, tokens, setSearchParams]);
 
     const handleSearch = useCallback((e: React.FormEvent) => {
