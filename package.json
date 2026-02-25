@@ -2,7 +2,7 @@
   "name": "iwiki",
   "license": "MIT",
   "resolutions": {
-    "fast-xml-parser": "5.3.4",
+    "fast-xml-parser": "5.3.6",
     "lodash-es": "4.17.23"
   },
   "version": "0.1.0",
