@@ -28,7 +28,7 @@
 ### 环境要求
 
 - Node.js
-- Yarn
+- pnpm
 
 ### 本地启动
 
@@ -42,19 +42,19 @@
 2. **安装依赖**
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **启动开发服务器**
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 4. **构建生产版本**
 
    ```bash
-   yarn build
+   pnpm build
    ```
 
 ## 🚀 部署
@@ -66,8 +66,8 @@ Fork 本仓库并使用 [Vercel](https://vercel.com) 进行部署。
 **配置说明：**
 
 1. **构建设置：**
-    - 构建命令：`yarn build`
-    - 安装命令：`yarn`
+    - 构建命令：`pnpm build`
+    - 安装命令：`pnpm install`
 
 2. **环境变量：**
 
@@ -90,7 +90,7 @@ VITE_BACKEND_URL=<后端 API 地址> \
 VITE_SSO_URL=<SSO 登录地址> \
 VITE_SSO_API_URL=<SSO API 地址> \
 VITE_ALLOWED_HOSTS=<允许的域名> \
-yarn && yarn build
+pnpm install && pnpm build
 ```
 
 ## 📄 许可证

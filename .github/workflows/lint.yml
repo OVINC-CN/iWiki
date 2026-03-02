@@ -20,10 +20,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-        cache: 'yarn'
+        cache: 'pnpm'
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: pnpm install --immutable
 
     - name: Run ESLint
-      run: yarn lint
+      run: pnpm lint
