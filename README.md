@@ -28,7 +28,7 @@
 ### Prerequisites
 
 - Node.js
-- Yarn
+- pnpm
 
 ### Local Setup
 
@@ -42,19 +42,19 @@
 2. **Install dependencies**
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **Start development server**
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 4. **Build for production**
 
    ```bash
-   yarn build
+   pnpm build
    ```
 
 ## 🚀 Deployment
@@ -66,8 +66,8 @@ Fork this repository and deploy it using [Vercel](https://vercel.com).
 **Configuration:**
 
 1. **Build Settings:**
-    - Build Command: `yarn build`
-    - Install Command: `yarn`
+    - Build Command: `pnpm build`
+    - Install Command: `pnpm install`
 
 2. **Environment Variables:**
 
@@ -90,7 +90,7 @@ VITE_BACKEND_URL=<API URL> \
 VITE_SSO_URL=<SSO URL> \
 VITE_SSO_API_URL=<SSO API URL> \
 VITE_ALLOWED_HOSTS=<ALLOWED HOSTS> \
-yarn && yarn build
+pnpm install && pnpm build
 ```
 
 ## 📄 License

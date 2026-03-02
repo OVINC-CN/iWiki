@@ -10,16 +10,16 @@ iWiki is a document management system combining blog and knowledge base function
 
 ```bash
 # Development server (port 5173)
-yarn dev
+pnpm dev
 
 # Production build (includes TypeScript check and config generation)
-yarn build
+pnpm build
 
 # Lint code
-yarn lint
+pnpm lint
 
 # Preview built artifacts
-yarn preview
+pnpm preview
 ```
 
 ## Architecture
@@ -58,12 +58,12 @@ yarn preview
 
 ## Development Guidelines
 
-- Use **yarn** as package manager
+- Use **pnpm** as package manager
 - Use **eslint-config-alloy** for linting
 - All user-facing text must use i18n (via `useApp().t`) - no hardcoded strings
 - Use shadcn/ui components for UI elements
 - Use Tailwind CSS for styling
-- Run `yarn lint` and `yarn build` after code changes
+- Run `pnpm lint` and `pnpm build` after code changes
 
 ## Environment Variables
 
