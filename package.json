@@ -3,6 +3,7 @@
   "license": "MIT",
   "resolutions": {
     "fast-xml-parser": "5.3.8",
+    "flatted": ">=3.4.0",
     "lodash-es": "4.17.23",
     "rollup": "4.59.0"
   },
@@ -31,7 +32,7 @@
     "clsx": "^2.1.1",
     "cos-js-sdk-v5": "^1.10.1",
     "dayjs": "^1.11.19",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.3.2",
     "framer-motion": "^12.23.26",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.27",
