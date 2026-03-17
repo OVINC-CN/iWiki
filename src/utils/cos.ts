@@ -17,7 +17,7 @@ export const uploadFileToCOS = async (
     });
 
     return new Promise((resolve, reject) => {
-        cos.uploadFile(
+        cos.putObject(
             {
                 Bucket: credentials.cos_bucket,
                 Region: credentials.cos_region,
