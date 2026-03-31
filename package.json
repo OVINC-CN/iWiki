@@ -16,7 +16,7 @@
       "lodash-es": "4.17.23",
       "rollup": "4.59.0",
       "picomatch": ">=4.0.4",
-      "brace-expansion": ">=5.0.5"
+      "brace-expansion@>=5.0.0 <5.0.5": ">=5.0.5"
     }
   },
   "dependencies": {
