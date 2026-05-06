@@ -11,12 +11,12 @@
   },
   "pnpm": {
     "overrides": {
-      "fast-xml-parser": ">=5.5.7",
-      "flatted": ">=3.4.2",
+      "fast-xml-parser": "^5.7.0",
+      "flatted": "^3.4.2",
       "lodash-es": "4.18.0",
       "rollup": "4.59.0",
-      "picomatch": ">=4.0.4",
-      "brace-expansion@>=5.0.0 <5.0.5": ">=5.0.5"
+      "picomatch": "^4.0.4",
+      "brace-expansion@>=5.0.0 <5.0.5": "^5.0.5"
     }
   },
   "dependencies": {
@@ -31,12 +31,12 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@uiw/react-md-editor": "^4.0.11",
-    "axios": "^1.15.0",
+    "axios": "^1.16.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cos-js-sdk-v5": "^1.10.1",
     "dayjs": "^1.11.19",
-    "dompurify": "^3.3.2",
+    "dompurify": "^3.4.0",
     "framer-motion": "^12.23.26",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.27",
