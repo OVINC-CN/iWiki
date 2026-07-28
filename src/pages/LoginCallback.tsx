@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router';
 import { signIn } from '@/api';
 import { Loading } from '@/components/Loading';
 import { useApp } from '@/contexts/useApp';

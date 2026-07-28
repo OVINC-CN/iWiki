@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/useApp';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';

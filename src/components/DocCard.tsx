@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import type { DocList } from '@/types';
 import { formatRelativeTime } from '@/utils/date';
 import { useApp } from '@/contexts/useApp';

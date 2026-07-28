@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { useDocs, useBoundTags } from '@/hooks/useDocs';
 import { useApp } from '@/contexts/useApp';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
