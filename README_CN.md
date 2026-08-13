@@ -57,6 +57,23 @@
    pnpm build
    ```
 
+## 构建时 Head 片段
+
+生产构建可以将一个外部 HTML 片段插入 `<head>` 开始标签之后。通过 `BUILD_HEAD_FRAGMENT_FILE` 传入文件路径：
+
+```shell
+BUILD_HEAD_FRAGMENT_FILE=tracking.fragment.html pnpm build
+```
+
+相对路径以仓库根目录为基准。该文件被视为可信的构建输入，可以包含如下追踪脚本标签：
+
+```html
+<script defer src="https://example.com/script.js" data-website-id="website-id"></script>
+<script defer src="https://example.com/recorder.js" data-website-id="website-id"></script>
+```
+
+片段文件应由构建环境提供并保持在 Git 追踪之外；推荐的 `tracking.fragment.html` 文件名默认已被忽略。未设置该变量时不会注入任何内容；修改片段后需要重新构建和部署。
+
 ## 🚀 部署
 
 ### 方式一：Vercel 部署（推荐）

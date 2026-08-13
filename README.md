@@ -57,6 +57,23 @@
    pnpm build
    ```
 
+## Build-time Head Fragment
+
+An optional external HTML fragment can be inserted immediately after the opening `<head>` tag during a production build. Pass its path through `BUILD_HEAD_FRAGMENT_FILE`:
+
+```shell
+BUILD_HEAD_FRAGMENT_FILE=tracking.fragment.html pnpm build
+```
+
+Relative paths are resolved from the repository root. The fragment is treated as trusted build input and can contain script tags such as:
+
+```html
+<script defer src="https://example.com/script.js" data-website-id="website-id"></script>
+<script defer src="https://example.com/recorder.js" data-website-id="website-id"></script>
+```
+
+The fragment file should be supplied by the build environment and kept outside Git tracking; the recommended `tracking.fragment.html` filename is ignored by default. When the variable is unset, no fragment is injected. Changing the fragment requires rebuilding and redeploying the site.
+
 ## 🚀 Deployment
 
 ### Method 1: Deploy on Vercel (Recommended)
