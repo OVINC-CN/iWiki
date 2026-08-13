@@ -26,3 +26,6 @@ dist-ssr
 .localdev
 .env
 public/config.js
+
+# Build-time head fragment
+tracking.fragment.html
