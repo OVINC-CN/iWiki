@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "node generate-config.js && vite",
-    "build": "tsc -b && vite build && node generate-config.js",
+    "build": "node generate-config.js && tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "node generate-config.js && vite preview"
+    "test": "node --test scripts/*.test.ts",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

@@ -22,16 +22,9 @@ const config = envVars.reduce((acc, key) => {
 const content = `window.ENV = ${JSON.stringify(config, null, 2)};`;
 
 const publicDir = path.resolve(__dirname, 'public');
-const distDir = path.resolve(__dirname, 'dist');
 
-// Write to public/config.js for dev
+// Vite serves this file in development and hashes its contents during a build.
 if (fs.existsSync(publicDir)) {
   fs.writeFileSync(path.join(publicDir, 'config.js'), content);
   console.log('Generated public/config.js');
-}
-
-// Write to dist/config.js for build preview
-if (fs.existsSync(distDir)) {
-  fs.writeFileSync(path.join(distDir, 'config.js'), content);
-  console.log('Generated dist/config.js');
 }

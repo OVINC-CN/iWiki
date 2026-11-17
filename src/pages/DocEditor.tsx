@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { docDetailPath } from '@/routes';
 import type { TagInfo, EditDocRequest } from '@/types';
 import {
     ArrowLeft,
@@ -72,8 +73,7 @@ const ToolbarButton = ({
     </TooltipProvider>
 );
 
-export const DocEditor: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
     const navigate = useNavigate();
     const { hasPermission, t } = useApp();
     const { showAlert } = useModal();
@@ -195,11 +195,11 @@ export const DocEditor: React.FC = () => {
 
             if (isEditing && id) {
                 await updateDoc(id, data);
-                navigate(`/docs/${id}`);
+                navigate(docDetailPath(id));
             } else {
                 const response = await createDoc(data);
                 localStorage.removeItem('doc_draft');
-                navigate(`/docs/${response.data.data.id}`);
+                navigate(docDetailPath(response.data.data.id));
             }
         } catch {
             showAlert(t.editor.saveFailed);
@@ -425,7 +425,7 @@ export const DocEditor: React.FC = () => {
             <div className="flex items-center justify-between px-4 py-2 border-b bg-background h-14">
                 <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
                     <Button asChild variant="ghost" size="icon" className="shrink-0">
-                        <Link to={isEditing ? `/docs/${id}` : '/docs'}>
+                        <Link to={id ? docDetailPath(id) : '/docs'}>
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
                     </Button>

@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'node:fs';
+import { readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'path';
 
 function readBuildHeadFragment(): string {
@@ -62,6 +64,31 @@ export default defineConfig(({ command }) => {
         plugins: [
             react(),
             tailwindcss(),
+            {
+                name: 'build-runtime-config',
+                apply: 'build',
+                async writeBundle(outputOptions) {
+                    if (!outputOptions.dir) {
+                        this.error('[build-runtime-config] Unable to determine the output directory.');
+                    }
+
+                    const configPath = path.resolve(outputOptions.dir, 'config.js');
+                    const content = await readFile(configPath, 'utf8');
+                    const hash = createHash('sha256').update(content).digest('hex').slice(0, 12);
+                    const filename = `config.${hash}.js`;
+                    const htmlPath = path.resolve(outputOptions.dir, 'index.html');
+                    const html = await readFile(htmlPath, 'utf8');
+                    const reference = 'src="/config.js"';
+
+                    if (html.split(reference).length !== 2) {
+                        this.error('[build-runtime-config] Expected exactly one config.js script reference.');
+                    }
+
+                    await writeFile(path.resolve(outputOptions.dir, filename), content);
+                    await writeFile(htmlPath, html.replace(reference, `src="/${filename}"`));
+                    await rm(configPath);
+                },
+            },
             {
                 name: 'build-head-fragment',
                 apply: 'build',

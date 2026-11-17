@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -16,6 +16,7 @@ import { Loading } from '@/components/Loading';
 import { CodeBlock, PreBlock } from '@/components/CodeBlock';
 import { ImagePreview } from '@/components/ImagePreview';
 import { formatDate } from '@/utils/date';
+import { docEditPath } from '@/routes';
 import type { DocInfo } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,8 +35,7 @@ import {
 import 'highlight.js/styles/github.css';
 import 'katex/dist/katex.min.css';
 
-export const DocDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
     const navigate = useNavigate();
     const { user, t } = useApp();
     const { showAlert } = useModal();
@@ -49,10 +49,6 @@ export const DocDetail: React.FC = () => {
 
     useEffect(() => {
         const fetchDoc = async () => {
-            if (!id) {
-                return;
-            }
-
             try {
                 setLoading(true);
                 const response = await getDocDetail(id);
@@ -68,10 +64,6 @@ export const DocDetail: React.FC = () => {
     }, [id, t]);
 
     const handleDelete = useCallback(async () => {
-        if (!id) {
-            return;
-        }
-
         try {
             setDeleting(true);
             await deleteDoc(id);
@@ -137,7 +129,7 @@ export const DocDetail: React.FC = () => {
                     {isOwner && (
                         <div className="flex items-center gap-2">
                             <Button asChild variant="outline" size="sm">
-                                <Link to={`/docs/${id}/edit`} className="gap-1">
+                                <Link to={docEditPath(id)} className="gap-1">
                                     <Pencil className="h-4 w-4" />
                                     {t.common.edit}
                                 </Link>

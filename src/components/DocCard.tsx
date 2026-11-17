@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import type { DocList } from '@/types';
 import { formatRelativeTime } from '@/utils/date';
 import { useApp } from '@/contexts/useApp';
+import { docDetailPath } from '@/routes';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Lock, Calendar } from 'lucide-react';
@@ -15,7 +16,7 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
     const { t, language } = useApp();
 
     return (
-        <Link to={`/docs/${doc.id}`} className="block group h-full">
+        <Link to={docDetailPath(doc.id)} className="block group h-full">
             <Card className="gap-4 p-0 h-full overflow-hidden transition-all duration-300 hover:shadow-md hover:border-primary/40 flex flex-col backdrop-blur-sm">
                 <CardHeader className="p-0">
                     <div className="relative aspect-5/3 bg-linear-to-br from-muted/50 to-muted overflow-hidden">
