@@ -19,23 +19,24 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24.22.1'
+
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
         package_json_file: src/web/package.json
 
-    - name: Configure pnpm store
-      run: pnpm config set --global store-dir "$RUNNER_TEMP/pnpm-store"
-
-    - name: Use Node.js
-      uses: actions/setup-node@v4
+    - name: Cache pnpm store
+      uses: actions/cache@v4
       with:
-        node-version: '24.22.1'
-        cache: 'pnpm'
-        cache-dependency-path: src/web/pnpm-lock.yaml
+        path: ${{ runner.temp }}/pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('src/web/pnpm-lock.yaml') }}
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile --store-dir "$RUNNER_TEMP/pnpm-store"
 
     - name: Run ESLint
       run: pnpm lint
