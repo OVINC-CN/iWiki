@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { isAxiosError } from 'axios';
 import { useLocation } from 'react-router';
 import type { UserInfo, UserPermission, FeatureResponse } from '@/types';
 import { getHomeInfo, getPermissions, getFeatures, signOut as apiSignOut } from '@/api';
@@ -32,10 +33,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setUser(null);
             setPermissions([]);
             setFeatures(null);
+            // 未登录时保持加载状态，等待接口拦截器跳转登录页。
+            if (isAxiosError(reason) && reason.response?.status === 401) {
+                return;
+            }
             setError(reason instanceof Error ? reason.message : '加载用户信息失败');
-        } finally {
-            setLoading(false);
         }
+        setLoading(false);
     }, [location.pathname]);
 
     useEffect(() => {
