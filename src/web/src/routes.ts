@@ -4,7 +4,6 @@ export const pagePaths = {
     docNew: '/docs/new',
     docDetail: '/docs/detail',
     docEdit: '/docs/edit',
-    loginCallback: '/login/callback',
     forbidden: '/403',
 } as const;
 

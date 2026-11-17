@@ -1,0 +1,6 @@
+.git
+config*.yaml
+bin
+scripts
+support-files
+*.log

@@ -75,7 +75,7 @@ const ToolbarButton = ({
 
 export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
     const navigate = useNavigate();
-    const { hasPermission, t } = useApp();
+    const { hasPermission } = useApp();
     const { showAlert } = useModal();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -99,9 +99,9 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
     const [showPreview, setShowPreview] = useState(false);
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
-    useDocumentTitle(isEditing && title ? title : t.common.write);
+    useDocumentTitle(isEditing && title ? title : '写文章');
 
-    // Load document data if editing
+    // 编辑时加载已有文档
     useEffect(() => {
         if (isEditing && id) {
             const fetchDoc = async () => {
@@ -121,12 +121,12 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
             };
             fetchDoc();
         } else {
-            // Load from cache if creating new doc
+            // 新建时读取本地草稿
             const cached = localStorage.getItem('doc_draft');
             if (cached) {
                 try {
                     const data = JSON.parse(cached);
-                    // Only load if cache is recent (e.g. within 24 hours)
+                    // 仅恢复最近 24 小时内保存的草稿
                     if (Date.now() - data.updatedAt < 24 * 60 * 60 * 1000) {
                         setTitle(data.title || '');
                         setContent(data.content || '');
@@ -134,15 +134,15 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                         setIsPublic(data.isPublic ?? true);
                         setTags(data.tags || []);
                     }
-                } catch (e) {
-                    console.error('Failed to load draft', e);
+                } catch {
+                    console.error('Failed to load draft');
                 }
             }
             setLoading(false);
         }
     }, [id, isEditing, navigate]);
 
-    // Save to cache when content changes
+    // 内容变化后保存本地草稿
     useEffect(() => {
         if (!isEditing && !loading) {
             const timer = setTimeout(() => {
@@ -155,19 +155,19 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                     updatedAt: Date.now(),
                 };
                 localStorage.setItem('doc_draft', JSON.stringify(data));
-            }, 1000); // Debounce save
+            }, 1000); // 延迟合并保存
             return () => clearTimeout(timer);
         }
     }, [title, content, headerImg, isPublic, tags, isEditing, loading]);
 
-    // Load all tags for suggestions
+    // 加载全部标签供编辑时选择
     useEffect(() => {
         const fetchTags = async () => {
             try {
                 const response = await getTags();
                 setAllTags(response.data.data || []);
-            } catch (err) {
-                console.error('Failed to fetch tags:', err);
+            } catch {
+                console.error('Failed to fetch tags');
             }
         };
         fetchTags();
@@ -175,11 +175,11 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
 
     const handleSave = useCallback(async () => {
         if (!title.trim()) {
-            showAlert(t.editor.enterTitle);
+            showAlert('请输入文章标题');
             return;
         }
         if (!content.trim()) {
-            showAlert(t.editor.enterContent);
+            showAlert('请输入文章内容');
             return;
         }
 
@@ -202,15 +202,15 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                 navigate(docDetailPath(response.data.data.id));
             }
         } catch {
-            showAlert(t.editor.saveFailed);
+            showAlert('保存失败，请重试');
         } finally {
             setSaving(false);
         }
-    }, [title, content, headerImg, isPublic, tags, isEditing, id, navigate, t, showAlert]);
+    }, [title, content, headerImg, isPublic, tags, isEditing, id, navigate, showAlert]);
 
     const handleHeaderImageUpload = useCallback(async (file: File) => {
         if (!canUpload) {
-            showAlert(t.editor.noUploadPerm);
+            showAlert('您没有上传图片的权限');
             return;
         }
 
@@ -219,11 +219,11 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
             const url = await uploadFileToCOS(file, setUploadProgress);
             setHeaderImg(url);
         } catch {
-            showAlert(t.editor.uploadFailed);
+            showAlert('图片上传失败');
         } finally {
             setUploadProgress(null);
         }
-    }, [canUpload, t, showAlert]);
+    }, [canUpload, showAlert]);
 
     const handleHeaderImagePaste = useCallback((e: React.ClipboardEvent) => {
         const items = e.clipboardData?.items;
@@ -284,7 +284,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
 
     const handleImageUpload = useCallback(async (file: File) => {
         if (!canUpload) {
-            showAlert(t.editor.noUploadPerm);
+            showAlert('您没有上传图片的权限');
             return;
         }
 
@@ -307,15 +307,15 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                 }, 0);
             }
         } catch {
-            showAlert(t.editor.uploadFailed);
+            showAlert('图片上传失败');
         } finally {
             setUploadProgress(null);
         }
-    }, [canUpload, content, t, showAlert]);
+    }, [canUpload, content, showAlert]);
 
     const handleFileUpload = useCallback(async (file: File) => {
         if (!canUpload) {
-            showAlert(t.editor.noUploadPerm);
+            showAlert('您没有上传图片的权限');
             return;
         }
 
@@ -338,11 +338,11 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                 }, 0);
             }
         } catch {
-            showAlert(t.editor.uploadFailed);
+            showAlert('图片上传失败');
         } finally {
             setUploadProgress(null);
         }
-    }, [canUpload, content, t, showAlert]);
+    }, [canUpload, content, showAlert]);
 
     const handlePaste = useCallback((e: React.ClipboardEvent) => {
         const items = e.clipboardData?.items;
@@ -405,13 +405,13 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
             }
 
             const spaces = '    ';
-            // Use execCommand to preserve undo history
+            // 使用编辑命令保留撤销历史
             document.execCommand('insertText', false, spaces);
         }
     }, []);
 
     if (loading) {
-        return <Loading fullPage text={t.common.loading} />;
+        return <Loading fullPage text="加载中..." />;
     }
 
     return (
@@ -421,7 +421,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
         >
-            {/* Header */}
+            {/* 顶部 */}
             <div className="flex items-center justify-between px-4 py-2 border-b bg-background h-14">
                 <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
                     <Button asChild variant="ghost" size="icon" className="shrink-0">
@@ -431,7 +431,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                     </Button>
                     <Input
                         type="text"
-                        placeholder={t.editor.titlePlaceholder}
+                        placeholder="输入文章标题..."
                         className="h-8"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -444,37 +444,37 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                         className="md:hidden"
                         onClick={() => setShowPreview(!showPreview)}
                     >
-                        {showPreview ? t.common.edit : t.editor.preview}
+                        {showPreview ? '编辑' : '预览'}
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => navigate(-1)} disabled={saving}>
-                        {t.common.cancel}
+                        取消
                     </Button>
                     <Button size="sm" onClick={handleSave} disabled={saving}>
-                        {saving ? t.editor.saving : isEditing ? t.common.update : t.common.publish}
+                        {saving ? '保存中...' : isEditing ? '更新' : '发布'}
                     </Button>
                 </div>
             </div>
 
-            {/* Body */}
+            {/* 正文 */}
             <div className="flex flex-col flex-1 overflow-hidden">
-                {/* Toolbar */}
+                {/* 工具栏 */}
                 <div className={cn('flex items-center gap-1 px-4 py-2 border-b bg-muted/50 overflow-x-auto', showPreview && 'hidden')}>
                     <div className="flex items-center gap-0.5">
-                        <ToolbarButton icon={Bold} tooltip={t.editor.tools.bold} onClick={() => insertMarkdown('**', '**')} />
-                        <ToolbarButton icon={Italic} tooltip={t.editor.tools.italic} onClick={() => insertMarkdown('*', '*')} />
-                        <ToolbarButton icon={Strikethrough} tooltip={t.editor.tools.strikethrough} onClick={() => insertMarkdown('~~', '~~')} />
+                        <ToolbarButton icon={Bold} tooltip="粗体" onClick={() => insertMarkdown('**', '**')} />
+                        <ToolbarButton icon={Italic} tooltip="斜体" onClick={() => insertMarkdown('*', '*')} />
+                        <ToolbarButton icon={Strikethrough} tooltip="删除线" onClick={() => insertMarkdown('~~', '~~')} />
                     </div>
                     <Separator orientation="vertical" className="h-6" />
                     <div className="flex items-center gap-0.5">
-                        <ToolbarButton icon={Heading2} tooltip={t.editor.tools.heading} onClick={() => insertMarkdown('## ')} />
-                        <ToolbarButton icon={Quote} tooltip={t.editor.tools.quote} onClick={() => insertMarkdown('> ')} />
+                        <ToolbarButton icon={Heading2} tooltip="标题" onClick={() => insertMarkdown('## ')} />
+                        <ToolbarButton icon={Quote} tooltip="引用" onClick={() => insertMarkdown('> ')} />
                     </div>
                     <Separator orientation="vertical" className="h-6" />
                     <div className="flex items-center gap-0.5">
-                        <ToolbarButton icon={Code} tooltip={t.editor.tools.code} onClick={() => insertMarkdown('`', '`')} />
-                        <ToolbarButton icon={FileCode} tooltip={t.editor.tools.codeBlock} onClick={() => insertMarkdown('```\n', '\n```')} />
-                        <ToolbarButton icon={LinkIcon} tooltip={t.editor.tools.link} onClick={() => insertMarkdown('[', '](url)')} />
-                        <ToolbarButton icon={Image} tooltip={t.editor.tools.image} onClick={() => fileInputRef.current?.click()} />
+                        <ToolbarButton icon={Code} tooltip="代码" onClick={() => insertMarkdown('`', '`')} />
+                        <ToolbarButton icon={FileCode} tooltip="代码块" onClick={() => insertMarkdown('```\n', '\n```')} />
+                        <ToolbarButton icon={LinkIcon} tooltip="链接" onClick={() => insertMarkdown('[', '](url)')} />
+                        <ToolbarButton icon={Image} tooltip="图片" onClick={() => fileInputRef.current?.click()} />
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -488,7 +488,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                                 }
                             }}
                         />
-                        <ToolbarButton icon={Paperclip} tooltip={t.editor.tools.file} onClick={() => fileUploadRef.current?.click()} />
+                        <ToolbarButton icon={Paperclip} tooltip="文件" onClick={() => fileUploadRef.current?.click()} />
                         <input
                             type="file"
                             ref={fileUploadRef}
@@ -504,27 +504,27 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                     </div>
                     <Separator orientation="vertical" className="h-6" />
                     <div className="flex items-center gap-0.5">
-                        <ToolbarButton icon={List} tooltip={t.editor.tools.ul} onClick={() => insertMarkdown('- ')} />
-                        <ToolbarButton icon={ListOrdered} tooltip={t.editor.tools.ol} onClick={() => insertMarkdown('1. ')} />
-                        <ToolbarButton icon={CheckSquare} tooltip={t.editor.tools.task} onClick={() => insertMarkdown('- [ ] ')} />
+                        <ToolbarButton icon={List} tooltip="无序列表" onClick={() => insertMarkdown('- ')} />
+                        <ToolbarButton icon={ListOrdered} tooltip="有序列表" onClick={() => insertMarkdown('1. ')} />
+                        <ToolbarButton icon={CheckSquare} tooltip="任务列表" onClick={() => insertMarkdown('- [ ] ')} />
                     </div>
                     <Separator orientation="vertical" className="h-6" />
                     <div className="flex items-center gap-0.5">
-                        <ToolbarButton icon={Calculator} tooltip={t.editor.tools.math} onClick={() => insertMarkdown('$', '$')} />
-                        <ToolbarButton icon={GitBranch} tooltip={t.editor.tools.mermaid} onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')} />
+                        <ToolbarButton icon={Calculator} tooltip="数学公式" onClick={() => insertMarkdown('$', '$')} />
+                        <ToolbarButton icon={GitBranch} tooltip="Mermaid图表" onClick={() => insertMarkdown('```mermaid\ngraph TD\n  A --> B\n', '\n```')} />
                     </div>
                 </div>
 
-                {/* Editor Area */}
+                {/* 编辑区域 */}
                 <div className="flex flex-1 overflow-hidden">
                     <div className={cn('flex flex-col flex-1 min-w-0 border-r', showPreview ? 'hidden md:flex' : 'flex')}>
                         <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
-                            {t.common.edit}
+                            编辑
                         </div>
                         <textarea
                             ref={textareaRef}
                             className="flex-1 p-4 resize-none border-0 focus:outline-none focus:ring-0 bg-background font-mono text-sm"
-                            placeholder={t.editor.contentPlaceholder}
+                            placeholder="开始写作..."
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             onKeyDown={handleKeyDown}
@@ -535,7 +535,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                     </div>
                     <div className={cn('flex flex-col flex-1 min-w-0 overflow-hidden', showPreview ? 'flex' : 'hidden md:flex')}>
                         <div className="px-4 py-2 text-sm font-medium text-muted-foreground border-b bg-muted/30">
-                            {t.editor.preview}
+                            预览
                         </div>
                         <div className="flex-1 overflow-auto p-4 prose prose-neutral dark:prose-invert max-w-none">
                             <ReactMarkdown
@@ -543,17 +543,17 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                                 rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
                                 components={{ code: CodeBlock, pre: PreBlock, img: ImagePreview }}
                             >
-                                {content || t.editor.previewHint}
+                                {content || '*开始输入内容查看预览...*'}
                             </ReactMarkdown>
                         </div>
                     </div>
                 </div>
 
-                {/* Meta Fields */}
+                {/* 文档属性 */}
                 <div className={cn('border-t bg-muted/30 p-4', showPreview && 'hidden')}>
                     <div className="flex flex-wrap gap-4">
                         <div className="flex-1 min-w-50 space-y-2 h-10">
-                            <label className="text-sm font-medium">{t.editor.headerImg}</label>
+                            <label className="text-sm font-medium">头图 URL</label>
                             <div className="flex gap-2 h-full">
                                 <Input
                                     type="url"
@@ -586,7 +586,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                             </div>
                         </div>
                         <div className="flex-1 min-w-[200px] space-y-2">
-                            <label className="text-sm font-medium">{t.editor.tags}</label>
+                            <label className="text-sm font-medium">标签</label>
                             <div className="relative">
                                 <div
                                     className="flex flex-wrap items-center gap-2 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text overflow-y-auto"
@@ -609,7 +609,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                                     <input
                                         type="text"
                                         className="flex-1 min-w-20 bg-transparent outline-none placeholder:text-muted-foreground"
-                                        placeholder={tags.length === 0 ? t.editor.tagPlaceholder : ''}
+                                        placeholder={tags.length === 0 ? '输入标签后按回车...' : ''}
                                         value={tagInput}
                                         onChange={(e) => setTagInput(e.target.value)}
                                         onKeyDown={handleAddTag}
@@ -633,7 +633,7 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                                                 ))}
                                             {allTags?.filter((t) => !tags.includes(t.name) && t.name.toLowerCase().includes(tagInput.toLowerCase())).length === 0 && (
                                                 <div className="px-3 py-2 text-sm text-muted-foreground">
-                                                    {tagInput ? `${t.editor.createTag} "${tagInput}"` : t.editor.typeToCreateTag}
+                                                    {tagInput ? `${'按回车创建'} "${tagInput}"` : '输入以创建标签'}
                                                 </div>
                                             )}
                                         </div>
@@ -642,15 +642,15 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">{t.editor.visibility}</label>
+                            <label className="text-sm font-medium">可见性</label>
                             <ToggleGroup type="single" value={isPublic ? 'public' : 'private'} onValueChange={(v) => v && setIsPublic(v === 'public')} className="border rounded-lg p-0.5 bg-muted/50 h-10">
                                 <ToggleGroupItem value="public" className="gap-1 h-full data-[state=on]:bg-green-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                                     <Eye className="h-4 w-4" />
-                                    {t.editor.public}
+                                    公开
                                 </ToggleGroupItem>
                                 <ToggleGroupItem value="private" className="gap-1 h-full data-[state=on]:bg-orange-500 data-[state=on]:text-white data-[state=on]:shadow-sm">
                                     <EyeOff className="h-4 w-4" />
-                                    {t.editor.private}
+                                    私密
                                 </ToggleGroupItem>
                             </ToggleGroup>
                         </div>
@@ -658,11 +658,11 @@ export const DocEditor: React.FC<{ id?: string }> = ({ id }) => {
                 </div>
             </div>
 
-            {/* Upload Progress */}
+            {/* 上传进度 */}
             {uploadProgress !== null && (
                 <div className="fixed bottom-4 right-4 bg-card border rounded-lg shadow-lg p-4 min-w-[200px]">
                     <div className="text-sm mb-2">
-                        {t.editor.uploading} {uploadProgress}%
+                        上传中... {uploadProgress}%
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary transition-all duration-200" style={{ width: `${uploadProgress}%` }} />

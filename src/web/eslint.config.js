@@ -38,15 +38,15 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // React Hooks
+      // React 钩子
       'react-hooks/set-state-in-effect': 'off',
 
-      // Code complexity
+      // 代码复杂度
       'complexity': ['error', { max: 25 }],
       'max-depth': ['error', 4],
       'max-nested-callbacks': ['error', 3],
 
-      // Code style
+      // 代码风格
       'semi': ['error', 'always'],
       'curly': ['error', 'all'],
       'brace-style': ['error', '1tbs', { allowSingleLine: false }],
@@ -65,7 +65,7 @@ export default defineConfig([
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
       'no-trailing-spaces': 'error',
 
-      // Best practices
+      // 通用约束
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
       'no-var': 'error',
       'prefer-const': 'error',
@@ -75,7 +75,7 @@ export default defineConfig([
       'no-eval': 'error',
       'no-implied-eval': 'error',
 
-      // TypeScript
+      // TypeScript 约束
       '@typescript-eslint/no-unused-vars': ['error', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
@@ -87,7 +87,7 @@ export default defineConfig([
       }],
       '@typescript-eslint/no-non-null-assertion': 'warn',
 
-      // React
+      // React 约束
       'react/self-closing-comp': ['error', {
         component: true,
         html: true,

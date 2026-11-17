@@ -13,7 +13,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { User, LogOut, Globe, Menu, X } from 'lucide-react';
+import { User, LogOut, Menu, X } from 'lucide-react';
 
 const NavLink = ({ to, children, active }: { to: string; children: React.ReactNode; active: boolean }) => (
     <Link
@@ -30,7 +30,7 @@ const NavLink = ({ to, children, active }: { to: string; children: React.ReactNo
 );
 
 export const Header: React.FC = () => {
-    const { user, isLoggedIn, hasPermission, signOut, login, language, changeLanguage, t } = useApp();
+    const { user, isLoggedIn, hasPermission, signOut, login } = useApp();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const location = useLocation();
 
@@ -51,25 +51,25 @@ export const Header: React.FC = () => {
                     <img src="/logo.webp?v=202606282208" alt="iWiki" className="h-6" />
                 </Link>
 
-                {/* Desktop Navigation */}
+                {/* 桌面导航 */}
                 <nav className="hidden md:flex items-center gap-1">
                     <NavLink to="/" active={location.pathname === '/'}>
-                        {t.common.home}
+                        首页
                     </NavLink>
                     <NavLink
                         to="/docs"
                         active={location.pathname.startsWith('/docs') && !location.pathname.includes('/edit') && !location.pathname.includes('/new')}
                     >
-                        {t.common.articles}
+                        文章
                     </NavLink>
                     {canCreateDoc && (
                         <NavLink to="/docs/new" active={location.pathname === '/docs/new'}>
-                            {t.common.write}
+                            写文章
                         </NavLink>
                     )}
                 </nav>
 
-                {/* Desktop User Menu */}
+                {/* 桌面用户菜单 */}
                 <div className="hidden md:flex items-center gap-2">
                     {isLoggedIn ? (
                         <DropdownMenu>
@@ -83,24 +83,20 @@ export const Header: React.FC = () => {
                                     {user?.nick_name || user?.username}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans')}>
-                                    <Globe className="mr-2 h-4 w-4" />
-                                    {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                                     <LogOut className="mr-2 h-4 w-4" />
-                                    {t.common.logout}
+                                    退出登录
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
                         <Button onClick={login} size="sm">
-                            {t.common.login}
+                            登录
                         </Button>
                     )}
                 </div>
 
-                {/* Mobile Menu */}
+                {/* 移动端菜单 */}
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <SheetTrigger asChild className="md:hidden">
                         <Button variant="ghost" size="icon">
@@ -119,7 +115,7 @@ export const Header: React.FC = () => {
                                         : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                                 )}
                             >
-                                {t.common.home}
+                                首页
                             </Link>
                             <Link
                                 to="/docs"
@@ -131,7 +127,7 @@ export const Header: React.FC = () => {
                                         : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                                 )}
                             >
-                                {t.common.articles}
+                                文章
                             </Link>
                             {canCreateDoc && (
                                 <Link
@@ -144,7 +140,7 @@ export const Header: React.FC = () => {
                                             : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                                     )}
                                 >
-                                    {t.common.write}
+                                    写文章
                                 </Link>
                             )}
 
@@ -157,43 +153,21 @@ export const Header: React.FC = () => {
                                     </div>
                                     <button
                                         onClick={() => {
-                                            changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans');
-                                            closeMobileMenu();
-                                        }}
-                                        className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
-                                    >
-                                        <Globe className="h-4 w-4" />
-                                        {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-                                    </button>
-                                    <button
-                                        onClick={() => {
                                             signOut();
                                             closeMobileMenu();
                                         }}
                                         className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                                     >
                                         <LogOut className="h-4 w-4" />
-                                        {t.common.logout}
+                                        退出登录
                                     </button>
                                 </>
                             ) : (
-                                <>
-                                    <button
-                                        onClick={() => {
-                                            changeLanguage(language === 'zh-hans' ? 'en' : 'zh-hans');
-                                            closeMobileMenu();
-                                        }}
-                                        className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
-                                    >
-                                        <Globe className="h-4 w-4" />
-                                        {language === 'zh-hans' ? t.common.switchToEn : t.common.switchToZh}
-                                    </button>
-                                    <Button onClick={() => {
-                                        login(); closeMobileMenu();
-                                    }} className="mx-3">
-                                        {t.common.login}
-                                    </Button>
-                                </>
+                                <Button onClick={() => {
+                                    login(); closeMobileMenu();
+                                }} className="mx-3">
+                                    登录
+                                </Button>
                             )}
                         </nav>
                     </SheetContent>

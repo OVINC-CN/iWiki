@@ -1,0 +1,27 @@
+name: Go
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: src/api/go.mod
+          cache-dependency-path: src/api/go.sum
+      - name: Verify dependencies
+        run: go mod download && go mod verify
+      - name: Run static checks and build
+        run: make check

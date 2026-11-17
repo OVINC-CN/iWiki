@@ -22,8 +22,8 @@ export const useDocs = (params: UseDocsParams = {}) => {
             const response = await getDocs({
                 page: params.page || 1,
                 size: params.size || 10,
-                tags: params.tags?.join(','),
-                keywords: params.keywords,
+                tags: params.tags,
+                keywords: params.keywords?.split(',').filter(Boolean),
             });
             setDocs(response.data.data.results);
             setTotal(response.data.data.total);

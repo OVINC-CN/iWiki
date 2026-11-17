@@ -2,7 +2,6 @@ import type React from 'react';
 import { Link } from 'react-router';
 import type { DocList } from '@/types';
 import { formatRelativeTime } from '@/utils/date';
-import { useApp } from '@/contexts/useApp';
 import { docDetailPath } from '@/routes';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +12,6 @@ interface DocCardProps {
 }
 
 export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
-    const { t, language } = useApp();
 
     return (
         <Link to={docDetailPath(doc.id)} className="block group h-full">
@@ -35,7 +33,7 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
                         {!doc.is_public && (
                             <Badge variant="secondary" className="absolute top-2.5 right-2.5 gap-1 backdrop-blur-md bg-background/80 border-0 shadow-sm">
                                 <Lock className="h-3 w-3" />
-                                {t.editor.private}
+                                私密
                             </Badge>
                         )}
                     </div>
@@ -61,7 +59,7 @@ export const DocCard: React.FC<DocCardProps> = ({ doc }) => {
                     <span className="truncate max-w-[60%] font-medium">{doc.owner_nick_name || doc.owner}</span>
                     <span className="flex items-center gap-1 shrink-0">
                         <Calendar className="h-3 w-3 stroke-2" />
-                        {formatRelativeTime(doc.created_at, language)}
+                        {formatRelativeTime(doc.created_at)}
                     </span>
                 </CardFooter>
             </Card>

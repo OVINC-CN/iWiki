@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { UserInfo, UserPermission, FeatureResponse } from '@/types';
-import { getHomeInfo, getPermissions, getFeatures, signOut as apiSignOut, changeLanguage as apiChangeLanguage } from '@/api';
-import { getTranslation } from '@/i18n';
+import { getHomeInfo, getPermissions, getFeatures, signOut as apiSignOut } from '@/api';
 import { redirectToLogin } from '@/api/client';
 import { AppContext } from './context';
 
@@ -10,38 +9,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [permissions, setPermissions] = useState<UserPermission[]>([]);
     const [features, setFeatures] = useState<FeatureResponse | null>(null);
     const [loading, setLoading] = useState(true);
-    const [language, setLanguage] = useState<string>(localStorage.getItem('language') || 'zh-hans');
-    const t = getTranslation(language);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchUserData = useCallback(async () => {
-    // Skip fetching user data if on 403 page
+        // 访问被拒绝时显示提示页。
         if (window.location.pathname === '/403') {
             setLoading(false);
             return;
         }
-
         try {
             setLoading(true);
-            const [homeRes, permRes, featRes] = await Promise.all([
-                getHomeInfo(),
-                getPermissions().catch(() => null),
-                getFeatures().catch(() => null),
+            setError(null);
+            const [home, permission, feature] = await Promise.all([
+                getHomeInfo(), getPermissions(), getFeatures(),
             ]);
-
-            const userData = homeRes.data.data.user;
-            if (userData?.username) {
-                setUser(userData);
-            }
-
-            if (permRes?.data.data) {
-                setPermissions(permRes.data.data);
-            }
-
-            if (featRes?.data.data) {
-                setFeatures(featRes.data.data);
-            }
-        } catch {
+            setUser(home.data.data.user);
+            setPermissions(permission.data.data);
+            setFeatures(feature.data.data);
+        } catch (reason) {
             setUser(null);
+            setPermissions([]);
+            setFeatures(null);
+            setError(reason instanceof Error ? reason.message : '加载用户信息失败');
         } finally {
             setLoading(false);
         }
@@ -51,66 +40,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         fetchUserData();
     }, [fetchUserData]);
 
-    const hasPermission = useCallback(
-        (permission: 'create_doc' | 'upload_file') => {
-            const perm = permissions.find((p) => p.permission_item === permission);
-            if (!perm) {
-                return false;
-            }
-            if (perm.expired_at && new Date(perm.expired_at) < new Date()) {
-                return false;
-            }
-            return true;
-        },
-        [permissions],
-    );
+    const hasPermission = useCallback((permission: 'create_doc' | 'upload_file') => {
+        const item = permissions.find((entry) => entry.permission_item === permission);
+        return !!item && (!item.expired_at || new Date(item.expired_at).getTime() > Date.now());
+    }, [permissions]);
 
     const signOut = useCallback(async () => {
-        try {
-            await apiSignOut();
-            setUser(null);
-            setPermissions([]);
-            window.location.href = '/';
-        } catch (error) {
-            console.error('Sign out failed:', error);
-        }
+        await apiSignOut();
+        setUser(null);
+        setPermissions([]);
+        setFeatures(null);
+        redirectToLogin('/');
     }, []);
 
-    const login = useCallback(() => {
-        redirectToLogin();
-    }, []);
-
-    const changeLanguage = useCallback(async (lang: string) => {
-        try {
-            await apiChangeLanguage(lang);
-            setLanguage(lang);
-            localStorage.setItem('language', lang);
-            window.location.reload();
-        } catch (error) {
-            console.error('Change language failed:', error);
-        }
-    }, []);
-
+    const login = useCallback(() => redirectToLogin(window.location.pathname === '/403' ? '/' : undefined), []);
     const value = useMemo(() => ({
-        user,
-        permissions,
-        features,
-        loading,
-        isLoggedIn: !!user,
-        hasPermission,
-        refreshUser: fetchUserData,
-        signOut,
-        login,
-        language,
-        changeLanguage,
-        t,
-    }), [user, permissions, features, loading, hasPermission, fetchUserData, signOut, login, language, changeLanguage, t]);
+        user, permissions, features, loading, error, isLoggedIn: !!user,
+        hasPermission, refreshUser: fetchUserData, signOut, login,
+    }), [user, permissions, features, loading, error, hasPermission, fetchUserData, signOut, login]);
 
-    return (
-        <AppContext.Provider
-            value={value}
-        >
-            {children}
-        </AppContext.Provider>
-    );
+    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

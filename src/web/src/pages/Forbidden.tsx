@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { ShieldX } from 'lucide-react';
 
 export const Forbidden: React.FC = () => {
-    const { t, login } = useApp();
+    const { login } = useApp();
 
-    useDocumentTitle(t.common?.forbidden || 'Access Denied');
+    useDocumentTitle('访问被拒绝');
 
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
@@ -27,17 +27,17 @@ export const Forbidden: React.FC = () => {
                 <div className="space-y-2">
                     <h1 className="text-6xl font-bold text-foreground">403</h1>
                     <h2 className="text-xl font-semibold text-foreground">
-                        {t.common?.forbidden || 'Access Denied'}
+                        访问被拒绝
                     </h2>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                        {t.common?.forbiddenDesc || 'You do not have permission to access this page.'}
+                        您没有权限访问此页面。
                     </p>
                 </div>
                 <div className="flex items-center justify-center gap-4">
                     <Button asChild variant="outline">
-                        <Link to="/">{t.common?.backHome || 'Back to Home'}</Link>
+                        <Link to="/">返回首页</Link>
                     </Button>
-                    <Button onClick={login}>{t.common?.login || 'Sign In'}</Button>
+                    <Button onClick={login}>登录</Button>
                 </div>
             </motion.div>
         </div>

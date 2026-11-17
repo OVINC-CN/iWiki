@@ -127,13 +127,13 @@
   }
 }
 
-/* KaTeX scrolling */
+/* KaTeX 公式滚动 */
 .katex-html {
   overflow-x: auto;
   overflow-y: hidden;
 }
 
-/* Mermaid diagrams */
+/* Mermaid 图表 */
 .mermaid {
   display: flex;
   justify-content: center;
@@ -145,7 +145,7 @@
   height: auto;
 }
 
-/* Custom scrollbar */
+/* 自定义滚动条 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -163,7 +163,7 @@
   @apply bg-muted-foreground;
 }
 
-/* Typography overrides */
+/* 正文排版 */
 .prose :where(pre):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
   background-color: var(--color-gray-100);
   color: #24292e;
@@ -188,7 +188,7 @@
   color: inherit !important;
 }
 
-/* Floating animation for hero background */
+/* 首页背景浮动效果 */
 @keyframes float {
   0%, 100% {
     transform: translate(0, 0) scale(1);

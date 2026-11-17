@@ -10,7 +10,7 @@ async function listAssetPaths(dist: string): Promise<string[]> {
         .map((entry) => relative(dist, resolve(entry.parentPath, entry.name)));
 
     if (!paths.includes('index.html')) {
-        throw new Error('CDN_WEB_DIST 中没有 index.html，请先构建或指定前端部署产物目录');
+        throw new Error('CDN_WEB_DIST must contain index.html; build the frontend or specify its output directory');
     }
 
     return paths.map((path) => `/${path.split(sep).map(encodeURIComponent).join('/')}`);
@@ -19,7 +19,7 @@ async function listAssetPaths(dist: string): Promise<string[]> {
 async function main() {
     const [, , originValue, dist] = argv;
     if (!originValue || !dist) {
-        throw new Error('请设置 CDN_ORIGIN 和 CDN_WEB_DIST');
+        throw new Error('CDN_ORIGIN and CDN_WEB_DIST are required');
     }
 
     const origin = URL.parse(originValue);
@@ -28,7 +28,7 @@ async function main() {
         !['http:', 'https:'].includes(origin.protocol) ||
         origin.href !== `${origin.origin}/`
     ) {
-        throw new Error('CDN_ORIGIN 必须是前端站点的 HTTP 或 HTTPS 源地址');
+        throw new Error('CDN_ORIGIN must be the HTTP(S) origin of the frontend');
     }
 
     // 扫描完成后再输出，避免失败时留下不完整的刷新清单。

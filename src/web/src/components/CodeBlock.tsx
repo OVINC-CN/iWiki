@@ -3,42 +3,41 @@ import { Check, Copy } from 'lucide-react';
 import mermaid from 'mermaid';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
-import { useApp } from '@/contexts/useApp';
 
-// Initialize mermaid with macaron color scheme (cool tones)
+// Mermaid 主题配置
 mermaid.initialize({
     startOnLoad: false,
     theme: 'base',
     themeVariables: {
-        // Primary colors - soft blue
+        // 主色使用柔和蓝色
         primaryColor: '#A2D2FF',
         primaryTextColor: '#4A5568',
         primaryBorderColor: '#89CFF0',
-        // Secondary - mint green
+        // 次色使用薄荷绿
         secondaryColor: '#B5EAD7',
         secondaryTextColor: '#4A5568',
         secondaryBorderColor: '#98D8C8',
-        // Tertiary - lavender
+        // 第三色使用淡紫色
         tertiaryColor: '#C3B1E1',
         tertiaryTextColor: '#4A5568',
         tertiaryBorderColor: '#B8A9D9',
-        // Lines and text
+        // 线条与文字
         lineColor: '#94A3B8',
         textColor: '#4A5568',
-        // Background
+        // 背景
         mainBkg: '#F0F9FF',
-        // Node colors for flowcharts
+        // 流程图节点颜色
         nodeBorder: '#89CFF0',
         clusterBkg: '#F0FDF4',
         clusterBorder: '#98D8C8',
-        // Sequence diagram
+        // 时序图
         actorBkg: '#E0E7FF',
         actorBorder: '#C7D2FE',
         actorTextColor: '#4A5568',
         signalColor: '#94A3B8',
-        // State diagram
+        // 状态图
         labelColor: '#4A5568',
-        // Pie chart
+        // 饼图
         pie1: '#A2D2FF',
         pie2: '#B5EAD7',
         pie3: '#C3B1E1',
@@ -76,9 +75,9 @@ const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
                     setSvg(safeSvg);
                     setError(null);
                 }
-            } catch (e) {
+            } catch {
                 if (isMounted) {
-                    setError(e instanceof Error ? e.message : 'Failed to render mermaid diagram');
+                    setError('图表渲染失败，请检查 Mermaid 语法');
                 }
             }
         };
@@ -93,7 +92,7 @@ const MermaidBlock: React.FC<MermaidBlockProps> = ({ code }) => {
     if (error) {
         return (
             <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                <p className="text-sm text-red-600 dark:text-red-400">Mermaid Error: {error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">图表错误: {error}</p>
                 <pre className="mt-2 text-xs text-muted-foreground overflow-auto">{code}</pre>
             </div>
         );
@@ -114,7 +113,7 @@ interface CodeBlockProps {
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...props }) => {
-    const { t } = useApp();
+
     const [copied, setCopied] = useState(false);
 
     const match = /language-(\w+)/.exec(className || '');
@@ -141,17 +140,17 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...pr
             await navigator.clipboard.writeText(code);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy:', err);
+        } catch {
+            console.error('Failed to copy code');
         }
     }, [code]);
 
-    // Inline code (no language class)
+    // 没有语言样式时显示行内代码
     if (!className) {
         return <code {...props}>{children}</code>;
     }
 
-    // Mermaid code blocks - render with MermaidBlock component
+    // Mermaid 代码块使用专用组件渲染
     if (language === 'mermaid') {
         return <MermaidBlock code={code} />;
     }
@@ -160,7 +159,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...pr
         <div className="relative group">
             <div className="flex items-center justify-between pb-1 bg-gray-100 border-b border-gray-200 rounded-t-md">
                 <span className="text-xs text-gray-500 font-mono">
-                    {language || 'code'}
+                    {language || '代码'}
                 </span>
                 <Button
                     variant="ghost"
@@ -171,12 +170,12 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ className, children, ...pr
                     {copied ? (
                         <>
                             <Check className="h-3.5 w-3.5" />
-                            {t.common.copied}
+                            已复制
                         </>
                     ) : (
                         <>
                             <Copy className="h-3.5 w-3.5" />
-                            {t.common.copy}
+                            复制
                         </>
                     )}
                 </Button>
@@ -202,7 +201,7 @@ interface PreBlockProps {
 }
 
 export const PreBlock: React.FC<PreBlockProps> = ({ children, ...props }) => {
-    // Check if this pre contains a mermaid code block
+    // 检查预格式化区域是否包含 Mermaid 代码块
     const isMermaid = React.Children.toArray(children).some((child) => {
         if (React.isValidElement(child)) {
             const className = (child.props as { className?: string })?.className || '';
@@ -211,7 +210,7 @@ export const PreBlock: React.FC<PreBlockProps> = ({ children, ...props }) => {
         return false;
     });
 
-    // For mermaid, render without pre wrapper styling
+    // Mermaid 图表不套用代码区域样式
     if (isMermaid) {
         return children as React.ReactElement;
     }

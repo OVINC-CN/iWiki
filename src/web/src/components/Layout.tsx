@@ -12,7 +12,7 @@ export const Layout: React.FC = () => {
             </main>
             <Separator />
             <footer className="py-4 px-8 text-center text-muted-foreground text-sm">
-                <p>© {new Date().getFullYear()} iWiki. All rights reserved.</p>
+                <p>© {new Date().getFullYear()} iWiki 版权所有</p>
             </footer>
         </>
     );

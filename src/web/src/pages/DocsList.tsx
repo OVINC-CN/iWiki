@@ -31,9 +31,9 @@ const readSavedSearch = (): { page: number; tokens: string[] } => {
 
 export const DocsList: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const { features, t } = useApp();
+    const { features } = useApp();
 
-    useDocumentTitle(t.common.articles);
+    useDocumentTitle('文章');
 
     const hasUrlParams = searchParams.has('q') || searchParams.has('page') || searchParams.has('keywords') || searchParams.has('tags');
 
@@ -52,7 +52,7 @@ export const DocsList: React.FC = () => {
             if (q) {
                 return q.split(',').filter(Boolean);
             }
-            // Backward compatibility: read old format
+            // 读取独立的标签和关键词参数
             const oldKeywords = searchParams.get('keywords')?.split(',').filter(Boolean) || [];
             const oldTags = searchParams.get('tags')?.split(',').filter(Boolean).map((t) => `${TAG_PREFIX}${t}`) || [];
             return [...oldKeywords, ...oldTags];
@@ -256,7 +256,7 @@ export const DocsList: React.FC = () => {
                                     id="search-input"
                                     type="text"
                                     className="flex-1 min-w-[120px] bg-transparent outline-none placeholder:text-muted-foreground"
-                                    placeholder={tokens.length === 0 ? t.docs.searchPlaceholder : ''}
+                                    placeholder={tokens.length === 0 ? '搜索文章...' : ''}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyDown={handleKeyDown}
@@ -276,7 +276,7 @@ export const DocsList: React.FC = () => {
                                                 }}
                                             >
                                                 <Search className="h-3.5 w-3.5 text-muted-foreground" />
-                                                {t.docs.searchFor} &quot;{inputValue.trim()}&quot;
+                                                搜索 &quot;{inputValue.trim()}&quot;
                                             </button>
                                         )}
                                         {filteredTags.length > 0 ? (
@@ -296,7 +296,7 @@ export const DocsList: React.FC = () => {
                                         ) : (
                                             !inputValue.trim() && (
                                                 <div className="px-3 py-2 text-sm text-muted-foreground">
-                                                    {t.docs.noMatchingTags}
+                                                    没有匹配的标签
                                                 </div>
                                             )
                                         )}
@@ -351,8 +351,8 @@ export const DocsList: React.FC = () => {
                         animate={{ opacity: 1 }}
                     >
                         <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold text-foreground mb-2">{t.docs.noDocs}</h3>
-                        <p className="text-muted-foreground">{t.docs.noDocsDesc}</p>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">暂无文章</h3>
+                        <p className="text-muted-foreground">没有找到符合条件的文章</p>
                     </motion.div>
                 )}
             </AnimatePresence>

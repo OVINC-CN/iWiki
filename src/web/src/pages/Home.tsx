@@ -6,15 +6,15 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Button } from '@/components/ui/button';
 
 export const Home: React.FC = () => {
-    const { isLoggedIn, hasPermission, login, t } = useApp();
+    const { isLoggedIn, hasPermission, login } = useApp();
 
-    useDocumentTitle(t.common.home);
+    useDocumentTitle('首页');
 
     const canCreateDoc = hasPermission('create_doc');
 
     return (
         <div className="flex flex-col">
-            {/* Hero Section */}
+            {/* 首页介绍 */}
             <motion.section
                 className="relative flex flex-col items-center justify-center px-4 text-center overflow-hidden"
                 style={{ minHeight: 'calc(100vh - 3.5rem - 5rem)' }}
@@ -22,7 +22,7 @@ export const Home: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6 }}
             >
-                {/* Colorful gradient background */}
+                {/* 首页渐变背景 */}
                 <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/50" />
                 <div
                     className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
@@ -52,8 +52,8 @@ export const Home: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        {t.home.heroTitle}
-                        <span className="text-primary">{t.home.heroTitleHighlight}</span>
+                        探索知识的
+                        <span className="text-primary">无限可能</span>
                     </motion.h1>
                     <motion.p
                         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
-                        {t.home.heroDesc}
+                        一个简洁优雅的个人博客平台，用 Markdown 记录你的想法，分享你的知识。
                     </motion.p>
                     <motion.div
                         className="flex flex-wrap items-center justify-center gap-4"
@@ -70,15 +70,15 @@ export const Home: React.FC = () => {
                         transition={{ duration: 0.6, delay: 0.4 }}
                     >
                         <Button asChild size="lg">
-                            <Link to="/docs">{t.home.browse}</Link>
+                            <Link to="/docs">浏览文章</Link>
                         </Button>
                         {canCreateDoc ? (
                             <Button asChild variant="outline" size="lg">
-                                <Link to="/docs/new">{t.home.startWriting}</Link>
+                                <Link to="/docs/new">开始写作</Link>
                             </Button>
                         ) : !isLoggedIn ? (
                             <Button variant="outline" size="lg" onClick={login}>
-                                {t.common.login}
+                                登录
                             </Button>
                         ) : null}
                     </motion.div>

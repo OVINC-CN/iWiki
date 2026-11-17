@@ -1,0 +1,1215 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "文档、标签和文件上传服务。",
+        "title": "iWiki 接口",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/health": {
+            "get": {
+                "tags": [
+                    "探针"
+                ],
+                "summary": "检查进程存活",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/ready": {
+            "get": {
+                "tags": [
+                    "探针"
+                ],
+                "summary": "检查服务就绪",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "登录"
+                ],
+                "summary": "退出登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "来源保护标记，固定为 1",
+                        "name": "X-CSRF-Protection",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/oidc/callback": {
+            "get": {
+                "tags": [
+                    "登录"
+                ],
+                "summary": "接收 OIDC 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "授权码，与 error 二选一",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "一次性登录状态",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "身份提供方错误代码",
+                        "name": "error",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "302": {
+                        "description": "登录成功并返回访问页面"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/oidc/login": {
+            "get": {
+                "description": "跳转至登录页面，登录后返回指定页面。",
+                "tags": [
+                    "登录"
+                ],
+                "summary": "发起 OIDC 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "/",
+                        "description": "登录后的站内路径",
+                        "name": "return_to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "302": {
+                        "description": "跳转至身份提供方"
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cos/temp-secret": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "上传"
+                ],
+                "summary": "获取 COS 临时上传凭据",
+                "parameters": [
+                    {
+                        "description": "文件信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cosModels.Request"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "来源保护标记，固定为 1",
+                        "name": "X-CSRF-Protection",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cosModels.CredentialEnvelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/docs": {
+            "get": {
+                "description": "标签取并集；同一字段须包含全部关键词，多个搜索字段取并集。",
+                "tags": [
+                    "文档"
+                ],
+                "summary": "查询文档列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码，从 1 开始",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页条数，默认 10、最大 100",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "标签名称",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "关键词",
+                        "name": "keywords",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.PageEnvelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文档"
+                ],
+                "summary": "创建文档",
+                "parameters": [
+                    {
+                        "description": "文档资料",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/docModels.EditRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "来源保护标记，固定为 1",
+                        "name": "X-CSRF-Protection",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.IDEnvelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/docs/{id}": {
+            "get": {
+                "tags": [
+                    "文档"
+                ],
+                "summary": "查询文档详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文档编号",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.DetailEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文档"
+                ],
+                "summary": "修改文档",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文档编号",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "完整文档资料",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/docModels.EditRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "来源保护标记，固定为 1",
+                        "name": "X-CSRF-Protection",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.IDEnvelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "文档"
+                ],
+                "summary": "删除文档",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文档编号",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "来源保护标记，固定为 1",
+                        "name": "X-CSRF-Protection",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/features": {
+            "get": {
+                "tags": [
+                    "首页"
+                ],
+                "summary": "查询功能开关",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/homeModels.FeaturesEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/home": {
+            "get": {
+                "tags": [
+                    "首页"
+                ],
+                "summary": "查询首页信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/homeModels.HomeEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions": {
+            "get": {
+                "tags": [
+                    "权限"
+                ],
+                "summary": "查询当前权限",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/permissionModels.ListEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tags": {
+            "get": {
+                "tags": [
+                    "标签"
+                ],
+                "summary": "查询全部标签",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.TagsEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tags/bound": {
+            "get": {
+                "tags": [
+                    "标签"
+                ],
+                "summary": "查询已绑定标签",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/docModels.TagsEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user-info": {
+            "get": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "查询当前用户",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userModels.InfoEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "cosModels.Credential": {
+            "type": "object",
+            "properties": {
+                "cdn_sign": {
+                    "description": "CDN 短时签名，可空。",
+                    "type": "string"
+                },
+                "cdn_sign_param": {
+                    "description": "CDN 签名参数名称。",
+                    "type": "string"
+                },
+                "cos_bucket": {
+                    "description": "存储桶名称。",
+                    "type": "string"
+                },
+                "cos_region": {
+                    "description": "存储地域。",
+                    "type": "string"
+                },
+                "cos_url": {
+                    "description": "COS 或 CDN 资源地址。",
+                    "type": "string"
+                },
+                "expired_time": {
+                    "description": "临时凭据失效时间，Unix 秒。",
+                    "type": "integer"
+                },
+                "key": {
+                    "description": "上传对象路径。",
+                    "type": "string"
+                },
+                "max_file_bytes": {
+                    "description": "文件大小上限，单位为字节。",
+                    "type": "integer"
+                },
+                "secret_id": {
+                    "description": "临时访问密钥编号。",
+                    "type": "string"
+                },
+                "secret_key": {
+                    "description": "临时访问密钥。",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "临时凭据开始时间，Unix 秒。",
+                    "type": "integer"
+                },
+                "token": {
+                    "description": "临时安全令牌。",
+                    "type": "string"
+                }
+            }
+        },
+        "cosModels.CredentialEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cosModels.Credential"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "cosModels.Request": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "description": "文件名，不含路径。",
+                    "type": "string",
+                    "example": "示例图片.png"
+                }
+            }
+        },
+        "docModels.Detail": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "description": "评论数量。",
+                    "type": "integer"
+                },
+                "content": {
+                    "description": "Markdown 正文。",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间，UTC。",
+                    "type": "string"
+                },
+                "header_img": {
+                    "description": "封面地址，可空。",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "编号。",
+                    "type": "string"
+                },
+                "is_public": {
+                    "description": "是否允许其他已登录用户读取。",
+                    "type": "boolean"
+                },
+                "owner": {
+                    "description": "作者用户名。",
+                    "type": "string",
+                    "example": "zhangsan"
+                },
+                "owner_nick_name": {
+                    "description": "作者昵称。",
+                    "type": "string",
+                    "example": "张三"
+                },
+                "pv": {
+                    "description": "阅读量。",
+                    "type": "integer"
+                },
+                "tags": {
+                    "description": "标签名称集合。",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "description": "文档标题，最多 32 个字符。",
+                    "type": "string",
+                    "example": "Go 学习笔记"
+                },
+                "updated_at": {
+                    "description": "更新时间，UTC。",
+                    "type": "string"
+                }
+            }
+        },
+        "docModels.DetailEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/docModels.Detail"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "docModels.EditRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "Markdown 正文。",
+                    "type": "string",
+                    "example": "# 学习笔记"
+                },
+                "created_at": {
+                    "description": "创建时间，可选。",
+                    "type": "string"
+                },
+                "header_img": {
+                    "description": "封面，可空。",
+                    "type": "string",
+                    "example": ""
+                },
+                "is_public": {
+                    "description": "是否向其他登录用户公开。",
+                    "type": "boolean",
+                    "example": true
+                },
+                "tags": {
+                    "description": "完整标签集合，空数组清空。",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "技术",
+                        "笔记"
+                    ]
+                },
+                "title": {
+                    "description": "标题，最多 32 字符。",
+                    "type": "string",
+                    "example": "Go 学习笔记"
+                }
+            }
+        },
+        "docModels.IDEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/docModels.IDResult"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "docModels.IDResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "编号。",
+                    "type": "string",
+                    "example": "0123456789abcdef0123456789abcdef"
+                }
+            }
+        },
+        "docModels.ListItem": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "description": "评论数量。",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "创建时间，UTC。",
+                    "type": "string"
+                },
+                "header_img": {
+                    "description": "封面地址，可空。",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "编号。",
+                    "type": "string"
+                },
+                "is_public": {
+                    "description": "是否允许其他已登录用户读取。",
+                    "type": "boolean"
+                },
+                "owner": {
+                    "description": "作者用户名。",
+                    "type": "string",
+                    "example": "zhangsan"
+                },
+                "owner_nick_name": {
+                    "description": "作者昵称。",
+                    "type": "string",
+                    "example": "张三"
+                },
+                "pv": {
+                    "description": "阅读量。",
+                    "type": "integer"
+                },
+                "tags": {
+                    "description": "标签名称集合。",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "description": "文档标题，最多 32 个字符。",
+                    "type": "string",
+                    "example": "Go 学习笔记"
+                },
+                "updated_at": {
+                    "description": "更新时间，UTC。",
+                    "type": "string"
+                }
+            }
+        },
+        "docModels.Page": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "description": "当前页码。",
+                    "type": "integer"
+                },
+                "results": {
+                    "description": "当前页结果。",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/docModels.ListItem"
+                    }
+                },
+                "total": {
+                    "description": "全部匹配记录数。",
+                    "type": "integer"
+                }
+            }
+        },
+        "docModels.PageEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/docModels.Page"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "docModels.Tag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "编号。",
+                    "type": "string",
+                    "example": "0123456789abcdef0123456789abcdef"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "技术"
+                }
+            }
+        },
+        "docModels.TagsEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/docModels.Tag"
+                    }
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "homeModels.Features": {
+            "type": "object",
+            "properties": {
+                "doc_fuzzy_search": {
+                    "description": "是否允许关键词搜索。",
+                    "type": "boolean"
+                }
+            }
+        },
+        "homeModels.FeaturesEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/homeModels.Features"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "homeModels.Home": {
+            "type": "object",
+            "properties": {
+                "resp": {
+                    "description": "首页连接状态。",
+                    "type": "string",
+                    "example": "连接成功"
+                },
+                "user": {
+                    "description": "当前用户。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/userModels.Info"
+                        }
+                    ]
+                }
+            }
+        },
+        "homeModels.HomeEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/homeModels.Home"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "permissionModels.ListEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permissionModels.Permission"
+                    }
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "permissionModels.Permission": {
+            "type": "object",
+            "properties": {
+                "expired_at": {
+                    "description": "失效时间，空值为长期有效。",
+                    "type": "string"
+                },
+                "permission_item": {
+                    "description": "授权项，仅支持 create_doc 或 upload_file。",
+                    "type": "string",
+                    "example": "create_doc"
+                }
+            }
+        },
+        "response.EmptyEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。"
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "userModels.Info": {
+            "type": "object",
+            "properties": {
+                "last_login": {
+                    "description": "最近登录时间，UTC。",
+                    "type": "string"
+                },
+                "nick_name": {
+                    "description": "用户昵称。",
+                    "type": "string",
+                    "example": "张三"
+                },
+                "user_type": {
+                    "description": "账号类型。",
+                    "type": "string",
+                    "example": "personal"
+                },
+                "username": {
+                    "description": "当前账号用户名。",
+                    "type": "string",
+                    "example": "zhangsan"
+                }
+            }
+        },
+        "userModels.InfoEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/userModels.Info"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        }
+    }
+}

@@ -6,7 +6,7 @@ import { Home } from '@/pages/Home';
 import { DocsList } from '@/pages/DocsList';
 import { DocDetail } from '@/pages/DocDetail';
 import { DocEditor } from '@/pages/DocEditor';
-import { LoginCallback } from '@/pages/LoginCallback';
+import { Button } from '@/components/ui/button';
 import { Forbidden } from '@/pages/Forbidden';
 import { pagePaths } from '@/routes';
 
@@ -22,15 +22,26 @@ function DocRoute({ edit = false }: { edit?: boolean }) {
 }
 
 function App() {
-    const { loading, t } = useApp();
+    const { loading, user, error, login, refreshUser } = useApp();
 
     if (loading) {
-        return <Loading fullPage text={t.common.loading} />;
+        return <Loading fullPage text="加载中..." />;
+    }
+
+    if (!user && window.location.pathname !== pagePaths.forbidden) {
+        return (
+            <div className="m-auto flex min-h-screen flex-col items-center justify-center gap-4 p-6">
+                <p role="alert">{error || '请先登录后访问'}</p>
+                <div className="flex gap-3">
+                    <Button onClick={login}>重新登录</Button>
+                    <Button variant="outline" onClick={() => refreshUser()}>重试</Button>
+                </div>
+            </div>
+        );
     }
 
     return (
         <Routes>
-            <Route path={pagePaths.loginCallback} element={<LoginCallback />} />
             <Route path={pagePaths.forbidden} element={<Forbidden />} />
             <Route element={<Layout />}>
                 <Route path={pagePaths.home} element={<Home />} />

@@ -1,71 +1,46 @@
+import type { AxiosResponse } from 'axios';
+import { z } from 'zod';
 import apiClient from './client';
-import type {
-    ApiResponse,
-    PaginatedResponse,
-    HomeResponse,
-    DocList,
-    DocInfo,
-    TagInfo,
-    UserPermission,
-    FeatureResponse,
-    COSCredentialResponse,
-    EditDocRequest,
+import {
+    credentialSchema, docPageSchema, docSchema, envelopeSchema, featureSchema,
+    homeSchema, idSchema, permissionSchema, tagSchema, userSchema,
+    type ApiResponse, type EditDocRequest,
 } from '@/types';
 
-// Home API
-export const getHomeInfo = () =>
-    apiClient.get<ApiResponse<HomeResponse>>('/');
+async function checked<T extends z.ZodType>(
+    pending: Promise<AxiosResponse<unknown>>, schema: T,
+): Promise<AxiosResponse<ApiResponse<z.infer<T>>>> {
+    const response = await pending;
+    const result = envelopeSchema(schema).safeParse(response.data);
+    if (!result.success) {
+        throw new Error('数据加载失败，请稍后重试');
+    }
+    return { ...response, data: result.data as ApiResponse<z.infer<T>> };
+}
 
-// Account APIs
-export const signIn = (code: string) =>
-    apiClient.post('/account/sign_in/', { code });
+export const getHomeInfo = () => checked(apiClient.get('/home'), homeSchema);
+export const getUserInfo = () => checked(apiClient.get('/user-info'), userSchema);
+export const signOut = () => checked(apiClient.post('/auth/logout'), z.null());
 
-export const signOut = () =>
-    apiClient.get('/account/sign_out/');
-
-export const getUserInfo = () =>
-    apiClient.get('/account/user_info/');
-
-// Document APIs
 export const getDocs = (params?: {
-  page?: number;
-  size?: number;
-  tags?: string;
-  keywords?: string;
-}) =>
-    apiClient.get<ApiResponse<PaginatedResponse<DocList>>>('/docs/', { params });
+    page?: number;
+    size?: number;
+    tags?: string[];
+    keywords?: string[];
+}) => checked(apiClient.get('/docs', { params }), docPageSchema);
 
 export const getDocDetail = (id: string) =>
-    apiClient.get<ApiResponse<DocInfo>>(`/docs/${id}/`);
-
+    checked(apiClient.get(`/docs/${encodeURIComponent(id)}`), docSchema);
 export const createDoc = (data: EditDocRequest) =>
-    apiClient.post<ApiResponse<{ id: string }>>('/docs/', data);
-
+    checked(apiClient.post('/docs', data), idSchema);
 export const updateDoc = (id: string, data: EditDocRequest) =>
-    apiClient.put<ApiResponse<{ id: string }>>(`/docs/${id}/`, data);
-
+    checked(apiClient.put(`/docs/${encodeURIComponent(id)}`, data), idSchema);
 export const deleteDoc = (id: string) =>
-    apiClient.delete(`/docs/${id}/`);
+    checked(apiClient.delete(`/docs/${encodeURIComponent(id)}`), z.null());
 
-// Tag APIs
-export const getTags = (params?: { page?: number; size?: number }) =>
-    apiClient.get<ApiResponse<TagInfo[]>>('/tags/', { params });
-
-export const getBoundTags = (params?: { page?: number; size?: number }) =>
-    apiClient.get<ApiResponse<TagInfo[]>>('/tags/bound/', { params });
-
-// Permission API
-export const getPermissions = () =>
-    apiClient.get<ApiResponse<UserPermission[]>>('/permissions/');
-
-// Feature API
-export const getFeatures = () =>
-    apiClient.get<ApiResponse<FeatureResponse>>('/features/');
-
-// COS API
+export const getTags = () => checked(apiClient.get('/tags'), z.array(tagSchema));
+export const getBoundTags = () => checked(apiClient.get('/tags/bound'), z.array(tagSchema));
+export const getPermissions = () => checked(apiClient.get('/permissions'), z.array(permissionSchema));
+export const getFeatures = () => checked(apiClient.get('/features'), featureSchema);
 export const getTempSecret = (filename: string) =>
-    apiClient.post<ApiResponse<COSCredentialResponse>>('/cos/temp_secret/', { filename });
-
-// I18n API
-export const changeLanguage = (language: string) =>
-    apiClient.post('/i18n/', { language });
+    checked(apiClient.post('/cos/temp-secret', { filename }), credentialSchema);

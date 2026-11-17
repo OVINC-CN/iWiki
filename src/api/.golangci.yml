@@ -1,0 +1,43 @@
+version: "2"
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  default: standard
+  settings:
+    revive:
+      rules:
+        # 不要求软件包注释。
+        - name: package-comments
+          disabled: true
+  enable:
+    - bodyclose
+    - copyloopvar
+    - durationcheck
+    - errname
+    - errorlint
+    - gocritic
+    - gosec
+    - intrange
+    - misspell
+    - nilerr
+    - noctx
+    - prealloc
+    - revive
+    - unconvert
+    - unparam
+    - wastedassign
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+    - golines
+  settings:
+    golines:
+      max-len: 100
+    goimports:
+      local-prefixes:
+        - github.com/OVINC-CN/iWiki/src/api

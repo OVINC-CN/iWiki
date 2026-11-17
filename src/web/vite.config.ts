@@ -56,7 +56,7 @@ function injectAfterHead(html: string, fragment: string): string {
     return `${html.slice(0, headEnd)}${newline}${formattedFragment}${remainder}`;
 }
 
-// https://vite.dev/config/
+// Vite 构建与开发配置。
 export default defineConfig(({ command }) => {
     const headFragment = command === 'build' ? readBuildHeadFragment() : '';
 

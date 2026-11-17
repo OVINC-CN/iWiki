@@ -37,7 +37,7 @@ import 'katex/dist/katex.min.css';
 
 export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
     const navigate = useNavigate();
-    const { user, t } = useApp();
+    const { user } = useApp();
     const { showAlert } = useModal();
 
     const [doc, setDoc] = useState<DocInfo | null>(null);
@@ -54,14 +54,14 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
                 const response = await getDocDetail(id);
                 setDoc(response.data.data);
             } catch (err) {
-                setError(err instanceof Error ? err.message : t.docs.loadFailed);
+                setError(err instanceof Error ? err.message : '加载失败');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchDoc();
-    }, [id, t]);
+    }, [id]);
 
     const handleDelete = useCallback(async () => {
         try {
@@ -69,14 +69,14 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
             await deleteDoc(id);
             navigate('/docs');
         } catch {
-            showAlert(t.docs.deleteFailed);
+            showAlert('删除失败');
         } finally {
             setDeleting(false);
         }
-    }, [id, navigate, t, showAlert]);
+    }, [id, navigate, showAlert]);
 
     if (loading) {
-        return <Loading fullPage text={t.common.loading} />;
+        return <Loading fullPage text="加载中..." />;
     }
 
     if (error || !doc) {
@@ -84,9 +84,9 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
             <div className="container mx-auto px-4 py-20">
                 <div className="flex flex-col items-center justify-center text-center">
                     <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{error || t.docs.notFound}</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">{error || '文章不存在'}</h3>
                     <Button asChild className="mt-4">
-                        <Link to="/docs">{t.common.backToList}</Link>
+                        <Link to="/docs">返回列表</Link>
                     </Button>
                 </div>
             </div>
@@ -105,7 +105,7 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
             <Button asChild variant="ghost" size="sm" className="mb-6">
                 <Link to="/docs" className="gap-2">
                     <ArrowLeft className="h-4 w-4" />
-                    {t.common.backToList}
+                    返回列表
                 </Link>
             </Button>
 
@@ -115,7 +115,7 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
                     {!doc.is_public && (
                         <Badge variant="secondary" className="gap-1">
                             <Lock className="h-3 w-3" />
-                            {t.editor.private}
+                            私密
                         </Badge>
                     )}
                 </div>
@@ -131,7 +131,7 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
                             <Button asChild variant="outline" size="sm">
                                 <Link to={docEditPath(id)} className="gap-1">
                                     <Pencil className="h-4 w-4" />
-                                    {t.common.edit}
+                                    编辑
                                 </Link>
                             </Button>
                             <AlertDialog>
@@ -143,20 +143,20 @@ export const DocDetail: React.FC<{ id: string }> = ({ id }) => {
                                         className="text-destructive hover:text-destructive gap-1"
                                     >
                                         <Trash2 className="h-4 w-4" />
-                                        {deleting ? t.docs.deleting : t.common.delete}
+                                        {deleting ? '删除中...' : '删除'}
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>{t.docs.deleteConfirm}</AlertDialogTitle>
+                                        <AlertDialogTitle>确定要删除这篇文章吗？</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            {t.docs.deleteWarning}
+                                            此操作无法撤销，文章将被永久删除。
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                                        <AlertDialogCancel>取消</AlertDialogCancel>
                                         <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                            {t.common.delete}
+                                            删除
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>

@@ -1,259 +1,180 @@
-<p align="center">
-  <img src="src/web/public/logo.png" alt="iWiki Logo" width="120">
-</p>
+<p align="center"><img src="src/web/public/logo.png" alt="iWiki 标识" width="120"></p>
 
-<p align="center">
-  <strong>A document management system that combines blogs and knowledge bases.</strong>
-</p>
+# iWiki
 
-<p align="center">
-  <a href="./README_CN.md">简体中文</a> |
-  <a href="./README.md">English</a>
-</p>
+集博客与知识库于一体的文档系统。Go 后端位于 `src/api`，React 前端位于 `src/web`，可独立部署。
 
----
+## 功能与访问
 
-## Introduction
+- 文档编辑、封面、标签、关键词筛选、阅读量和评论计数。
+- Markdown、代码高亮、Mermaid 图表、KaTeX 公式和媒体上传。
+- 仅支持标准 OIDC 登录；公开文档对所有已登录用户可见，私有文档仅作者可见，编辑和删除仅限作者。
+- 创建文档和上传文件分别检查 `create_doc`、`upload_file` 授权及失效时间。
+- 腾讯 COS 临时凭据直传及 CDN 方式 A 签名。
+- 保存和删除文档时，自动清理解绑后无引用的标签。
 
-iWiki includes a Django API in `src/api` and a React frontend in `src/web`. Each component maintains its own dependencies and configuration and can be deployed independently.
+## 环境要求
 
-## Features
-
-- **Documents and knowledge bases**: Document editing, tags, comments, and access permissions.
-- **Markdown editing**: Integrated [@uiw/react-md-editor](https://github.com/uiwjs/react-md-editor), syntax highlighting, [Mermaid](https://mermaid.js.org/) diagrams, and [KaTeX](https://katex.org/) formulas.
-- **Authentication**: Integration with OVINC SSO and application credentials.
-- **Media storage**: Tencent Cloud COS uploads and media URLs.
-- **Background tasks**: Celery workers and scheduled jobs backed by Redis.
-
-## Tech Stack
-
-| Component | Technologies |
+| 工具或服务 | 要求 |
 | --- | --- |
-| Frontend | React 19, TypeScript, Vite 7, Tailwind CSS 4, shadcn/ui |
-| API | Python, Django, Django REST framework |
-| Application server | Gunicorn with Uvicorn workers (ASGI) |
-| Database and cache | MySQL, Redis |
-| Background jobs | Celery |
+| Go | `1.26.10` |
+| Node.js | `24.22.1` |
+| pnpm | `11.7.0`，版本见前端 package.json |
+| MySQL | 可访问的既有数据库，或已手动初始化的独立空库 |
+| Redis | 支持 Lua 脚本的 Redis，用于新会话、登录状态和登录限流 |
+| 身份提供方 | 标准 OIDC 发现、授权码、S256 PKCE、签名 ID Token；sub 必须等于本地用户名 |
 
-## Project Structure
+运行时版本由根目录 `mise.toml` 管理。
 
-```text
-.
-├── src/
-│   ├── api/
-│   │   ├── apps/                 # Django applications
-│   │   ├── entry/                # Settings, URLs, and ASGI entry point
-│   │   ├── bin/run.sh            # Container startup script
-│   │   ├── Dockerfile
-│   │   ├── env.example
-│   │   └── requirements.txt
-│   └── web/
-│       ├── src/                  # React application
-│       ├── public/               # Static assets and generated configuration
-│       ├── scripts/              # CDN URL generation and tests
-│       ├── .env.example
-│       ├── package.json
-│       └── pnpm-lock.yaml
-├── .github/workflows/            # Frontend, API, and container workflows
-├── README.md
-└── README_CN.md
+## 启动后端
+
+在仓库根目录执行：
+
+```bash
+cp src/api/config.yaml src/api/config.local.yaml
 ```
 
-## Getting Started
+编辑本地 YAML，至少填写 `mysql.dsn`、`redis.addr`、`oidc.issuer`、`oidc.client_id`，以及身份提供方要求的 `oidc.client_secret`。
+后端配置从 YAML 加载；`OTEL_SERVICE_NAME` 可覆盖追踪服务名。
 
-### Prerequisites
+```yaml
+mysql:
+  dsn: 'iwiki:数据库密码@tcp(127.0.0.1:3306)/iwiki'
+redis:
+  addr: '127.0.0.1:6379'
+oidc:
+  issuer: 'https://id.example.com'
+  client_id: 'iwiki'
+  client_secret: '身份提供方分配的密钥'
+  redirect_url: 'http://localhost:8020/v1/auth/oidc/callback'
+```
 
-| Tool or service | Requirement |
+上面的片段只说明需要修改的字段，请保留示例文件中的其他配置。回调地址必须在身份提供方登记并逐字一致。
+前后端须部署在同一站点，开发时统一使用 `localhost`，不要混用 `127.0.0.1`。
+
+```bash
+make -C src/api tidy
+make -C src/api dev CONFIG=config.local.yaml
+```
+
+默认监听 `:8020`。也可先构建，再指定配置启动：
+
+```bash
+make -C src/api build
+src/api/bin/iwiki api --config src/api/config.local.yaml
+```
+
+### 数据库
+
+服务使用 `account_user`、`doc_doc`、`doc_docbin`、`doc_tag`、`doc_doctag`、`doc_comment`、
+`doc_commentbin`、`permission_userpermission` 和 `cos_coslog`。
+数据库连接及写入时间使用 UTC。
+
+应用运行账号只需上述表的 DML 权限。
+`src/api/support-files/sql/0001_init.sql` 仅供全新空库安装，禁止在已有数据库执行。
+安装空库前先创建使用 `utf8mb4` 的数据库，再由具备权限的运维账号手动执行 SQL。
+
+用户名最长 32 字符，OIDC sub 与 `account_user.username` 对应。
+首次登录自动创建账号；已停用的账号无法登录。
+昵称优先使用 OIDC `nickname`，其次 `name`，不提供时保留原昵称。登录不授予业务权限。
+
+### 配置分组
+
+| 分组 | 内容 |
 | --- | --- |
-| Node.js | `24.22.1`, configured in [mise.toml](mise.toml) |
-| pnpm | `11.7.0`, declared in [src/web/package.json](src/web/package.json) |
-| Python | `3.14.9`, configured in [src/api/mise.toml](src/api/mise.toml) |
-| MySQL and Redis | Available to the API and background workers |
-| OVINC authentication | An application code, secret, and the SSO service addresses |
-| Docker | Required for container deployment |
+| `app` | 名称、环境、业务时区、监听地址、日志级别、前端地址、调试开关及退出超时 |
+| `http` | 明确的跨域来源、可信代理网段、请求及服务端超时、请求体和分页限制 |
+| `mysql`、`redis` | 连接、连接池、事务锁冲突重试和超时；Redis 前缀必须与旧会话及其他部署隔离 |
+| `oidc` | 唯一可信 issuer、客户端、回调、登录状态有效期和发起频率限制 |
+| `session` | 会话有效期、Cookie 名称和属性、精确用户名白名单 |
+| `document` | title/content/all 搜索范围，正文、标签和筛选数量限制 |
+| `cos` | COS 与 STS、临时凭据有效期、上传大小和 CDN 签名 |
+| `trace` | OTLP gRPC 上报、TLS、上报头及批量参数；关闭上报仍生成真实 Trace ID |
 
-The commands below use a POSIX shell and assume the required runtimes are on `PATH`. If you use mise, run `mise install` at the repository root for Node.js and in `src/api` for Python.
+生产环境使用 `app.environment: production`、HTTPS 和 `session.cookie_secure: true`。
+只有 YAML 中明确列出的代理网段可信，未配置时不信任转发 IP。
+真实凭据只放本地或部署配置，不进入 Git、镜像和构建输出。
 
-### 1. Clone the repository
+### 登录与会话
 
-```bash
-git clone https://github.com/OVINC-CN/iWiki.git
-cd iWiki
-```
+浏览器通过后端 `/v1/auth/oidc/login` 发起登录，回调仅由后端处理。服务验证 state、nonce、
+PKCE、签名、issuer、audience、有效期及适用的授权方与访问令牌摘要，不将授权码交给前端交换。
+登录状态绑定浏览器并一次性消费，回跳仅接受站内路径。
 
-### 2. Set up the API
+Cookie 使用 HttpOnly、SameSite=Lax 和显式 `Path=/`。会话按凭据摘要存入 Redis。写请求要求 `X-CSRF-Protection: 1`，同时验证 Origin，缺少 Origin 时验证 Referer。
+前端统一发送该请求头。退出只撤销当前本地会话，不注销身份提供方的其他应用会话。
 
-From the repository root, prepare the Python environment:
+只有登录入口、回调及 `GET /health`、`GET /ready` 免登录；其余接口全部需要会话 Cookie。
+探针的 `data` 始终为 null，就绪检查失败返回 503，不披露依赖明细。
 
-```bash
-cd src/api
-python -m venv venv
-. venv/bin/activate
-python -m pip install -r requirements.txt
-cp env.example .env
-```
+### COS 与 CDN
 
-Edit `src/api/.env` with your application credentials, MySQL and Redis connections, and the addresses described under [Configuration](#configuration). Create the configured MySQL database, then run the following commands from `src/api` with the virtual environment active:
+启用 `cos.enabled` 后填写长期密钥、存储桶、地域和资源域名，长期密钥仅由后端使用。
+后端签发只允许指定对象 `PutObject` 且限制内容长度的临时凭据，前端继续使用 COS SDK 直传。
+每次上传使用独立随机路径，日期目录按 `app.timezone` 生成；数据库时间保持 UTC。
+上传记录的响应字段只保存脱敏状态，不保存临时密钥。
+直传记录代表凭据签发结果，不代表浏览器已成功完成对象上传。
 
-```bash
-python manage.py check
-python manage.py migrate
-python manage.py runserver 127.0.0.1:8000
-```
+CDN 方式 A 签名在每次读取时即时生成，不使用跨请求缓存；有效期由 CDN 侧鉴权规则控制。
+应用不自动添加图片处理参数，已有链接中的其他查询参数保持原样。
+仅重签配置域名的链接，外部链接保持原样。保存文档前清理自有链接的临时签名，读取时重新签发。
 
-For background processing, run each command below in a separate terminal from `src/api`, with the same virtual environment active:
-
-```bash
-python manage.py celery worker -c 1 -l INFO
-```
-
-```bash
-python manage.py celery beat -l INFO
-```
-
-### 3. Start the frontend
-
-In another terminal, run these commands from the repository root:
+## 启动前端
 
 ```bash
 cp src/web/.env.example src/web/.env
 pnpm --dir src/web install --frozen-lockfile
-```
-
-Edit `src/web/.env` to match your API and SSO addresses, then start the development server:
-
-```bash
 pnpm --dir src/web dev
 ```
 
-Open `http://localhost:5173`. Frontend commands can also be run directly from `src/web` without `--dir src/web`.
+开发地址为 `http://localhost:5173`。前端只需 `VITE_BACKEND_URL` 和 `VITE_FRONTEND_URL`，后端地址不含 `/v1`。
+浏览器不配置 SSO 地址、客户端密钥或认证令牌。
 
-## Configuration
+```bash
+pnpm --dir src/web check
+```
 
-### API
+该命令包含静态检查、现有脚本测试和生产构建。
+生产配置经 `generate-config.js` 写入配置文件，构建时生成 `config.<hash>.js` 并更新页面引用。
+修改构建配置后需重新构建，完整部署 `src/web/dist`，页面路由回退到 `index.html`。
 
-The API reads `src/api/.env`. Required settings are listed in [env.example](src/api/env.example); optional settings are defined in [entry/settings.py](src/api/entry/settings.py).
-
-| Variables | Purpose |
-| --- | --- |
-| `APP_CODE`, `APP_SECRET` | Application credentials registered with OVINC |
-| `BACKEND_URL` | Public API origin; use `http://localhost:8000` for the development server above |
-| `ALLOWED_HOSTS` | Comma-separated API hostnames; for local development, `localhost,127.0.0.1` |
-| `FRONTEND_URL`, `CORS_ORIGIN_WHITELIST` | Frontend origin and allowed CORS origins; use `http://localhost:5173` locally |
-| `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` | MySQL connection; the example uses port `3306` |
-| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB` | Redis connection for caching, sessions, and background jobs |
-| `OVINC_API_DOMAIN`, `OVINC_WEB_URL` | OVINC API and web addresses |
-| `SESSION_COOKIE_DOMAIN` | Optional session cookie domain for your deployment |
-| `QCLOUD_SECRET_ID`, `QCLOUD_SECRET_KEY`, `QCLOUD_COS_REGION`, `QCLOUD_COS_BUCKET`, `QCLOUD_COS_URL` | Tencent Cloud COS configuration for media uploads |
-
-### Frontend
-
-Vite loads `src/web/.env`. Deployment environments can also supply these variables directly:
-
-| Variable | Purpose |
-| --- | --- |
-| `VITE_FRONTEND_URL` | Frontend origin, such as `http://localhost:5173` |
-| `VITE_BACKEND_URL` | API origin, such as `http://localhost:8000` |
-| `VITE_SSO_URL` | SSO login service origin |
-| `VITE_SSO_API_URL` | SSO API base URL |
-| `VITE_ALLOWED_HOSTS` | Reserved value in the example configuration; currently does not enforce host restrictions |
-
-The development and build commands run `generate-config.js`, which writes exported environment values to `src/web/public/config.js`. The frontend reads `window.ENV` first and falls back to Vite environment values. Production builds hash `config.js` as `config.<hash>.js` and update its reference in `index.html`. Configuration changes require a rebuild and redeployment.
-
-## Deployment
-
-### API container
-
-Configure `src/api/.env` for the deployment environment, including database and Redis hosts reachable from the container. From the repository root:
+## 容器部署
 
 ```bash
 docker build -f src/api/Dockerfile -t iwiki-api:latest src/api
-docker run -d --name iwiki-api \
-  --env-file src/api/.env \
-  -p 8020:8020 \
-  iwiki-api:latest sh bin/run.sh
+docker run -d --name iwiki-api -p 8020:8020 \
+  --mount type=bind,source="$PWD/src/api/config.local.yaml",target=/app/config.yaml,readonly \
+  iwiki-api:latest
 ```
 
-The startup script collects static files, applies migrations, starts the Celery worker and scheduler, and serves the API on port `8020` through Gunicorn with Uvicorn workers. Set `WEB_PROCESSES`, `WEB_THREADS`, and `WORKER_COUNT` to configure the process settings passed by the script.
+镜像以非 root 用户运行，挂载配置需允许容器用户读取；不要将密钥配置复制进镜像。
+容器仅运行 API，启动时检查配置、MySQL、Redis 和 OIDC 发现，不执行数据库初始化。
 
-### Static frontend
+前后端应同时切换到新版本，用户重新登录。切换前备份数据库和配置；需要回滚时恢复旧前后端，
+保留数据库原状并要求重新登录。不要在新旧后端之间共享会话命名空间。
 
-Set the frontend environment values before building. From the repository root:
+## 开发与检查
 
 ```bash
-pnpm --dir src/web install --frozen-lockfile
-pnpm --dir src/web build
+make -C src/api check
+pnpm --dir src/web check
 ```
 
-Deploy the entire `src/web/dist/` directory to a static host, including the hashed configuration and other assets. Serve `index.html` for frontend page routes. Upload assets before HTML and retain old hashed files for cached pages.
+后端默认只执行格式、静态检查、配置校验、Swagger 路由一致性检查和构建，不启动应用或测试服务。
+运行后端单元测试使用 `make -C src/api test`，测试和联调使用独立配置及测试环境。
+更多实现入口和验证场景见 [CONTRIBUTING.md](CONTRIBUTING.md)，约束见 [AGENTS.md](AGENTS.md)。
 
-For Vercel, use the following frontend project settings and configure the `VITE_*` environment variables above. Deploy the API separately.
-
-| Setting | Value |
-| --- | --- |
-| Root Directory | `src/web` |
-| Install Command | `pnpm install --frozen-lockfile` |
-| Build Command | `pnpm build` |
-| Output Directory | `dist` |
-
-### Build-time head fragment
-
-Production builds can insert an external HTML fragment immediately after the opening `<head>` tag. Create `src/web/tracking.fragment.html` and run this command from the repository root:
+前端页面使用固定路径 `/docs/detail?id=...`、`/docs/edit?id=...`。
+生成 CDN 刷新清单：
 
 ```bash
-BUILD_HEAD_FRAGMENT_FILE=tracking.fragment.html pnpm --dir src/web build
+make cdn-urls CDN_ORIGIN=https://wiki.example.com
 ```
 
-Relative fragment paths are resolved from `src/web`, where `vite.config.ts` lives; absolute paths are also supported. The fragment is trusted build input and can contain scripts such as:
+清单覆盖全部页面及构建资源。CDN 页面缓存键应忽略查询参数，先发布资源文件，再发布 HTML，并保留旧哈希资源。
+构建时如需注入可信的 `<head>` 片段，设置 `BUILD_HEAD_FRAGMENT_FILE=tracking.fragment.html`，路径相对 `src/web`。
+片段不提交到 Git。
 
-```html
-<script defer src="https://example.com/script.js" data-website-id="website-id"></script>
-<script defer src="https://example.com/recorder.js" data-website-id="website-id"></script>
-```
+## 开源协议
 
-The fragment should be supplied by the build environment and kept outside Git tracking. The recommended `tracking.fragment.html` filename is ignored by default. When the variable is unset, no fragment is injected. Changing the fragment requires rebuilding and redeploying the frontend.
-
-### CDN refresh URLs
-
-Document pages use fixed paths: `/docs/detail?id=<id>` and `/docs/edit?id=<id>`. `/docs/new` creates a document. Detail and edit URLs without an ID return to `/docs`.
-
-With Node.js 24 or later, generate the CDN refresh list from the repository root:
-
-```bash
-pnpm --dir src/web build
-make -C src/web cdn-urls CDN_ORIGIN=https://wiki.example.com > /tmp/iwiki-cdn-urls.txt
-```
-
-`CDN_ORIGIN` must contain only the HTTP(S) scheme, hostname, and optional port. `CDN_WEB_DIST` defaults to `dist`, relative to `src/web` for the command above, and can point to another artifact directory.
-
-The command writes one sorted, unique URL per line, covering all registered page paths and every build file, including `index.html`, `config.<hash>.js`, and nested assets. It fails if the origin is invalid or the artifact directory has no `index.html`.
-
-Configure the CDN to serve `index.html` for page paths and ignore query parameters in the HTML cache key so a refresh covers every document ID and list filter.
-
-## Development and CI
-
-Run frontend checks from the repository root:
-
-```bash
-pnpm --dir src/web lint
-pnpm --dir src/web test
-pnpm --dir src/web build
-```
-
-For API checks, activate the Python virtual environment and run the following commands from `src/api`:
-
-```bash
-python -m pip install pylint
-python manage.py check
-make pylint
-```
-
-| Workflow | Purpose |
-| --- | --- |
-| [Lint](.github/workflows/lint.yml) | Frontend ESLint, tests, and production build |
-| [Pylint](.github/workflows/pylint.yml) | Django system checks and API Pylint |
-| [Docker](.github/workflows/docker-publish.yml) | Builds, publishes, and signs the `linux/amd64` API image in GHCR on tag pushes |
-
-## License
-
-[MIT](./LICENSE) © [OVINC-CN](https://github.com/OVINC-CN)
+[MIT](LICENSE) © [OVINC-CN](https://github.com/OVINC-CN)

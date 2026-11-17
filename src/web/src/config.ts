@@ -1,12 +1,10 @@
 declare global {
-  interface Window {
-    ENV?: {
-      VITE_BACKEND_URL?: string;
-      VITE_SSO_URL?: string;
-      VITE_FRONTEND_URL?: string;
-      VITE_SSO_API_URL?: string;
-    };
-  }
+    interface Window {
+        ENV?: {
+            VITE_BACKEND_URL?: string;
+            VITE_FRONTEND_URL?: string;
+        };
+    }
 }
 
 export const getConfig = (key: keyof NonNullable<Window['ENV']>) => {
@@ -14,8 +12,6 @@ export const getConfig = (key: keyof NonNullable<Window['ENV']>) => {
 };
 
 export const config = {
-    API_BASE_URL: getConfig('VITE_BACKEND_URL'),
-    SSO_URL: getConfig('VITE_SSO_URL'),
+    API_BASE_URL: getConfig('VITE_BACKEND_URL').replace(/\/+$/, ''),
     FRONTEND_URL: getConfig('VITE_FRONTEND_URL') || window.location.origin,
-    SSO_API_URL: getConfig('VITE_SSO_API_URL'),
 };

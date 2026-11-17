@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useState, useCallback, useMemo } from 'react';
-import { useApp } from './useApp';
 import { ModalContext } from './modalContext';
 import {
     AlertDialog,
@@ -18,7 +17,6 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     title?: string;
     message: string;
   }>({ message: '' });
-    const { t } = useApp();
 
     const closeModal = useCallback(() => {
         setIsOpen(false);
@@ -47,7 +45,7 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogAction onClick={closeModal}>
-                            {t.common?.confirm || 'OK'}
+                            确定
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
