@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/goccy/go-yaml"
 	"github.com/sirupsen/logrus"
@@ -75,7 +76,7 @@ func load(filename string) (*Settings, error) {
 	if err != nil {
 		return nil, fmt.Errorf("config file read failed: %w", err)
 	}
-	cfg := new(Settings)
+	cfg := &Settings{COS: COSConfig{CDNCacheTTL: 30 * time.Minute}}
 	decoder := yaml.NewDecoder(bytes.NewReader(data), yaml.Strict())
 	if err := decoder.Decode(cfg); err != nil {
 		return nil, err

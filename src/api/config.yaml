@@ -81,6 +81,8 @@ cos:
   max_file_bytes: 10485760
   cdn_signing_key: ''
   cdn_parameter: eo-sign
+  # CDN 签名缓存有效期。
+  cdn_cache_ttl: 30m
 trace:
   # 关闭上报仍生成真实 Trace ID。
   report_enabled: false

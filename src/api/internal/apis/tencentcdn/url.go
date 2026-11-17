@@ -2,16 +2,11 @@ package tencentcdn
 
 import (
 	"context"
-	"crypto/md5" // #nosec G501 -- CDN 方式 A 使用 MD5。
-	"encoding/hex"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/OVINC-CN/iWiki/src/api/internal/config"
-	"github.com/OVINC-CN/iWiki/src/api/internal/secure"
 )
 
 var markdownURL = regexp.MustCompile(`(\[[^\]]*\]\()(https?://[^\s)]+)(\))`)
@@ -38,25 +33,6 @@ func Sign(ctx context.Context, value string) (string, error) {
 		}
 	}
 	return parsed.String(), nil
-}
-
-// SignPath 生成 CDN 方式 A 签名。
-func SignPath(ctx context.Context, path string) (string, error) {
-	if err := ctx.Err(); err != nil {
-		return "", err
-	}
-	cfg := config.Config.COS
-	if cfg.CDNSigningKey == "" {
-		return "", nil
-	}
-	nonce, err := secure.ID()
-	if err != nil {
-		return "", err
-	}
-	stamp := strconv.FormatInt(time.Now().Unix(), 10)
-	input := path + "-" + stamp + "-" + nonce + "-0-" + cfg.CDNSigningKey
-	sum := md5.Sum([]byte(input)) // #nosec G401 -- CDN 方式 A 使用 MD5。
-	return stamp + "-" + nonce + "-0-" + hex.EncodeToString(sum[:]), nil
 }
 
 // Normalize 移除资源地址中的签名参数。

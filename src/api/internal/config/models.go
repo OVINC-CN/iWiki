@@ -105,6 +105,7 @@ type COSConfig struct {
 	MaxFileBytes   int64         `yaml:"max_file_bytes"`
 	CDNSigningKey  string        `yaml:"cdn_signing_key"`
 	CDNParameter   string        `yaml:"cdn_parameter"`
+	CDNCacheTTL    time.Duration `yaml:"cdn_cache_ttl"`
 }
 
 type TraceConfig struct {

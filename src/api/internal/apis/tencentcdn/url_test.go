@@ -43,17 +43,3 @@ func TestOwnedLinksPreserveQueries(t *testing.T) {
 		t.Fatal("Markdown and HTML references must remove temporary signatures")
 	}
 }
-
-func TestSignaturesAreGeneratedWithoutCrossRequestCache(t *testing.T) {
-	previous := config.Config.COS
-	config.Config.COS.CDNSigningKey = strings.Repeat("x", 32)
-	t.Cleanup(func() { config.Config.COS = previous })
-	first, err := SignPath(context.Background(), "/upload/example.png")
-	if err != nil {
-		t.Fatal("Failed to generate the first signature")
-	}
-	second, err := SignPath(context.Background(), "/upload/example.png")
-	if err != nil || first == "" || second == "" || first == second {
-		t.Fatal("Each signing operation must use a fresh nonce without Redis")
-	}
-}

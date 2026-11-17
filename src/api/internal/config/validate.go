@@ -69,6 +69,7 @@ func (cfg *Settings) validate() error {
 		cfg.Session.TTL,
 		cfg.COS.RequestTimeout,
 		cfg.COS.CredentialTTL,
+		cfg.COS.CDNCacheTTL,
 		cfg.Trace.ExportTimeout,
 		cfg.Trace.BatchTimeout,
 	}
