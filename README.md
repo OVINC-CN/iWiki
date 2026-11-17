@@ -76,6 +76,32 @@ The fragment file should be supplied by the build environment and kept outside G
 
 ## 🚀 Deployment
 
+### CDN refresh URLs
+
+Document pages use fixed paths: `/docs/detail?id=<id>` and `/docs/edit?id=<id>`.
+`/docs/new` creates a document. Detail and edit URLs without an ID return to `/docs`.
+
+After building, generate the CDN refresh list from the repository root with Node.js 24 or later:
+
+```bash
+pnpm build
+make cdn-urls CDN_ORIGIN=https://wiki.example.com > /tmp/iwiki-cdn-urls.txt
+```
+
+`CDN_ORIGIN` must contain only the HTTP(S) scheme, hostname, and optional port.
+`CDN_WEB_DIST` defaults to `dist` and can point to another deployment artifact directory.
+The command writes one sorted, unique URL per line, covering all registered page paths
+and all files in the build, including `index.html`, `config.<hash>.js`, and nested static assets.
+It fails if the origin is invalid or the artifact directory has no `index.html`.
+
+Configure the CDN to serve `index.html` for page paths and ignore query parameters in
+the HTML cache key so a refresh covers every document ID and list filter.
+
+The build generates `config.<hash>.js` from the configuration content and updates its script
+reference in `index.html`, without a query parameter. Development uses `public/config.js`;
+preview uses the built configuration. Configuration changes require a rebuild. Upload the
+hashed configuration and other assets before HTML, and retain old hashed files for cached pages.
+
 ### Method 1: Deploy on Vercel (Recommended)
 
 Fork this repository and deploy it using [Vercel](https://vercel.com).

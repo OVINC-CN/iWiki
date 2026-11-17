@@ -76,6 +76,32 @@ BUILD_HEAD_FRAGMENT_FILE=tracking.fragment.html pnpm build
 
 ## 🚀 部署
 
+### CDN 刷新清单
+
+文档页面使用固定路径：详情为 `/docs/detail?id=<id>`，编辑为 `/docs/edit?id=<id>`。
+`/docs/new` 用于新建文档，详情和编辑地址缺少 ID 时返回 `/docs`。
+
+构建完成后，使用 Node.js 24 或更新版本在仓库根目录生成 CDN 刷新清单：
+
+```bash
+pnpm build
+make cdn-urls CDN_ORIGIN=https://wiki.example.com > /tmp/iwiki-cdn-urls.txt
+```
+
+`CDN_ORIGIN` 仅包含 HTTP(S) 协议、域名及可选端口。
+`CDN_WEB_DIST` 默认为 `dist`，可指定其他部署产物目录。
+命令逐行输出排序、去重后的完整 URL，覆盖所有注册页面路径和构建目录内的所有文件，
+包括 `index.html`、`config.<hash>.js` 及嵌套静态资源。
+源地址无效或产物目录缺少 `index.html` 时命令失败。
+
+CDN 需将页面路径回源到 `index.html`，并在 HTML 缓存键中忽略查询参数，
+使一次刷新覆盖全部文档 ID 和列表筛选条件。
+
+构建时按配置内容生成 `config.<hash>.js`，同步更新 `index.html` 中的脚本引用，
+不使用查询参数。开发环境使用 `public/config.js`，预览使用已构建的配置。
+配置变更后需重新构建；部署时先上传带哈希的配置及其他静态资源，再更新 HTML，
+并保留旧哈希文件供缓存页面使用。
+
 ### 方式一：Vercel 部署（推荐）
 
 Fork 本仓库并使用 [Vercel](https://vercel.com) 进行部署。
