@@ -1,0 +1,16 @@
+{
+  "template": "https://github.com/OVINC-CN/DevTemplateDjango.git",
+  "commit": "840a740c7922c6198742c4b1bdd83e1577058d5d",
+  "checkout": "main",
+  "context": {
+    "cookiecutter": {
+      "project_name": "iwiki-api",
+      "_copy_without_render": [
+        ".github"
+      ],
+      "_template": "https://github.com/OVINC-CN/DevTemplateDjango.git",
+      "_commit": "840a740c7922c6198742c4b1bdd83e1577058d5d"
+    }
+  },
+  "directory": null
+}

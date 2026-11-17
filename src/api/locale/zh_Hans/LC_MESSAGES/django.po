@@ -1,0 +1,178 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-14 15:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "BK Crypto"
+msgstr "BK 加密"
+
+msgid "Private Key"
+msgstr "私钥"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Config Key"
+msgstr "配置键"
+
+msgid "Config Value"
+msgstr "配置值"
+
+msgid "Crypto Config"
+msgstr "加密配置"
+
+msgid "Is Success"
+msgstr "是否成功"
+
+msgid "Full Path"
+msgstr "完整路径"
+
+msgid "COS"
+msgstr "对象存储 COS"
+
+msgid "Temp Key Generate Failed"
+msgstr "鉴权失败"
+
+msgid "Upload Failed"
+msgstr "上传失败"
+
+msgid "QCloud Init Unfinished"
+msgstr "腾讯云初始化未完成"
+
+msgid "File Name"
+msgstr "文件名"
+
+msgid "File Path"
+msgstr "文件路径"
+
+msgid "Response"
+msgstr "响应"
+
+msgid "Owner"
+msgstr "拥有者"
+
+msgid "Uploaded Time"
+msgstr "上传时间"
+
+msgid "COS Log"
+msgstr "对象存储日志"
+
+msgid "File Name Invalid"
+msgstr "文件名异常"
+
+msgid "Tags"
+msgstr "标签"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Doc"
+msgstr "文章"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "All"
+msgstr "全部"
+
+msgid "Doc Search Type Invalid"
+msgstr "不支持的文档搜索类型"
+
+msgid "Updated Time"
+msgstr "更新时间"
+
+msgid "Created Time"
+msgstr "创建时间"
+
+msgid "Comment"
+msgstr "评论"
+
+msgid "Deleted Time"
+msgstr "删除时间"
+
+msgid "Comment Bin"
+msgstr "评论回收站"
+
+msgid "Header Image"
+msgstr "头图"
+
+msgid "Is Public"
+msgstr "是否公开"
+
+msgid "PV"
+msgstr "访问数量"
+
+msgid "Doc Bin"
+msgstr "文章回收站"
+
+msgid "Tag"
+msgstr "标签"
+
+msgid "Doc Tag"
+msgstr "文章标签"
+
+msgid "Owner Nick Name"
+msgstr "拥有者昵称"
+
+msgid "Comment Count"
+msgstr "评论数量"
+
+msgid "Keywords"
+msgstr "关键词"
+
+msgid "Home Module"
+msgstr "主模块"
+
+msgid "Language Code Invalid"
+msgstr "语言ID非法"
+
+msgid "Access Forbidden"
+msgstr "未授权访问"
+
+msgid "Language Code"
+msgstr "语言ID"
+
+msgid "Nick Name"
+msgstr "昵称"
+
+msgid "Permission"
+msgstr "权限"
+
+msgid "Create Doc"
+msgstr "创建文章"
+
+msgid "Upload File"
+msgstr "上传文件"
+
+msgid "User"
+msgstr "用户"
+
+msgid "Permission Item"
+msgstr "权限实例"
+
+msgid "Expired Time"
+msgstr "过期时间"
+
+msgid "Authorized Time"
+msgstr "授权时间"
+
+msgid "User Permission"
+msgstr "用户权限"
