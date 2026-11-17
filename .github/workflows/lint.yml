@@ -12,24 +12,36 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/web
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
+      with:
+        package_json_file: src/web/package.json
+
+    - name: Configure pnpm store
+      run: pnpm config set --global store-dir "$RUNNER_TEMP/pnpm-store"
 
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '24.22.1'
         cache: 'pnpm'
+        cache-dependency-path: src/web/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
 
     - name: Run ESLint
       run: pnpm lint
 
     - name: Run tests
       run: pnpm test
+
+    - name: Build frontend
+      run: pnpm build
