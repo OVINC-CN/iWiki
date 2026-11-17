@@ -1,5 +1,6 @@
 import axios, { type AxiosError } from 'axios';
 import { config } from '@/config';
+import { isAuthPage, loginPath, pagePaths } from '@/routes';
 
 let redirecting = false;
 
@@ -8,27 +9,37 @@ export const redirectToLogin = (returnTo?: string) => {
         return;
     }
     redirecting = true;
-    const target = new URL(`${config.API_BASE_URL}/v1/auth/oidc/login`, window.location.origin);
-    target.searchParams.set('return_to', returnTo ||
-        `${window.location.pathname}${window.location.search}${window.location.hash}`);
-    window.location.replace(target.href);
+    window.location.replace(loginPath(returnTo ||
+        `${window.location.pathname}${window.location.search}${window.location.hash}`));
 };
 
-export const apiClient = axios.create({
-    baseURL: `${config.API_BASE_URL}/v1`,
-    withCredentials: true,
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Protection': '1' },
-    paramsSerializer: { indexes: null },
-});
+function createClient() {
+    const client = axios.create({
+        baseURL: `${config.API_BASE_URL}/v1`,
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Protection': '1' },
+        paramsSerializer: { indexes: null },
+    });
+    client.interceptors.response.use((response) => response, (error: AxiosError) => {
+        const body = error.response?.data as { error_msg?: unknown } | undefined;
+        error.message = typeof body?.error_msg === 'string' && body.error_msg ?
+            body.error_msg : '请求失败，请稍后重试';
+        return Promise.reject(error);
+    });
+    return client;
+}
+
+export const authClient = createClient();
+export const apiClient = createClient();
 
 apiClient.interceptors.response.use((response) => response, (error: AxiosError) => {
-    const body = error.response?.data as { error_msg?: unknown } | undefined;
-    error.message = typeof body?.error_msg === 'string' && body.error_msg ?
-        body.error_msg : '请求失败，请稍后重试';
+    if (isAuthPage(window.location.pathname) || window.location.pathname === pagePaths.forbidden) {
+        return Promise.reject(error);
+    }
     if (error.response?.status === 401) {
         redirectToLogin();
-    } else if (error.response?.status === 403 && window.location.pathname !== '/403') {
-        window.location.replace('/403');
+    } else if (error.response?.status === 403) {
+        window.location.replace(pagePaths.forbidden);
     }
     return Promise.reject(error);
 });

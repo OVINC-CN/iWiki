@@ -46,7 +46,7 @@ oidc:
   issuer: 'https://id.example.com'
   client_id: 'iwiki'
   client_secret: '身份提供方分配的密钥'
-  redirect_url: 'http://localhost:8020/v1/auth/oidc/callback'
+  redirect_url: 'http://localhost:5173/login/callback'
 ```
 
 上面的片段只说明需要修改的字段，请保留示例文件中的其他配置。回调地址必须在身份提供方登记并逐字一致。
@@ -97,9 +97,16 @@ src/api/bin/iwiki api --config src/api/config.local.yaml
 
 ### 登录与会话
 
-浏览器通过后端 `/v1/auth/oidc/login` 发起登录，回调仅由后端处理。服务验证 state、nonce、
-PKCE、签名、issuer、audience、有效期及适用的授权方与访问令牌摘要，不将授权码交给前端交换。
-登录状态绑定浏览器并一次性消费，回跳仅接受站内路径。
+未登录访问进入前端 `/login` 页面。点击登录后，页面调用 `/v1/auth/oidc/login` 获取登录地址，
+再跳转至身份提供方。身份提供方回调前端 `/login/callback`，落地页清除地址栏中的授权参数，
+调用 `/v1/auth/oidc/callback` 完成登录；确认会话有效后返回原访问页面，保留查询参数和锚点。
+登录失败时在落地页显示中文提示，并提供重新登录入口。退出后返回登录页，等待用户再次发起登录。
+
+`oidc.redirect_url` 必须等于 `app.frontend_url` 加 `/login/callback`，并在身份提供方登记。
+前端托管须将 `/login` 和 `/login/callback` 回退到 `index.html`。
+服务验证 state、nonce、PKCE、签名、issuer、audience、有效期及适用的授权方与访问令牌摘要。
+登录状态绑定浏览器并一次性消费，回跳仅接受站内路径。客户端密钥、PKCE 校验值、ID Token 和
+Access Token 仅在后端处理，不返回前端；授权码不写入浏览器存储。
 
 Cookie 使用 HttpOnly、SameSite=Lax 和显式 `Path=/`。会话按凭据摘要存入 Redis。写请求要求 `X-CSRF-Protection: 1`，同时验证 Origin，缺少 Origin 时验证 Referer。
 前端统一发送该请求头。退出只撤销当前本地会话，不注销身份提供方的其他应用会话。

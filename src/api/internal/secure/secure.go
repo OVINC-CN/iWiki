@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"net/url"
+	"path"
 	"strings"
 	"unicode"
 )
@@ -43,9 +44,12 @@ func ReturnPath(value string) string {
 	parsed, err := url.Parse(value)
 	if err != nil || parsed.IsAbs() || parsed.Host != "" ||
 		strings.HasPrefix(parsed.Path, "//") || strings.Contains(parsed.Path, "\\") ||
-		strings.IndexFunc(parsed.Path, unicode.IsControl) >= 0 ||
-		strings.HasPrefix(parsed.Path, "/login/") ||
-		strings.HasPrefix(parsed.Path, "/v1/auth/") {
+		strings.IndexFunc(parsed.Path, unicode.IsControl) >= 0 {
+		return "/"
+	}
+	cleaned := path.Clean(parsed.Path)
+	if cleaned == "/login" || strings.HasPrefix(cleaned, "/login/") ||
+		cleaned == "/v1/auth" || strings.HasPrefix(cleaned, "/v1/auth/") {
 		return "/"
 	}
 	return parsed.String()

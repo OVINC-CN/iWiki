@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router';
 import type { UserInfo, UserPermission, FeatureResponse } from '@/types';
 import { getHomeInfo, getPermissions, getFeatures, signOut as apiSignOut } from '@/api';
 import { redirectToLogin } from '@/api/client';
 import { AppContext } from './context';
+import { isAuthPage, pagePaths } from '@/routes';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const location = useLocation();
     const [user, setUser] = useState<UserInfo | null>(null);
     const [permissions, setPermissions] = useState<UserPermission[]>([]);
     const [features, setFeatures] = useState<FeatureResponse | null>(null);
@@ -12,8 +15,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [error, setError] = useState<string | null>(null);
 
     const fetchUserData = useCallback(async () => {
-        // 访问被拒绝时显示提示页。
-        if (window.location.pathname === '/403') {
+        if (isAuthPage(location.pathname) || location.pathname === pagePaths.forbidden) {
             setLoading(false);
             return;
         }
@@ -34,7 +36,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [location.pathname]);
 
     useEffect(() => {
         fetchUserData();
@@ -53,7 +55,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         redirectToLogin('/');
     }, []);
 
-    const login = useCallback(() => redirectToLogin(window.location.pathname === '/403' ? '/' : undefined), []);
+    const login = useCallback(() => redirectToLogin(), []);
     const value = useMemo(() => ({
         user, permissions, features, loading, error, isLoggedIn: !!user,
         hasPermission, refreshUser: fetchUserData, signOut, login,

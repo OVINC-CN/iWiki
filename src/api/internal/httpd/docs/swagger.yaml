@@ -387,6 +387,49 @@ definitions:
         example: 4bf92f3577b34da6a3ce929d0e0e4736
         type: string
     type: object
+  userModels.LoginResult:
+    properties:
+      return_to:
+        description: 登录后的访问路径。
+        example: /docs
+        type: string
+    type: object
+  userModels.LoginResultEnvelope:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/userModels.LoginResult'
+        description: 业务数据。
+      error_msg:
+        description: 错误提示。
+        example: ""
+        type: string
+      trace:
+        description: 请求追踪编号。
+        example: 4bf92f3577b34da6a3ce929d0e0e4736
+        type: string
+    type: object
+  userModels.LoginURL:
+    properties:
+      authorization_url:
+        description: 登录地址。
+        type: string
+    type: object
+  userModels.LoginURLEnvelope:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/userModels.LoginURL'
+        description: 业务数据。
+      error_msg:
+        description: 错误提示。
+        example: ""
+        type: string
+      trace:
+        description: 请求追踪编号。
+        example: 4bf92f3577b34da6a3ce929d0e0e4736
+        type: string
+    type: object
 info:
   contact: {}
   description: 文档、标签和文件上传服务。
@@ -462,11 +505,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.EmptyEnvelope'
-        "302":
-          description: 登录成功并返回访问页面
+            $ref: '#/definitions/userModels.LoginResultEnvelope'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.EmptyEnvelope'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/response.EmptyEnvelope'
       summary: 接收 OIDC 回调
@@ -474,7 +519,7 @@ paths:
       - 登录
   /v1/auth/oidc/login:
     get:
-      description: 跳转至登录页面，登录后返回指定页面。
+      description: 获取登录地址，登录后返回指定页面。
       parameters:
       - default: /
         description: 登录后的站内路径
@@ -485,9 +530,11 @@ paths:
         "200":
           description: OK
           schema:
+            $ref: '#/definitions/userModels.LoginURLEnvelope'
+        "400":
+          description: Bad Request
+          schema:
             $ref: '#/definitions/response.EmptyEnvelope'
-        "302":
-          description: 跳转至身份提供方
         "429":
           description: Too Many Requests
           schema:

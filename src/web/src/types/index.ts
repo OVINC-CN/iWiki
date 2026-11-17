@@ -37,6 +37,8 @@ export const credentialSchema = z.object({
     max_file_bytes: z.number().int().positive(),
 });
 export const homeSchema = z.object({ resp: z.string(), user: userSchema });
+export const loginURLSchema = z.object({ authorization_url: z.url() });
+export const loginResultSchema = z.object({ return_to: z.string() });
 export const idSchema = z.object({ id: z.string().min(1) });
 export const docPageSchema = z.object({
     total: z.number().int().nonnegative(), current: z.number().int().positive(),

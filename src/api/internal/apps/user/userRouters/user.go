@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/OVINC-CN/iWiki/src/api/internal/apps/user/userModels"
 	"github.com/OVINC-CN/iWiki/src/api/internal/apps/user/userSvc"
 	"github.com/OVINC-CN/iWiki/src/api/internal/apps/user/userUtils"
 	"github.com/OVINC-CN/iWiki/src/api/internal/config"
@@ -13,11 +14,11 @@ import (
 
 // Login 发起标准 OIDC 授权码流程。
 // @Summary 发起 OIDC 登录
-// @Description 跳转至登录页面，登录后返回指定页面。
+// @Description 获取登录地址，登录后返回指定页面。
 // @Tags 登录
 // @Param return_to query string false "登录后的站内路径" default(/)
-// @Success 200 {object} response.EmptyEnvelope
-// @Success 302 "跳转至身份提供方"
+// @Success 200 {object} userModels.LoginURLEnvelope
+// @Failure 400 {object} response.EmptyEnvelope
 // @Failure 429 {object} response.EmptyEnvelope
 // @Router /v1/auth/oidc/login [get]
 func Login(c echo.Context) error {
@@ -31,7 +32,7 @@ func Login(c echo.Context) error {
 		return err
 	}
 	c.SetCookie(userUtils.Cookie(flowCookie(), browser, config.Config.OIDC.StateTTL))
-	return c.Redirect(http.StatusFound, target)
+	return response.Success(c, userModels.LoginURL{AuthorizationURL: target})
 }
 
 // Callback 接收登录回调。
@@ -40,15 +41,16 @@ func Login(c echo.Context) error {
 // @Param code query string false "授权码，与 error 二选一"
 // @Param state query string true "一次性登录状态"
 // @Param error query string false "身份提供方错误代码"
-// @Success 200 {object} response.EmptyEnvelope
-// @Success 302 "登录成功并返回访问页面"
+// @Success 200 {object} userModels.LoginResultEnvelope
 // @Failure 401 {object} response.EmptyEnvelope
+// @Failure 403 {object} response.EmptyEnvelope
 // @Router /v1/auth/oidc/callback [get]
 func Callback(c echo.Context) error {
 	// 清除登录流程 Cookie。
 	c.SetCookie(userUtils.Cookie(flowCookie(), "", 0))
 	query := c.QueryParams()
-	if len(query["state"]) != 1 || len(query["code"]) > 1 || len(query["error"]) > 1 {
+	if len(query["state"]) != 1 || len(query["code"]) > 1 || len(query["error"]) > 1 ||
+		(len(query["code"]) == 1) == (len(query["error"]) == 1) {
 		return response.Error(http.StatusUnauthorized, "登录回调参数无效")
 	}
 	cookie, err := c.Cookie(flowCookie())
@@ -63,7 +65,7 @@ func Callback(c echo.Context) error {
 		return err
 	}
 	c.SetCookie(userUtils.Cookie(config.Config.Session.CookieName, raw, config.Config.Session.TTL))
-	return c.Redirect(http.StatusFound, target)
+	return response.Success(c, userModels.LoginResult{ReturnTo: target})
 }
 
 // Logout 退出当前本地会话。

@@ -125,5 +125,5 @@ func FinishLogin(
 	if err != nil {
 		return "", "", err
 	}
-	return raw, config.Config.App.FrontendURL + secure.ReturnPath(pending.ReturnTo), nil
+	return raw, secure.ReturnPath(pending.ReturnTo), nil
 }

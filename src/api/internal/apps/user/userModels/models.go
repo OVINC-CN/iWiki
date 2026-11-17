@@ -31,6 +31,20 @@ type Info struct {
 
 type InfoEnvelope struct{ response.Envelope[Info] }
 
+// LoginURL 返回身份提供方的登录地址。
+type LoginURL struct {
+	AuthorizationURL string `json:"authorization_url"` // 登录地址。
+}
+
+type LoginURLEnvelope struct{ response.Envelope[LoginURL] }
+
+// LoginResult 返回登录后的站内路径。
+type LoginResult struct {
+	ReturnTo string `json:"return_to" example:"/docs"` // 登录后的访问路径。
+}
+
+type LoginResultEnvelope struct{ response.Envelope[LoginResult] }
+
 // Session 保存账号和会话有效期。
 type Session struct {
 	Username  string    `json:"username"`   // 当前账号用户名。

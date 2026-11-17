@@ -90,9 +90,8 @@ func (cfg *Settings) validate() error {
 		cfg.OIDC.ClientID == "") {
 		return errors.New("invalid OIDC configuration")
 	}
-	callback, err := url.Parse(cfg.OIDC.RedirectURL)
-	if err != nil || !validURL(cfg.OIDC.RedirectURL, true) ||
-		callback.Path != "/v1/auth/oidc/callback" {
+	if !validURL(cfg.OIDC.RedirectURL, true) ||
+		cfg.OIDC.RedirectURL != cfg.App.FrontendURL+"/login/callback" {
 		return errors.New("invalid OIDC callback URL")
 	}
 	if cfg.OIDC.LoginRate < 1 || cfg.OIDC.StateTTL < time.Second ||

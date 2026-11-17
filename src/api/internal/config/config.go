@@ -78,7 +78,7 @@ func load(filename string) (*Settings, error) {
 	cfg := new(Settings)
 	decoder := yaml.NewDecoder(bytes.NewReader(data), yaml.Strict())
 	if err := decoder.Decode(cfg); err != nil {
-		return nil, errors.New("invalid YAML syntax or fields")
+		return nil, err
 	}
 	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
 		return nil, errors.New("config must contain one YAML document")

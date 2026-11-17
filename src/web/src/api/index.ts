@@ -1,9 +1,10 @@
 import type { AxiosResponse } from 'axios';
 import { z } from 'zod';
-import apiClient from './client';
+import apiClient, { authClient } from './client';
+import type { OIDCCallback } from '@/utils/auth';
 import {
     credentialSchema, docPageSchema, docSchema, envelopeSchema, featureSchema,
-    homeSchema, idSchema, permissionSchema, tagSchema, userSchema,
+    homeSchema, idSchema, loginURLSchema, loginResultSchema, permissionSchema, tagSchema, userSchema,
     type ApiResponse, type EditDocRequest,
 } from '@/types';
 
@@ -21,6 +22,15 @@ async function checked<T extends z.ZodType>(
 export const getHomeInfo = () => checked(apiClient.get('/home'), homeSchema);
 export const getUserInfo = () => checked(apiClient.get('/user-info'), userSchema);
 export const signOut = () => checked(apiClient.post('/auth/logout'), z.null());
+
+export const startOIDCLogin = (returnTo: string) =>
+    checked(authClient.get('/auth/oidc/login', { params: { return_to: returnTo } }), loginURLSchema);
+
+export const completeOIDCLogin = async (params: OIDCCallback) => {
+    const result = await checked(authClient.get('/auth/oidc/callback', { params }), loginResultSchema);
+    await checked(authClient.get('/user-info'), userSchema);
+    return result;
+};
 
 export const getDocs = (params?: {
     page?: number;

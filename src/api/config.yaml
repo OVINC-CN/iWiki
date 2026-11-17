@@ -50,7 +50,7 @@ oidc:
   issuer: ''
   client_id: ''
   client_secret: ''
-  redirect_url: http://localhost:8020/v1/auth/oidc/callback
+  redirect_url: http://localhost:5173/login/callback
   request_timeout: 10s
   state_ttl: 10m
   login_rate: 30

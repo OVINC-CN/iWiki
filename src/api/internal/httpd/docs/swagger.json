@@ -115,14 +115,17 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.EmptyEnvelope"
+                            "$ref": "#/definitions/userModels.LoginResultEnvelope"
                         }
-                    },
-                    "302": {
-                        "description": "登录成功并返回访问页面"
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/response.EmptyEnvelope"
                         }
@@ -132,7 +135,7 @@
         },
         "/v1/auth/oidc/login": {
             "get": {
-                "description": "跳转至登录页面，登录后返回指定页面。",
+                "description": "获取登录地址，登录后返回指定页面。",
                 "tags": [
                     "登录"
                 ],
@@ -150,11 +153,14 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.EmptyEnvelope"
+                            "$ref": "#/definitions/userModels.LoginURLEnvelope"
                         }
                     },
-                    "302": {
-                        "description": "跳转至身份提供方"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyEnvelope"
+                        }
                     },
                     "429": {
                         "description": "Too Many Requests",
@@ -1196,6 +1202,71 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/userModels.Info"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "userModels.LoginResult": {
+            "type": "object",
+            "properties": {
+                "return_to": {
+                    "description": "登录后的访问路径。",
+                    "type": "string",
+                    "example": "/docs"
+                }
+            }
+        },
+        "userModels.LoginResultEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/userModels.LoginResult"
+                        }
+                    ]
+                },
+                "error_msg": {
+                    "description": "错误提示。",
+                    "type": "string",
+                    "example": ""
+                },
+                "trace": {
+                    "description": "请求追踪编号。",
+                    "type": "string",
+                    "example": "4bf92f3577b34da6a3ce929d0e0e4736"
+                }
+            }
+        },
+        "userModels.LoginURL": {
+            "type": "object",
+            "properties": {
+                "authorization_url": {
+                    "description": "登录地址。",
+                    "type": "string"
+                }
+            }
+        },
+        "userModels.LoginURLEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "业务数据。",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/userModels.LoginURL"
                         }
                     ]
                 },

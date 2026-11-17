@@ -8,6 +8,8 @@ import { DocDetail } from '@/pages/DocDetail';
 import { DocEditor } from '@/pages/DocEditor';
 import { Button } from '@/components/ui/button';
 import { Forbidden } from '@/pages/Forbidden';
+import { Login } from '@/pages/Login';
+import { LoginCallback } from '@/pages/LoginCallback';
 import { pagePaths } from '@/routes';
 
 function DocRoute({ edit = false }: { edit?: boolean }) {
@@ -21,14 +23,14 @@ function DocRoute({ edit = false }: { edit?: boolean }) {
     return edit ? <DocEditor key={id} id={id} /> : <DocDetail key={id} id={id} />;
 }
 
-function App() {
+function ProtectedLayout() {
     const { loading, user, error, login, refreshUser } = useApp();
 
     if (loading) {
         return <Loading fullPage text="加载中..." />;
     }
 
-    if (!user && window.location.pathname !== pagePaths.forbidden) {
+    if (!user) {
         return (
             <div className="m-auto flex min-h-screen flex-col items-center justify-center gap-4 p-6">
                 <p role="alert">{error || '请先登录后访问'}</p>
@@ -40,10 +42,16 @@ function App() {
         );
     }
 
+    return <Layout />;
+}
+
+function App() {
     return (
         <Routes>
+            <Route path={pagePaths.login} element={<Login />} />
+            <Route path={pagePaths.loginCallback} element={<LoginCallback />} />
             <Route path={pagePaths.forbidden} element={<Forbidden />} />
-            <Route element={<Layout />}>
+            <Route element={<ProtectedLayout />}>
                 <Route path={pagePaths.home} element={<Home />} />
                 <Route path={pagePaths.docs} element={<DocsList />} />
                 <Route path={pagePaths.docNew} element={<DocEditor />} />

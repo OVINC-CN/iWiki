@@ -6,13 +6,14 @@ import (
 )
 
 func TestReturnPath(t *testing.T) {
-	valid := "/docs/detail?id=文章%201&tab=preview#第二节"
+	valid := "/docs/detail?id=%E6%96%87%E7%AB%A0%201&tab=preview#%E7%AC%AC%E4%BA%8C%E8%8A%82"
 	if ReturnPath(valid) != valid {
 		t.Fatal("Local return paths must preserve queries and fragments")
 	}
 	for _, value := range []string{
 		"https://example.com/", "//example.com/", "/\\example.com/", "/%2fexample.com/",
 		"/%5cexample.com/", "/%0aevil", "/login/callback?code=secret", "/v1/auth/oidc/login",
+		"/login", "/docs/../login", "/login/./callback", "/v1/auth",
 	} {
 		if ReturnPath(value) != "/" {
 			t.Errorf("Unsafe return path accepted: %q", value)

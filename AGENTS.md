@@ -18,6 +18,7 @@
 - 业务接口使用 /v1；JSON 响应仅含 trace、error_msg、data。Swagger 仅在调试模式开放且必须登录。
 - 仅 OIDC 登录、回调和 GET /health、GET /ready 免登录；其他接口默认拒绝未登录访问。探针 data 始终为 null，不披露依赖明细。
 - 仅支持标准 OIDC，可信 issuer 的 sub 精确对应 account_user.username，不按其他声明匹配或授权。新账号默认无业务权限，保留白名单和 is_deleted 检查。
+- 登录页和落地页位于前端 `/login`、`/login/callback`，登录与回调接口返回 JSON，由页面调用；客户端密钥、PKCE 校验值及令牌仅在后端处理。
 - 会话只通过 HttpOnly、SameSite=Lax、Path=/ Cookie 传递，Redis 仅按会话摘要索引；写请求检查来源和 CSRF 头。
 - 保留现有表名、主键、字段、时间维护方式和删除标记，不修改用户表、不新增身份映射表、不自动执行任何 DDL。
 - 文档公开表示所有已登录用户可读，私有文档仅作者可读；编辑和删除限作者。创建和上传分别检查现有 create_doc、upload_file 授权及有效期。
