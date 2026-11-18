@@ -69,10 +69,12 @@ func initializeMySQL() {
 	if err != nil {
 		logger.Logger.Fatal("MySQL client initialization failed")
 	}
+	serverAddress := dsn.Addr
 	if err := database.Use(gormtracing.NewPlugin(
 		gormtracing.WithTracerProvider(tracing.Provider),
 		gormtracing.WithoutQueryVariables(),
 		gormtracing.WithoutMetrics(),
+		gormtracing.WithServerAddressProvider(func(gorm.Dialector) string { return serverAddress }),
 	)); err != nil {
 		logger.Logger.Fatal("MySQL trace initialization failed")
 	}
